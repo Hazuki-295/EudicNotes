@@ -130,15 +130,21 @@ struct ContentView: View {
         return replacePattern(in: input, pattern: pattern, template: template)
     }
 
-    func replaceAngleBrackets(in input: String) -> String {
-        let pattern = "<([^>]*)>"
-        let template = "<span style=\"color: #67A78A; font-weight: bold\">&lt;$1&gt;</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
-    }
-
     func replaceSquareBrackets(in input: String) -> String {
         let pattern = "\\[([^\\]]*)\\]"
         let template = "<span style=\"color: #716197; font-weight: bold;\">[$1]</span>"
+        return replacePattern(in: input, pattern: pattern, template: template)
+    }
+    
+    func replaceSquareBracketsNotes(in input: String) -> String {
+        let pattern = "\\[([^\\]]*)\\]"
+        let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>"
+        return replacePattern(in: input, pattern: pattern, template: template)
+    }
+    
+    func replaceAngleBrackets(in input: String) -> String {
+        let pattern = "<([^>]*)>"
+        let template = "<span style=\"color: #67A78A; font-weight: bold\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
 
@@ -160,20 +166,20 @@ struct ContentView: View {
         var modifiedOriginalText = originalText
         var modifiedNotes = notes
         
+        modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
+        
         if wordPhrase != "" {
             modifiedSource = highlightWord(in: modifiedSource)
             modifiedOriginalText = highlightWord(in: modifiedOriginalText)
         }
-        
         modifiedSource = replacePlusSign(in: modifiedSource)
-        
-        modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
         modifiedOriginalText = replacePlusSign(in: modifiedOriginalText)
         
         if notes != "" {
             modifiedNotes = replaceSlash(in: modifiedNotes)
             modifiedNotes = replacePOS(in: modifiedNotes)
             modifiedNotes = replacePlusSignNotes(in: modifiedNotes)
+            modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             
             modifiedNotes = "[Notes] " + modifiedNotes + "\n\n"
         }
