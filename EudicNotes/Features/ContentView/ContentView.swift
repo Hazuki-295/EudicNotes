@@ -114,7 +114,7 @@ struct ContentView: View {
         }
         .padding()
         .padding(.top, 5)
-        .padding(.bottom, 10)
+        .padding(.bottom, 5)
     }
     
     // Generalized function to replace patterns in a string

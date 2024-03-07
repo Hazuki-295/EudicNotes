@@ -82,6 +82,42 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B37B26612B9A55C80072477F /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26622B9A55CF0072477F /* ContentView */,
+				B37B26632B9A55D40072477F /* Options */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		B37B26622B9A55CF0072477F /* ContentView */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26512B99DCD90072477F /* ComboBox.swift */,
+				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
+				B37B26532B99DF380072477F /* InputHistoryViewModel.swift */,
+			);
+			path = ContentView;
+			sourceTree = "<group>";
+		};
+		B37B26632B9A55D40072477F /* Options */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26552B9A05390072477F /* OptionsView.swift */,
+				B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */,
+			);
+			path = Options;
+			sourceTree = "<group>";
+		};
+		B37B26642B9A55F10072477F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26592B9A263F0072477F /* ClipboardManager.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		B3EDC41E2B98370B006894D1 = {
 			isa = PBXGroup;
 			children = (
@@ -105,16 +141,12 @@
 		B3EDC4292B98370B006894D1 /* EudicNotes */ = {
 			isa = PBXGroup;
 			children = (
-				B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */,
-				B37B26592B9A263F0072477F /* ClipboardManager.swift */,
-				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
-				B37B26512B99DCD90072477F /* ComboBox.swift */,
-				B37B26532B99DF380072477F /* InputHistoryViewModel.swift */,
-				B37B26552B9A05390072477F /* OptionsView.swift */,
-				B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */,
 				B3EDC42E2B98370C006894D1 /* Assets.xcassets */,
 				B3EDC4332B98370C006894D1 /* EudicNotes.entitlements */,
+				B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */,
+				B37B26612B9A55C80072477F /* Features */,
 				B3EDC4302B98370C006894D1 /* Preview Content */,
+				B37B26642B9A55F10072477F /* Utilities */,
 			);
 			path = EudicNotes;
 			sourceTree = "<group>";

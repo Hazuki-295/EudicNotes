@@ -61,7 +61,7 @@ struct OptionsView: View {
         }
         .padding()
         .padding(.top, 10)
-        .padding(.bottom, 10)
+        .padding(.bottom, 15)
     }
     
     func processPassage(input: String, replacements: [String: String]) -> String {
