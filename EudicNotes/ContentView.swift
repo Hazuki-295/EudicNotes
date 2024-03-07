@@ -7,54 +7,104 @@
 
 import SwiftUI
 
+class InputHistoryViewModel: ObservableObject {
+    @Published var history: [String] = []
+    
+    var historyEntryLimit: Int = 15
+    
+    init() {
+        loadHistory()
+    }
+    
+    func loadHistory() {
+        history = UserDefaults.standard.stringArray(forKey: "InputHistory") ?? []
+    }
+    
+    func saveHistory() {
+        UserDefaults.standard.set(history, forKey: "InputHistory")
+    }
+    
+    func addToHistory(newEntry: String) {
+        if !newEntry.isEmpty && !history.contains(newEntry) {
+            history.append(newEntry)
+            history.sort()
+            if history.count > historyEntryLimit {
+                history = Array(history.prefix(historyEntryLimit))
+            }
+            saveHistory()
+        }
+    }
+}
+
 struct ContentView: View {
     @State private var source: String = ""
+    @State private var selectedSourceHistory: String = ""
+    @StateObject private var sourceHistory = InputHistoryViewModel()
+    
+    @State private var selectedTag: String = "#Genshin" // Default selected tag
+    let tagOptions = ["#Genshin", "#IELTS"] // List of tag options
+    
     @State private var originalText: String = ""
     @State private var wordPhrase: String = ""
     @State private var notes: String = ""
     @State private var tags: String = ""
-    @State private var selectedTag: String = "#Genshin" // Default selected tag
-    let tagOptions = ["#Genshin", "#IELTS"] // List of tag options
     @State private var generatedMessage: String = ""
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             // Source
-            HStack {
-                Text("Source:")
-                TextField("Enter Source", text: $source)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            VStack(alignment: .leading, spacing: 8) {
+                Picker("Source History:", selection: $selectedSourceHistory) {
+                    Text("None").tag("")
+                    ForEach(sourceHistory.history, id: \.self) { item in
+                        Text(item).tag(item)
+                    }
+                }
+                .pickerStyle(MenuPickerStyle())
+                .onChange(of: selectedSourceHistory) {
+                    source = selectedSourceHistory
+                }
+                
+                HStack {
+                    Text("Source:")
+                    TextField("Enter Source", text: $source)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .onSubmit {
+                            sourceHistory.addToHistory(newEntry: source)
+                            selectedSourceHistory = source
+                        }
+                }
             }
-
+            
             // Original Text
             HStack {
                 Text("Original Text:")
                 TextEditor(text: $originalText)
-                                .frame(minHeight: 100, maxHeight: .infinity)
-                                .lineSpacing(2)
-                                .padding(5)
-                                .background(Color.white)
-                                .cornerRadius(5)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .stroke(Color.gray, lineWidth: 1)
-                                )
+                    .frame(minHeight: 100, maxHeight: .infinity)
+                    .lineSpacing(2)
+                    .padding(5)
+                    .background(Color.white)
+                    .cornerRadius(5)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 5)
+                            .stroke(Color.gray, lineWidth: 1)
+                    )
             }
-
+            
             // Word or Phrase
             HStack {
                 Text("Word / Phrase:")
                 TextField("Enter Word or Phrase", text: $wordPhrase)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
             }
-
+            
             // Notes
             HStack {
                 Text("Notes:")
                 TextField("Enter Notes", text: $notes)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
             }
-
+            
             // Tags
             Picker("Tags:", selection: $selectedTag) {
                 ForEach(tagOptions, id: \.self) { tag in
@@ -62,7 +112,7 @@ struct ContentView: View {
                 }
             }
             .pickerStyle(MenuPickerStyle())
-
+            
             HStack {
                 // Left-aligned buttons
                 Button("Generate Message") {
@@ -86,20 +136,20 @@ struct ContentView: View {
                     
                 }
             }
-
+            
             Text("Generated Message:").padding(.top, 15)
-
+            
             TextEditor(text: $generatedMessage)
-                            .frame(minHeight: 200, maxHeight: .infinity)
-                            .lineSpacing(2)
-                            .padding(5)
-                            .background(Color.white)
-                            .cornerRadius(5)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 5)
-                                    .stroke(Color.gray, lineWidth: 1)
-                            )
-
+                .frame(minHeight: 200, maxHeight: .infinity)
+                .lineSpacing(2)
+                .padding(5)
+                .background(Color.white)
+                .cornerRadius(5)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(Color.gray, lineWidth: 1)
+                )
+            
             HStack {
                 Button("Copy to Clipboard") {
                     self.copyToClipboard(textToCopy: generatedMessage)
@@ -108,9 +158,10 @@ struct ContentView: View {
                     self.pasteFromClipboard()
                 }
             }
-            .padding(.bottom, 10)
         }
         .padding()
+        .padding(.top, 10)
+        .padding(.bottom, 10)
     }
     
     // Generalized function to replace patterns in a string
@@ -125,7 +176,7 @@ struct ContentView: View {
             return input
         }
     }
-
+    
     func highlightWord(in input: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
         let template = "+$0+"
@@ -137,13 +188,13 @@ struct ContentView: View {
         let template = "<span style=\"color: #35A3FF; font-weight:bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
-
+    
     func replacePlusSignNotes(in input: String) -> String {
         let pattern = "\\+([^\\+]*)\\+"
         let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
-
+    
     func replaceSquareBrackets(in input: String) -> String {
         let pattern = "\\[([^\\]]*)\\]"
         let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>"
@@ -161,13 +212,13 @@ struct ContentView: View {
         let template = "<span style=\"color: #F51225; font-weight: bold\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
-
+    
     func replacePOS(in input: String) -> String {
         let pattern = "\\b(?:noun|verb|adjective|adverb)\\b"
         let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: bold;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
-
+    
     func replaceSlash(in input: String) -> String {
         let pattern = "\\/[A-Za-z]+(?:\\s+[A-Za-z]+)*"
         let template = "<span style=\"color: hotpink; font-weight:bold; font-size:90%; text-transform: uppercase; padding: 0px 2px;\">$0</span>"
@@ -233,14 +284,14 @@ struct ContentView: View {
             }
             return nil
         }
-
+        
         // Extracting and trimming the contents
         source = findAndTrimContents(from: generatedMessage, using: sourcePattern) ?? ""
         originalText = findAndTrimContents(from: generatedMessage, using: originalTextPattern) ?? ""
         notes = findAndTrimContents(from: generatedMessage, using: notesPattern) ?? ""
         wordPhrase = ""
     }
-
+    
     func copyToClipboard(textToCopy: String) {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
@@ -248,12 +299,12 @@ struct ContentView: View {
     }
     
     func pasteFromClipboard() {
-            let pasteboard = NSPasteboard.general
-            if let string = pasteboard.string(forType: .string) {
-                generatedMessage = string
-                self.recognizeMessage()
-            }
+        let pasteboard = NSPasteboard.general
+        if let string = pasteboard.string(forType: .string) {
+            generatedMessage = string
+            self.recognizeMessage()
         }
+    }
 }
 
 #Preview {
