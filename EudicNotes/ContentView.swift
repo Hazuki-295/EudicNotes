@@ -18,6 +18,8 @@ struct ContentView: View {
     @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
     @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
     
+    private let optionsWindowController = OptionsWindowController()
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             // Source
@@ -80,8 +82,8 @@ struct ContentView: View {
                     notes = ""
                     generatedMessage = ""
                 }
-                Button("Option") {
-                    
+                Button("Options") {
+                    optionsWindowController.openOptionsWindow()
                 }
             }
             

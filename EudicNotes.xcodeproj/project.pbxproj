@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		B37B26522B99DCD90072477F /* ComboBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26512B99DCD90072477F /* ComboBox.swift */; };
 		B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26532B99DF380072477F /* InputHistoryViewModel.swift */; };
+		B37B26562B9A05390072477F /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26552B9A05390072477F /* OptionsView.swift */; };
+		B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */; };
 		B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */; };
 		B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42C2B98370B006894D1 /* ContentView.swift */; };
 		B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3EDC42E2B98370C006894D1 /* Assets.xcassets */; };
@@ -38,6 +40,8 @@
 /* Begin PBXFileReference section */
 		B37B26512B99DCD90072477F /* ComboBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboBox.swift; sourceTree = "<group>"; };
 		B37B26532B99DF380072477F /* InputHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHistoryViewModel.swift; sourceTree = "<group>"; };
+		B37B26552B9A05390072477F /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
+		B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsWindowController.swift; sourceTree = "<group>"; };
 		B3EDC4272B98370B006894D1 /* EudicNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EudicNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesApp.swift; sourceTree = "<group>"; };
 		B3EDC42C2B98370B006894D1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -103,6 +107,8 @@
 				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
 				B37B26512B99DCD90072477F /* ComboBox.swift */,
 				B37B26532B99DF380072477F /* InputHistoryViewModel.swift */,
+				B37B26552B9A05390072477F /* OptionsView.swift */,
+				B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */,
 				B3EDC42E2B98370C006894D1 /* Assets.xcassets */,
 				B3EDC4332B98370C006894D1 /* EudicNotes.entitlements */,
 				B3EDC4302B98370C006894D1 /* Preview Content */,
@@ -265,9 +271,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
 				B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */,
 				B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */,
+				B37B26562B9A05390072477F /* OptionsView.swift in Sources */,
 				B37B26522B99DCD90072477F /* ComboBox.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -432,7 +440,7 @@
 				CODE_SIGN_ENTITLEMENTS = EudicNotes/EudicNotes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = v1.0.2;
+				CURRENT_PROJECT_VERSION = v1.0.3;
 				DEVELOPMENT_ASSET_PATHS = "\"EudicNotes/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -459,7 +467,7 @@
 				CODE_SIGN_ENTITLEMENTS = EudicNotes/EudicNotes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = v1.0.2;
+				CURRENT_PROJECT_VERSION = v1.0.3;
 				DEVELOPMENT_ASSET_PATHS = "\"EudicNotes/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
