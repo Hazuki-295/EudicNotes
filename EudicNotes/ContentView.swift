@@ -7,38 +7,8 @@
 
 import SwiftUI
 
-class InputHistoryViewModel: ObservableObject {
-    @Published var history: [String] = []
-    
-    var historyEntryLimit: Int = 15
-    
-    init() {
-        loadHistory()
-    }
-    
-    func loadHistory() {
-        history = UserDefaults.standard.stringArray(forKey: "InputHistory") ?? []
-    }
-    
-    func saveHistory() {
-        UserDefaults.standard.set(history, forKey: "InputHistory")
-    }
-    
-    func addToHistory(newEntry: String) {
-        if !newEntry.isEmpty && !history.contains(newEntry) {
-            history.append(newEntry)
-            history.sort()
-            if history.count > historyEntryLimit {
-                history = Array(history.prefix(historyEntryLimit))
-            }
-            saveHistory()
-        }
-    }
-}
-
 struct ContentView: View {
     @State private var source: String = ""
-    @State private var selectedSourceHistory: String = ""
     @StateObject private var sourceHistory = InputHistoryViewModel()
     
     @State private var selectedTag: String = "#Genshin" // Default selected tag
@@ -53,28 +23,10 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             // Source
-            VStack(alignment: .leading, spacing: 8) {
-                Picker("Source History:", selection: $selectedSourceHistory) {
-                    Text("None").tag("")
-                    ForEach(sourceHistory.history, id: \.self) { item in
-                        Text(item).tag(item)
-                    }
+            ComboBox(text: $source, options: sourceHistory.history)
+                .onSubmit {
+                    sourceHistory.addToHistory(newEntry: source)
                 }
-                .pickerStyle(MenuPickerStyle())
-                .onChange(of: selectedSourceHistory) {
-                    source = selectedSourceHistory
-                }
-                
-                HStack {
-                    Text("Source:")
-                    TextField("Enter Source", text: $source)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .onSubmit {
-                            sourceHistory.addToHistory(newEntry: source)
-                            selectedSourceHistory = source
-                        }
-                }
-            }
             
             // Original Text
             HStack {
