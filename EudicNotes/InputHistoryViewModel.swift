@@ -11,16 +11,19 @@ class InputHistoryViewModel: ObservableObject {
     @Published var history: [String] = []
     let historyEntryLimit: Int = 15
     
-    init() {
+    private let key: String
+    
+    init(variableName: String) {
+        self.key = variableName
         loadHistory()
     }
     
     func loadHistory() {
-        history = UserDefaults.standard.stringArray(forKey: "InputHistory") ?? []
+        history = UserDefaults.standard.stringArray(forKey: key) ?? []
     }
     
     func saveHistory() {
-        UserDefaults.standard.set(history, forKey: "InputHistory")
+        UserDefaults.standard.set(history, forKey: key)
     }
     
     func addToHistory(newEntry: String) {

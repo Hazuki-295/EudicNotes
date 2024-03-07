@@ -9,21 +9,19 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var source: String = ""
-    @StateObject private var sourceHistory = InputHistoryViewModel()
-    
-    @State private var selectedTag: String = "#Genshin" // Default selected tag
-    let tagOptions = ["#Genshin", "#IELTS"] // List of tag options
-    
     @State private var originalText: String = ""
     @State private var wordPhrase: String = ""
     @State private var notes: String = ""
     @State private var tags: String = ""
     @State private var generatedMessage: String = ""
     
+    @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
+    @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             // Source
-            ComboBox(text: $source, options: sourceHistory.history)
+            ComboBox(text: $source, options: sourceHistory.history, label: "Source")
                 .onSubmit {
                     sourceHistory.addToHistory(newEntry: source)
                 }
@@ -58,12 +56,10 @@ struct ContentView: View {
             }
             
             // Tags
-            Picker("Tags:", selection: $selectedTag) {
-                ForEach(tagOptions, id: \.self) { tag in
-                    Text(tag).tag(tag)
+            ComboBox(text: $tags, options: tagsHistory.history, label: "Tags")
+                .onSubmit {
+                    tagsHistory.addToHistory(newEntry: tags)
                 }
-            }
-            .pickerStyle(MenuPickerStyle())
             
             HStack {
                 // Left-aligned buttons
@@ -112,7 +108,7 @@ struct ContentView: View {
             }
         }
         .padding()
-        .padding(.top, 10)
+        .padding(.top, 5)
         .padding(.bottom, 10)
     }
     
@@ -184,6 +180,7 @@ struct ContentView: View {
         var modifiedSource = source
         var modifiedOriginalText = originalText
         var modifiedNotes = notes
+        var modifiedTags = tags
         
         modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
         modifiedOriginalText = replaceSquareBrackets(in: modifiedOriginalText)
@@ -201,7 +198,11 @@ struct ContentView: View {
             modifiedNotes = replacePlusSignNotes(in: modifiedNotes)
             modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             
-            modifiedNotes = String(format: labelTemplate, "Notes") + " " + modifiedNotes + "\n\n"
+            modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
+        }
+        
+        if tags != "" {
+            modifiedTags = "\n\n" + tags
         }
         
         generatedMessage = """
@@ -209,9 +210,7 @@ struct ContentView: View {
         
         \(String(format: labelTemplate, "Original Text"))
         
-        \(modifiedOriginalText)
-        
-        \(modifiedNotes)\(selectedTag)
+        \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
         """
         
         self.copyToClipboard(textToCopy: generatedMessage)

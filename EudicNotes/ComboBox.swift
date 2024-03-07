@@ -10,19 +10,21 @@ import SwiftUI
 struct ComboBox: View {
     @Binding var text: String
     var options: [String]
+    
+    let label: String
     @State private var isPickerVisible = false
     
     var body: some View {
         HStack {
             ZStack {
                 HStack{
-                    Text("Source:")
-                    TextField("Enter Source", text: $text)
+                    Text("\(label):")
+                    TextField("Enter \(label)", text: $text)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 .opacity(isPickerVisible ? 0 : 1)
                 
-                Picker("Source:", selection: $text) {
+                Picker("\(label):", selection: $text) {
                     Text("None").tag("")
                     ForEach(options, id: \.self) { option in
                         Text(option).tag(option)
