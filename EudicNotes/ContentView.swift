@@ -64,12 +64,26 @@ struct ContentView: View {
             .pickerStyle(MenuPickerStyle())
 
             HStack {
+                // Left-aligned buttons
                 Button("Generate Message") {
                     self.generateMessage()
                 }
-                
                 Button("Recognize Message") {
                     self.recognizeMessage()
+                }
+                
+                Spacer()
+                
+                // Right-aligned buttons
+                Button("Clear Fields") {
+                    source = ""
+                    originalText = ""
+                    wordPhrase = ""
+                    notes = ""
+                    generatedMessage = ""
+                }
+                Button("Option") {
+                    
                 }
             }
 
@@ -126,25 +140,25 @@ struct ContentView: View {
 
     func replacePlusSignNotes(in input: String) -> String {
         let pattern = "\\+([^\\+]*)\\+"
-        let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
+        let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
 
     func replaceSquareBrackets(in input: String) -> String {
         let pattern = "\\[([^\\]]*)\\]"
-        let template = "<span style=\"color: #716197; font-weight: bold;\">[$1]</span>"
+        let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSquareBracketsNotes(in input: String) -> String {
         let pattern = "\\[([^\\]]*)\\]"
-        let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>"
+        let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceAngleBrackets(in input: String) -> String {
         let pattern = "<([^>]*)>"
-        let template = "<span style=\"color: #67A78A; font-weight: bold\">$1</span>"
+        let template = "<span style=\"color: #F51225; font-weight: bold\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
 
@@ -161,12 +175,15 @@ struct ContentView: View {
     }
     
     func generateMessage() {
+        let labelTemplate = "<span style=\"color: #716197; font-weight: bold;\">[%@]</span>"
+        
         // Combine the input into a message
         var modifiedSource = source
         var modifiedOriginalText = originalText
         var modifiedNotes = notes
         
         modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
+        modifiedOriginalText = replaceSquareBrackets(in: modifiedOriginalText)
         
         if wordPhrase != "" {
             modifiedSource = highlightWord(in: modifiedSource)
@@ -181,20 +198,19 @@ struct ContentView: View {
             modifiedNotes = replacePlusSignNotes(in: modifiedNotes)
             modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             
-            modifiedNotes = "[Notes] " + modifiedNotes + "\n\n"
+            modifiedNotes = String(format: labelTemplate, "Notes") + " " + modifiedNotes + "\n\n"
         }
         
         generatedMessage = """
-        [Source] \(modifiedSource)
+        \(String(format: labelTemplate, "Source")) \(modifiedSource)
         
-        [Original Text]
+        \(String(format: labelTemplate, "Original Text"))
         
         \(modifiedOriginalText)
         
         \(modifiedNotes)\(selectedTag)
         """
         
-        generatedMessage = replaceSquareBrackets(in: generatedMessage)
         self.copyToClipboard(textToCopy: generatedMessage)
     }
     
