@@ -102,10 +102,13 @@ struct ContentView: View {
             
             HStack {
                 Button("Copy to Clipboard") {
-                    self.copyToClipboard(textToCopy: generatedMessage)
+                    ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
                 }
                 Button("Paste from Clipboard") {
-                    self.pasteFromClipboard()
+                    if let text = ClipboardManager.pasteFromClipboard() {
+                        generatedMessage = text
+                        self.recognizeMessage()
+                    }
                 }
             }
         }
@@ -215,7 +218,7 @@ struct ContentView: View {
         \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
         """
         
-        self.copyToClipboard(textToCopy: generatedMessage)
+        ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
     }
     
     func recognizeMessage() {
@@ -245,19 +248,6 @@ struct ContentView: View {
         wordPhrase = ""
     }
     
-    func copyToClipboard(textToCopy: String) {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(textToCopy, forType: .string)
-    }
-    
-    func pasteFromClipboard() {
-        let pasteboard = NSPasteboard.general
-        if let string = pasteboard.string(forType: .string) {
-            generatedMessage = string
-            self.recognizeMessage()
-        }
-    }
 }
 
 #Preview {

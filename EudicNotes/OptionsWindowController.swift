@@ -15,19 +15,20 @@ class OptionsWindowController: NSObject, NSWindowDelegate {
         if let existingWindow = optionsWindow {
             existingWindow.makeKeyAndOrderFront(nil) // Bring the existing window to the front
         } else {
-            let optionsView = OptionsView()
+            let optionsView = OptionsView() // SwiftUI view
             let hostingController = NSHostingController(rootView: optionsView)
             
+            // Create the window with the hosting controller
             let window = NSWindow(contentViewController: hostingController)
-            window.setContentSize(NSSize(width: 480, height: 300)) // Set your desired window size
             window.makeKeyAndOrderFront(nil)
-            window.center() // Center the window on the screen
             window.title = "Options"
             
+            // Keep a reference to the newly created window
             self.optionsWindow = window
             
+            // Set up for window close detection
             window.isReleasedWhenClosed = false
-            window.delegate = self // Set the window delegate to self
+            window.delegate = self
         }
     }
     
