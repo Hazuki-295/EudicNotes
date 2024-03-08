@@ -11,8 +11,9 @@ struct TrimPassageView: View {
     @State private var originalPassage: String = ""
     @State private var trimedPassage: String = ""
     
-    private let replacements = ["Traveler": "Stella",
-                                "(Traveler)": "Stella",
+    private let replacements = ["(Traveler)": "Stella",
+                                "(Traveler)'s": "Stella's",
+                                "Traveler": "Stella",
                                 "Icon Dialogue Talk": "(Option) Stella:"]
     
     var body: some View {
