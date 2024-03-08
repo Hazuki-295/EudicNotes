@@ -97,9 +97,7 @@ struct MainView: View {
                     ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
                 }) {
                     Image(systemName: "doc.on.doc")
-                    HStack {
-                        Text("Copy to Clipboard")
-                    }
+                    Text("Copy to Clipboard")
                 }
                 Button(action: {
                     if let text = ClipboardManager.pasteFromClipboard() {
@@ -108,9 +106,7 @@ struct MainView: View {
                     }
                 }) {
                     Image(systemName: "doc.on.clipboard")
-                    HStack {
-                        Text("Paste from Clipboard")
-                    }
+                    Text("Paste from Clipboard")
                 }
             }
         }

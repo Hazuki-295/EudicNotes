@@ -50,5 +50,4 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .frame(minWidth: 700, maxWidth: 850, minHeight: 700, maxHeight: 750)
 }

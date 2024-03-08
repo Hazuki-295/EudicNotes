@@ -16,9 +16,9 @@ struct TrimPassageView: View {
                                 "Icon Dialogue Talk": "(Option) Stella:"]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .leading, spacing: 10) {
             Label("Original Passage:", systemImage: "book.pages")
-            CustomTextEditor(text: $originalPassage)
+            CustomTextEditor(text: $originalPassage, minWidth: 480, minHeight: 270)
             
             HStack {
                 Button(action: {
@@ -29,23 +29,19 @@ struct TrimPassageView: View {
                     }
                 }) {
                     Image(systemName: "doc.on.clipboard")
-                    HStack {
-                        Text("Paste from Clipboard")
-                    }
+                    Text("Paste from Clipboard")
                 }
                 Button(action: {
                     trimedPassage = processPassage(input: originalPassage, replacements: replacements)
                     ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
                 }) {
                     Image(systemName: "crop")
-                    HStack {
-                        Text("Trim Passage")
-                    }
+                    Text("Trim Passage")
                 }
             }
             
-            Label("Trimed Passage:", systemImage: "wand.and.stars").padding(.top, 20)
-            CustomTextEditor(text: $trimedPassage, minHeight: 200)
+            Label("Trimed Passage:", systemImage: "wand.and.stars").padding(.top, 10)
+            CustomTextEditor(text: $trimedPassage, minWidth: 480, minHeight: 270)
             
             Button(action: {
                 ClipboardManager.copyToClipboard(textToCopy: trimedPassage)

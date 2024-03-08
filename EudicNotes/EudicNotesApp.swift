@@ -12,7 +12,7 @@ struct EudicNotesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 700, maxWidth: 850, minHeight: 700, maxHeight: 750)
+                .frame(minWidth: 620, minHeight: 840)
         }
         .windowResizability(.contentSize)
     }
