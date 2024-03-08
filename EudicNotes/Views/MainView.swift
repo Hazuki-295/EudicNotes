@@ -31,8 +31,20 @@ struct MainView: View {
             
             // Original Text
             HStack {
-                Image(systemName: "book")
-                Text("Original Text:")
+                VStack() {
+                    HStack {
+                        Image(systemName: "book")
+                        Text("Original Text:")
+                    }
+                    Button(action: {
+                        if let text = ClipboardManager.pasteFromClipboard() {
+                            originalText = text
+                        }
+                    }) {
+                        Image(systemName: "doc.on.clipboard")
+                        Text("Paste")
+                    }
+                }
                 CustomTextEditor(text: $originalText)
             }
             
