@@ -15,8 +15,7 @@ struct SingleNotesView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Label(label, systemImage: systemImage)
-                .foregroundColor(labelColor)
+            Label(label, systemImage: systemImage).foregroundColor(labelColor)
             CustomTextEditor(text: $noteText, minWidth: 480)
             HStack {
                 Button(action: {
@@ -42,15 +41,42 @@ struct CombineNotesView: View {
     @State private var note2: String = ""
     @State private var note3: String = ""
     @State private var note4: String = ""
+    @State private var combinedNotes: String = ""
+    
+    private let separator:String = "\n<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0; margin-left: 0; margin-right: 0;\">"
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            SingleNotesView(noteText: $note1, label: "First Notes", systemImage: "note.text", labelColor: .brown)
-            SingleNotesView(noteText: $note2, label: "Second Notes", systemImage: "2.square", labelColor: .purple)
-            SingleNotesView(noteText: $note3, label: "Third Notes", systemImage: "3.square", labelColor: .blue)
-            SingleNotesView(noteText: $note4, label: "Fourth Notes", systemImage: "4.square", labelColor: .red)
+        GeometryReader { geometry in
+            ZStack(alignment: .topTrailing) {
+                VStack(alignment: .leading, spacing: 15) {
+                    SingleNotesView(noteText: $note1, label: "First Notes", systemImage: "note.text", labelColor: .brown).padding(.top, 4)
+                    SingleNotesView(noteText: $note2, label: "Second Notes", systemImage: "2.square", labelColor: .purple)
+                    SingleNotesView(noteText: $note3, label: "Third Notes", systemImage: "3.square", labelColor: .blue)
+                    SingleNotesView(noteText: $note4, label: "Fourth Notes", systemImage: "4.square", labelColor: .red)
+                }
+                
+                Button(action: {
+                    note1 = ""
+                    note2 = ""
+                    note3 = ""
+                    note4 = ""
+                }) {
+                    Image(systemName: "eraser.line.dashed")
+                    Text("Clear All")
+                }
+                
+                Button(action: {
+                    let notes = [note1, note2, note3, note4]
+                    combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
+                    ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
+                }) {
+                    Image(systemName: "book").foregroundColor(.brown)
+                    Text("Combine Notes")
+                }
+                .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
+            }
+            .padding()
         }
-        .padding()
     }
 }
 
