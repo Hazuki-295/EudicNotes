@@ -8,6 +8,24 @@
 import SwiftUI
 
 struct OptionsView: View {
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+            
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
+        }
+        .frame(minWidth: 500, maxWidth: 550, minHeight: 600, maxHeight: 650)
+        .padding()
+    }
+}
+
+struct HomeView: View {
     @State private var originalMessage: String = ""
     @State private var generatedMessage: String = ""
     
@@ -19,8 +37,6 @@ struct OptionsView: View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Original Message:")
             TextEditor(text: $originalMessage)
-                .frame(minWidth: 500, maxWidth: 550,
-                       minHeight: 200, maxHeight: 275)
                 .lineSpacing(2)
                 .padding(5)
                 .background(Color.white)
@@ -45,8 +61,6 @@ struct OptionsView: View {
             
             Text("Generated Message:").padding(.top, 10)
             TextEditor(text: $generatedMessage)
-                .frame(minWidth: 500, maxWidth: 550,
-                       minHeight: 200, maxHeight: 275)
                 .lineSpacing(2)
                 .padding(5)
                 .background(Color.white)
@@ -60,8 +74,6 @@ struct OptionsView: View {
             }
         }
         .padding()
-        .padding(.top, 10)
-        .padding(.bottom, 15)
     }
     
     func processPassage(input: String, replacements: [String: String]) -> String {
@@ -87,6 +99,16 @@ struct OptionsView: View {
         // Step 3: Join all processed lines with two newlines between each line
         let result = processedLines.joined(separator: "\n\n")
         return result
+    }
+}
+
+struct SettingsView: View {
+    var body: some View {
+        
+        VStack {
+            
+        }
+        
     }
 }
 
