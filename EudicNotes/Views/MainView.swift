@@ -1,13 +1,13 @@
 //
-//  ContentView.swift
+//  MainView.swift
 //  EudicNotes
 //
-//  Created by 叶月 on 2024/3/6.
+//  Created by 叶月 on 2024/3/8.
 //
 
 import SwiftUI
 
-struct ContentView: View {
+struct MainView: View {
     @State private var source: String = ""
     @State private var originalText: String = ""
     @State private var wordPhrase: String = ""
@@ -23,28 +23,22 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
             // Source
-            ComboBox(text: $source, options: sourceHistory.history, label: "Source")
-                .onSubmit {
-                    sourceHistory.addToHistory(newEntry: source)
-                }
+            HStack {
+                Image(systemName: "text.book.closed")
+                ComboBox(text: $source, options: sourceHistory.history, label: "Source")
+                    .onSubmit {sourceHistory.addToHistory(newEntry: source)}
+            }
             
             // Original Text
             HStack {
+                Image(systemName: "book")
                 Text("Original Text:")
-                TextEditor(text: $originalText)
-                    .frame(minHeight: 100, maxHeight: .infinity)
-                    .lineSpacing(2)
-                    .padding(5)
-                    .background(Color.white)
-                    .cornerRadius(5)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke(Color.gray, lineWidth: 1)
-                    )
+                CustomTextEditor(text: $originalText)
             }
             
             // Word or Phrase
             HStack {
+                Image(systemName: "highlighter")
                 Text("Word / Phrase:")
                 TextField("Enter Word or Phrase", text: $wordPhrase)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -52,19 +46,20 @@ struct ContentView: View {
             
             // Notes
             HStack {
+                Image(systemName: "bookmark")
                 Text("Notes:")
                 TextField("Enter Notes", text: $notes)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
             }
             
             // Tags
-            ComboBox(text: $tags, options: tagsHistory.history, label: "Tags")
-                .onSubmit {
-                    tagsHistory.addToHistory(newEntry: tags)
-                }
+            HStack {
+                Image(systemName: "tag")
+                ComboBox(text: $tags, options: tagsHistory.history, label: "Tags")
+                    .onSubmit {tagsHistory.addToHistory(newEntry: tags)}
+            }
             
             HStack {
-                // Left-aligned buttons
                 Button("Generate Message") {
                     self.generateMessage()
                 }
@@ -74,40 +69,47 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                // Right-aligned buttons
-                Button("Clear Fields") {
-                    source = ""
-                    originalText = ""
-                    wordPhrase = ""
-                    notes = ""
-                    generatedMessage = ""
+                
+                Button(action: {self.clearFields()}){
+                    HStack {
+                        Image(systemName: "eraser.line.dashed")
+                        Text("Clear")
+                    }
                 }
-                Button("Options") {
-                    optionsWindowController.openOptionsWindow()
+                Button(action: {optionsWindowController.openOptionsWindow()}) {
+                    HStack {
+                        Image(systemName: "gearshape")
+                        Text("Options")
+                    }
                 }
             }
             
-            Text("Generated Message:").padding(.top, 15)
+            HStack {
+                Image(systemName: "note.text")
+                Text("Generated Notes:")
+            }
+            .padding(.top, 5)
             
-            TextEditor(text: $generatedMessage)
-                .frame(minHeight: 200, maxHeight: .infinity)
-                .lineSpacing(2)
-                .padding(5)
-                .background(Color.white)
-                .cornerRadius(5)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(Color.gray, lineWidth: 1)
-                )
+            CustomTextEditor(text: $generatedMessage, minHeight: 200)
             
             HStack {
-                Button("Copy to Clipboard") {
+                Button(action: {
                     ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
+                }) {
+                    Image(systemName: "doc.on.doc")
+                    HStack {
+                        Text("Copy to Clipboard")
+                    }
                 }
-                Button("Paste from Clipboard") {
+                Button(action: {
                     if let text = ClipboardManager.pasteFromClipboard() {
                         generatedMessage = text
                         self.recognizeMessage()
+                    }
+                }) {
+                    Image(systemName: "doc.on.clipboard")
+                    HStack {
+                        Text("Paste from Clipboard")
                     }
                 }
             }
@@ -248,8 +250,16 @@ struct ContentView: View {
         wordPhrase = ""
     }
     
+    func clearFields() {
+        source = ""
+        originalText = ""
+        wordPhrase = ""
+        notes = ""
+        tags = ""
+        generatedMessage = ""
+    }
 }
 
 #Preview {
-    ContentView()
+    MainView()
 }

@@ -12,6 +12,10 @@
 		B37B26562B9A05390072477F /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26552B9A05390072477F /* OptionsView.swift */; };
 		B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */; };
 		B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26592B9A263F0072477F /* ClipboardManager.swift */; };
+		B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A860592B9B021800542E8D /* TrimPassageView.swift */; };
+		B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605B2B9B022700542E8D /* CombineNotesView.swift */; };
+		B3A8605E2B9B041F00542E8D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605D2B9B041F00542E8D /* MainView.swift */; };
+		B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */; };
 		B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */; };
 		B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42C2B98370B006894D1 /* ContentView.swift */; };
 		B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3EDC42E2B98370C006894D1 /* Assets.xcassets */; };
@@ -44,6 +48,10 @@
 		B37B26552B9A05390072477F /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
 		B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsWindowController.swift; sourceTree = "<group>"; };
 		B37B26592B9A263F0072477F /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
+		B3A860592B9B021800542E8D /* TrimPassageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrimPassageView.swift; sourceTree = "<group>"; };
+		B3A8605B2B9B022700542E8D /* CombineNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineNotesView.swift; sourceTree = "<group>"; };
+		B3A8605D2B9B041F00542E8D /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		B3EDC4272B98370B006894D1 /* EudicNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EudicNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesApp.swift; sourceTree = "<group>"; };
 		B3EDC42C2B98370B006894D1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -82,32 +90,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B37B26612B9A55C80072477F /* Features */ = {
+		B37B26612B9A55C80072477F /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				B37B26622B9A55CF0072477F /* ContentView */,
-				B37B26632B9A55D40072477F /* Options */,
-			);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		B37B26622B9A55CF0072477F /* ContentView */ = {
-			isa = PBXGroup;
-			children = (
-				B37B26512B99DCD90072477F /* ComboBox.swift */,
 				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
-				B37B26532B99DF380072477F /* InputHistoryViewModel.swift */,
-			);
-			path = ContentView;
-			sourceTree = "<group>";
-		};
-		B37B26632B9A55D40072477F /* Options */ = {
-			isa = PBXGroup;
-			children = (
+				B3A8605D2B9B041F00542E8D /* MainView.swift */,
 				B37B26552B9A05390072477F /* OptionsView.swift */,
-				B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */,
+				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
+				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
 			);
-			path = Options;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		B37B26642B9A55F10072477F /* Utilities */ = {
@@ -116,6 +108,31 @@
 				B37B26592B9A263F0072477F /* ClipboardManager.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		B3A860562B9B01A000542E8D /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26532B99DF380072477F /* InputHistoryViewModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B3A860572B9B01B500542E8D /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		B3A860582B9B01CD00542E8D /* UIComponents */ = {
+			isa = PBXGroup;
+			children = (
+				B37B26512B99DCD90072477F /* ComboBox.swift */,
+				B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */,
+			);
+			path = UIComponents;
 			sourceTree = "<group>";
 		};
 		B3EDC41E2B98370B006894D1 = {
@@ -144,9 +161,12 @@
 				B3EDC42E2B98370C006894D1 /* Assets.xcassets */,
 				B3EDC4332B98370C006894D1 /* EudicNotes.entitlements */,
 				B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */,
-				B37B26612B9A55C80072477F /* Features */,
-				B3EDC4302B98370C006894D1 /* Preview Content */,
+				B3A860562B9B01A000542E8D /* Models */,
+				B3A860582B9B01CD00542E8D /* UIComponents */,
 				B37B26642B9A55F10072477F /* Utilities */,
+				B3A860572B9B01B500542E8D /* ViewControllers */,
+				B37B26612B9A55C80072477F /* Views */,
+				B3EDC4302B98370C006894D1 /* Preview Content */,
 			);
 			path = EudicNotes;
 			sourceTree = "<group>";
@@ -306,12 +326,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */,
 				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
+				B3A8605E2B9B041F00542E8D /* MainView.swift in Sources */,
 				B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */,
+				B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */,
 				B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */,
 				B37B26562B9A05390072477F /* OptionsView.swift in Sources */,
 				B37B26522B99DCD90072477F /* ComboBox.swift in Sources */,
+				B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */,
 				B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

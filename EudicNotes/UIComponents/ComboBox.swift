@@ -9,9 +9,9 @@ import SwiftUI
 
 struct ComboBox: View {
     @Binding var text: String
-    var options: [String]
-    
+    let options: [String]
     let label: String
+    
     @State private var isPickerVisible = false
     
     var body: some View {
@@ -39,11 +39,7 @@ struct ComboBox: View {
                 }
             }
             
-            Button(action: {
-                withAnimation {
-                    isPickerVisible.toggle()
-                }
-            }) {
+            Button(action: {withAnimation {isPickerVisible.toggle()}}) {
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(isPickerVisible ? 180 : 0))
             }
