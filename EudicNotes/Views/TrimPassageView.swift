@@ -43,7 +43,7 @@ struct TrimPassageView: View {
             Label("Trimed Passage:", systemImage: "note.text.badge.plus")
                 .foregroundColor(.purple)
                 .padding(.top, 10)
-            CustomTextEditor(text: $trimedPassage, minHeight: 200)
+            CustomTextEditor(text: $trimedPassage)
             
             Button(action: {
                 ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
