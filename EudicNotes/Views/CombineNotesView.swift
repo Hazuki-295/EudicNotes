@@ -16,7 +16,7 @@ struct SingleNotesView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Label(label, systemImage: systemImage).foregroundColor(labelColor)
-            CustomTextEditor(text: $noteText, minWidth: 480)
+            CustomTextEditor(text: $noteText)
             HStack {
                 Button(action: {
                     if let text = ClipboardManager.pasteFromClipboard() {
@@ -49,7 +49,7 @@ struct CombineNotesView: View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 15) {
-                    SingleNotesView(noteText: $note1, label: "First Notes", systemImage: "note.text", labelColor: .brown).padding(.top, 4)
+                    SingleNotesView(noteText: $note1, label: "First Notes", systemImage: "note.text", labelColor: .brown).padding(.top, 2)
                     SingleNotesView(noteText: $note2, label: "Second Notes", systemImage: "2.square", labelColor: .purple)
                     SingleNotesView(noteText: $note3, label: "Third Notes", systemImage: "3.square", labelColor: .blue)
                     SingleNotesView(noteText: $note4, label: "Fourth Notes", systemImage: "4.square", labelColor: .red)
@@ -70,12 +70,15 @@ struct CombineNotesView: View {
                     combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
                     ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
                 }) {
-                    Image(systemName: "book").foregroundColor(.brown)
-                    Text("Combine Notes")
+                    Image(systemName: "book").foregroundColor(.indigo)
+                    Text("Combine Notes").foregroundColor(.indigo)
                 }
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
             }
-            .padding()
+            .padding(.top, 5)
+            .padding(.bottom)
+            .padding(.leading)
+            .padding(.trailing)
         }
     }
 }

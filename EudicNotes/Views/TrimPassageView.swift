@@ -17,8 +17,8 @@ struct TrimPassageView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Original Passage:", systemImage: "book.pages")
-            CustomTextEditor(text: $originalPassage, minWidth: 480, minHeight: 270)
+            Label("Original Passage:", systemImage: "note.text").foregroundColor(.brown)
+            CustomTextEditor(text: $originalPassage)
             
             HStack {
                 Button(action: {
@@ -29,30 +29,33 @@ struct TrimPassageView: View {
                     }
                 }) {
                     Image(systemName: "doc.on.clipboard")
-                    Text("Paste from Clipboard")
+                    Text("Paste")
                 }
                 Button(action: {
                     trimedPassage = processPassage(input: originalPassage, replacements: replacements)
                     ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
                 }) {
-                    Image(systemName: "crop")
-                    Text("Trim Passage")
+                    Image(systemName: "scissors").foregroundColor(.indigo)
+                    Text("Trim Passage").foregroundColor(.indigo)
                 }
             }
             
-            Label("Trimed Passage:", systemImage: "wand.and.stars").padding(.top, 10)
-            CustomTextEditor(text: $trimedPassage, minWidth: 480, minHeight: 270)
+            Label("Trimed Passage:", systemImage: "note.text.badge.plus")
+                .foregroundColor(.purple)
+                .padding(.top, 10)
+            CustomTextEditor(text: $trimedPassage, minHeight: 200)
             
             Button(action: {
                 ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
             }) {
                 Image(systemName: "doc.on.doc")
-                HStack {
-                    Text("Copy to Clipboard")
-                }
+                Text("Copy to Clipboard")
             }
         }
-        .padding()
+        .padding(.top, 5)
+        .padding(.bottom)
+        .padding(.leading)
+        .padding(.trailing)
     }
     
     func processPassage(input: String, replacements: [String: String]) -> String {
