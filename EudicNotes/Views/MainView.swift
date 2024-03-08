@@ -249,7 +249,7 @@ struct MainView: View {
         originalText = ""
         wordPhrase = ""
         notes = ""
-        tags = ""
+        //tags = ""
         generatedMessage = ""
     }
 }

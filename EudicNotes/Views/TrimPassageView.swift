@@ -16,21 +16,41 @@ struct TrimPassageView: View {
                                 "Icon Dialogue Talk": "(Option) Stella:"]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label("Original Passage:", systemImage: "note.text").foregroundColor(.brown)
-            CustomTextEditor(text: $originalPassage)
-            
-            HStack {
-                Button(action: {
-                    if let text = ClipboardManager.pasteFromClipboard() {
-                        originalPassage = text
-                        trimedPassage = processPassage(input: originalPassage, replacements: replacements)
-                        ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
+        GeometryReader { geometry in
+            ZStack(alignment: .topTrailing) {
+                VStack(alignment: .leading, spacing: 15) {
+                    VStack(alignment: .leading) {
+                        Label("Original Passage:", systemImage: "note.text").foregroundColor(.brown)
+                        CustomTextEditor(text: $originalPassage)
+                        
+                        Button(action: {
+                            if let text = ClipboardManager.pasteFromClipboard() {
+                                originalPassage = text
+                                trimedPassage = processPassage(input: originalPassage, replacements: replacements)
+                                ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
+                            }
+                        }) {
+                            Image(systemName: "doc.on.clipboard")
+                            Text("Paste from Clipboard")
+                        }
                     }
-                }) {
-                    Image(systemName: "doc.on.clipboard")
-                    Text("Paste")
+                    .padding(.bottom, 10)
+                    
+                    VStack(alignment: .leading) {
+                        Label("Trimed Passage:", systemImage: "note.text.badge.plus")
+                            .foregroundColor(.purple)
+                        CustomTextEditor(text: $trimedPassage)
+                        
+                        Button(action: {
+                            ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
+                        }) {
+                            Image(systemName: "doc.on.doc")
+                            Text("Copy to Clipboard")
+                        }
+                    }
                 }
+                .padding(.top, 5)
+                
                 Button(action: {
                     trimedPassage = processPassage(input: originalPassage, replacements: replacements)
                     ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
@@ -38,24 +58,13 @@ struct TrimPassageView: View {
                     Image(systemName: "scissors").foregroundColor(.indigo)
                     Text("Trim Passage").foregroundColor(.indigo)
                 }
+                .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
             }
-            
-            Label("Trimed Passage:", systemImage: "note.text.badge.plus")
-                .foregroundColor(.purple)
-                .padding(.top, 10)
-            CustomTextEditor(text: $trimedPassage)
-            
-            Button(action: {
-                ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
-            }) {
-                Image(systemName: "doc.on.doc")
-                Text("Copy to Clipboard")
-            }
+            .padding(.top, 5)
+            .padding(.bottom)
+            .padding(.leading)
+            .padding(.trailing)
         }
-        .padding(.top, 5)
-        .padding(.bottom)
-        .padding(.leading)
-        .padding(.trailing)
     }
     
     func processPassage(input: String, replacements: [String: String]) -> String {
