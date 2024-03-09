@@ -146,23 +146,17 @@ struct MainView: View {
     
     func replacePlusSign(in input: String) -> String {
         let pattern = #"\+([^\+]*)\+"#
-        let template = "<span style=\"color: #35A3FF; font-weight:bold;\">$1</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
-    }
-    
-    func replacePlusSignNotes(in input: String) -> String {
-        let pattern = #"\+([^\+]*)\+"#
-        let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>"
+        let template = "<span style=\"color: #35A3FF; font-weight:bold;\">$1</span>" // light blue
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSquareBrackets(in input: String) -> String {
         let pattern = #"\[([^\]]*)\]"#
-        let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>"
+        let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
-    func replaceSquareBracketsNotes(in input: String) -> String {
+    func replaceSquareBracketsNotes(in input: String) -> String { // special style
         let pattern = #"\[([^\]]*)\]"#
         let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
@@ -170,50 +164,64 @@ struct MainView: View {
     
     func replaceAngleBrackets(in input: String) -> String {
         let pattern = "<([^>]*)>"
-        let template = "<span style=\"color: #F51225; font-weight: bold\">$1</span>"
+        let template = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
-    func replacePOS(in input: String) -> String {
+    func replaceAngleBracketsNotes(in input: String) -> String {
+        let pattern = "<([^>]*)>"
+        let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>" // dark blue
+        return replacePattern(in: input, pattern: pattern, template: template)
+    }
+    
+    func replacePOS(in input: String) -> String { // special style, dark red
         let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
         let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: bold;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
-    func replaceSlash(in input: String) -> String {
-        let pattern = #"\/[A-Za-z]+(?:\s+[A-Za-z]+)*"#
+    func replaceSlash(in input: String) -> String { // special style, hotpink
+        let pattern = #"(?<![<])/[A-Za-z]+(?:\s+[A-Za-z]+)*"#
         let template = "<span style=\"color: hotpink; font-weight:bold; font-size:90%; text-transform: uppercase; padding: 0px 2px;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func generateMessage() {
-        let labelTemplate = "<span style=\"color: #716197; font-weight: bold;\">[%@]</span>"
-        
         // Combine the input into a message
+        let labelTemplate = "<span style=\"color: #716197; font-weight: bold;\">[%@]</span>" // purple
+        
+        // Source
         var modifiedSource = source
-        var modifiedOriginalText = originalText
-        var modifiedNotes = notes
-        var modifiedTags = tags
-        
-        modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
-        modifiedOriginalText = replaceSquareBrackets(in: modifiedOriginalText)
-        
         if wordPhrase != "" {
             modifiedSource = highlightWord(in: modifiedSource)
-            modifiedOriginalText = highlightWord(in: modifiedOriginalText)
         }
         modifiedSource = replacePlusSign(in: modifiedSource)
-        modifiedOriginalText = replacePlusSign(in: modifiedOriginalText)
         
+        // Original Text
+        var modifiedOriginalText = originalText
+        modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
+        
+        if wordPhrase != "" {
+            modifiedOriginalText = highlightWord(in: modifiedOriginalText)
+        }
+        modifiedOriginalText = replacePlusSign(in: modifiedOriginalText)
+        modifiedOriginalText = replaceSquareBrackets(in: modifiedOriginalText)
+        
+        // Notes
+        var modifiedNotes = notes
         if notes != "" {
+            modifiedNotes = replaceAngleBracketsNotes(in: modifiedNotes)
+            
             modifiedNotes = replaceSlash(in: modifiedNotes)
             modifiedNotes = replacePOS(in: modifiedNotes)
-            modifiedNotes = replacePlusSignNotes(in: modifiedNotes)
+            modifiedNotes = replacePlusSign(in: modifiedNotes)
             modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             
             modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
         }
         
+        // Tags
+        var modifiedTags = tags
         if tags != "" {
             modifiedTags = "\n\n" + tags
         }
@@ -234,26 +242,28 @@ struct MainView: View {
         let sourcePattern = #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#
         let originalTextPattern = #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#)"#
         let notesPattern = #"\[Notes\]\s*([\s\S]+?)\s*#"#
+        let tagsPattern = "#[A-Za-z]+"
         
         // Function to find and trim contents using a regular expression pattern
-        func findAndTrimContents(from text: String, using pattern: String) -> String? {
+        func findAndTrim(from text: String, using pattern: String, n: Int = 1) -> String? {
             let regex = try? NSRegularExpression(pattern: pattern, options: [])
             let nsRange = NSRange(text.startIndex..<text.endIndex, in: text)
             guard let match = regex?.firstMatch(in: text, options: [], range: nsRange) else {
                 return nil
             }
             
-            if let range = Range(match.range(at: 1), in: text) {
+            if let range = Range(match.range(at: n), in: text) {
                 return String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
             }
             return nil
         }
         
         // Extracting and trimming the contents
-        source = findAndTrimContents(from: generatedMessage, using: sourcePattern) ?? ""
-        originalText = findAndTrimContents(from: generatedMessage, using: originalTextPattern) ?? ""
-        notes = findAndTrimContents(from: generatedMessage, using: notesPattern) ?? ""
+        source = findAndTrim(from: generatedMessage, using: sourcePattern) ?? ""
+        originalText = findAndTrim(from: generatedMessage, using: originalTextPattern) ?? ""
         wordPhrase = ""
+        notes = findAndTrim(from: generatedMessage, using: notesPattern) ?? ""
+        tags = findAndTrim(from: generatedMessage, using: tagsPattern, n: 0) ?? ""
     }
     
     func clearFields() {
