@@ -145,25 +145,25 @@ struct MainView: View {
     }
     
     func replacePlusSign(in input: String) -> String {
-        let pattern = "\\+([^\\+]*)\\+"
+        let pattern = #"\+([^\+]*)\+"#
         let template = "<span style=\"color: #35A3FF; font-weight:bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replacePlusSignNotes(in input: String) -> String {
-        let pattern = "\\+([^\\+]*)\\+"
+        let pattern = #"\+([^\+]*)\+"#
         let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSquareBrackets(in input: String) -> String {
-        let pattern = "\\[([^\\]]*)\\]"
+        let pattern = #"\[([^\]]*)\]"#
         let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSquareBracketsNotes(in input: String) -> String {
-        let pattern = "\\[([^\\]]*)\\]"
+        let pattern = #"\[([^\]]*)\]"#
         let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
@@ -175,13 +175,13 @@ struct MainView: View {
     }
     
     func replacePOS(in input: String) -> String {
-        let pattern = "\\b(?:noun|verb|adjective|adverb)\\b"
+        let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
         let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: bold;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSlash(in input: String) -> String {
-        let pattern = "\\/[A-Za-z]+(?:\\s+[A-Za-z]+)*"
+        let pattern = #"\/[A-Za-z]+(?:\s+[A-Za-z]+)*"#
         let template = "<span style=\"color: hotpink; font-weight:bold; font-size:90%; text-transform: uppercase; padding: 0px 2px;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
@@ -231,9 +231,9 @@ struct MainView: View {
     
     func recognizeMessage() {
         // Regular expression patterns for capturing the contents, adjusted for multiline capture
-        let sourcePattern = "\\[Source\\]\\s*([\\s\\S]+?)\\s*(?=\\[Original Text\\])"
-        let originalTextPattern = "\\[Original Text\\]\\s*([\\s\\S]+?)\\s*(?=\\[Notes\\]|#)"
-        let notesPattern = "\\[Notes\\]\\s*([\\s\\S]+?)\\s*#"
+        let sourcePattern = #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#
+        let originalTextPattern = #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#)"#
+        let notesPattern = #"\[Notes\]\s*([\s\S]+?)\s*#"#
         
         // Function to find and trim contents using a regular expression pattern
         func findAndTrimContents(from text: String, using pattern: String) -> String? {
