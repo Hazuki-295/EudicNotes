@@ -146,7 +146,7 @@ struct MainView: View {
     
     func replacePlusSign(in input: String) -> String {
         let pattern = #"\+([^\+]*)\+"#
-        let template = "<span style=\"color: #35A3FF; font-weight:bold;\">$1</span>" // light blue
+        let template = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
@@ -156,7 +156,7 @@ struct MainView: View {
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
-    func replaceSquareBracketsNotes(in input: String) -> String { // special style
+    func replaceSquareBracketsNotes(in input: String) -> String { // signpost, special style
         let pattern = #"\[([^\]]*)\]"#
         let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
@@ -176,19 +176,19 @@ struct MainView: View {
     
     func replacePOS(in input: String) -> String { // special style, dark red
         let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
-        let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: bold;\">$0</span>"
+        let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-size: 85%; font-style: italic; font-weight: bold; margin: 0 2px;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSlash(in input: String) -> String { // special style, hotpink
         let pattern = #"(?<![<])/[A-Za-z]+(?:\s+[A-Za-z]+)*"#
-        let template = "<span style=\"color: hotpink; font-weight:bold; font-size:90%; text-transform: uppercase; padding: 0px 2px;\">$0</span>"
+        let template = "<span style=\"color: hotpink; font-weight: bold; font-size: 80%; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func generateMessage() {
         // Combine the input into a message
-        let labelTemplate = "<span style=\"color: #716197; font-weight: bold;\">[%@]</span>" // purple
+        let labelTemplate = "<span style=\"font-family: Times; color: #716197; font-weight: bold;\">[%@]</span>" // purple
         
         // Source
         var modifiedSource = source
@@ -233,6 +233,7 @@ struct MainView: View {
         
         \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
         """
+        generatedMessage = "<span style=\"font-family: optima, arial, helvetica, sans-serif; font-size: 16px;\">" + generatedMessage + "</span>"
         
         ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
     }
