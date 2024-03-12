@@ -60,8 +60,7 @@ struct MainView: View {
             HStack {
                 Image(systemName: "bookmark")
                 Text("Notes:")
-                TextField("Enter Notes", text: $notes)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                CustomTextEditor(text: $notes, minHeight: 40)
             }
             
             // Tags
@@ -188,10 +187,16 @@ struct MainView: View {
     
     func replaceAsterisk(in input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^\*]*)\*"#
-        let template = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%);\">$1</span>"
+        let template = "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px;\">$1</span>"
         
         let replacement = "<span style=\"color: #DE002D;\">⇿</span>"
         return replacePattern(in: input.replacingOccurrences(of: "⇿", with: replacement), pattern: pattern, template: template)
+    }
+    
+    func replaceAtSign(in input: String) -> String { // light blue without mark
+        let pattern = "@([^@]*)@"
+        let template = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
+        return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceAndSign(in input: String) -> String { // light green, italic, english
@@ -237,6 +242,7 @@ struct MainView: View {
             modifiedNotes = replacePlusSign(in: modifiedNotes)
             modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             modifiedNotes = replaceAsterisk(in: modifiedNotes)
+            modifiedNotes = replaceAtSign(in: modifiedNotes)
             modifiedNotes = replaceAndSign(in: modifiedNotes)
             modifiedNotes = replaceCaretSign(in: modifiedNotes)
             
