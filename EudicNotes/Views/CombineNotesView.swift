@@ -115,20 +115,21 @@ struct CombineNotesView: View {
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
                 
                 HStack {
-                    Image(systemName: "clock.arrow.circlepath")
-                    ComboBox(text: $selectedkey, options: sortedKeys, label: "Notes Name")
-                        .onChange(of: selectedkey) {
-                            combinedNotes = savedNotes.history[selectedkey] ?? ""
-                            
-                            let noteComponents = combinedNotes.split(separator: separator).map(String.init)
-                            note1 = noteComponents.indices.contains(0) ? noteComponents[0] : ""
-                            note2 = noteComponents.indices.contains(1) ? noteComponents[1] : ""
-                            note3 = noteComponents.indices.contains(2) ? noteComponents[2] : ""
-                            note4 = noteComponents.indices.contains(3) ? noteComponents[3] : ""
-                            
-                        }
+                    ComboBox(text: $selectedkey, options: sortedKeys, label: "Saved Notes")
+                    Button(action: {
+                        combinedNotes = savedNotes.history[selectedkey] ?? ""
+                        
+                        let noteComponents = combinedNotes.split(separator: separator).map(String.init)
+                        note1 = noteComponents.indices.contains(0) ? noteComponents[0] : ""
+                        note2 = noteComponents.indices.contains(1) ? noteComponents[1] : ""
+                        note3 = noteComponents.indices.contains(2) ? noteComponents[2] : ""
+                        note4 = noteComponents.indices.contains(3) ? noteComponents[3] : ""
+                    }) {
+                        Image(systemName: "clock.arrow.circlepath")
+                        Text("Load")
+                    }
                 }
-                .frame(minWidth: 300, maxWidth: 300)
+                .frame(minWidth: 340, maxWidth: 340)
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 165)
             }
             .padding(.top, 5)
