@@ -186,6 +186,26 @@ struct MainView: View {
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
+    func replaceAsterisk(in input: String) -> String { // special style, light blue with mark
+        let pattern = #"\*([^\*]*)\*"#
+        let template = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%);\">$1</span>"
+        
+        let replacement = "<span style=\"color: #DE002D;\">⇿</span>"
+        return replacePattern(in: input.replacingOccurrences(of: "⇿", with: replacement), pattern: pattern, template: template)
+    }
+    
+    func replaceAndSign(in input: String) -> String { // light green, italic, english
+        let pattern = "&([^&]*)&"
+        let template = "<span style=\"font-family: Bookerly; color: #007A6C; font-size: 15px; font-style: italic; word-spacing: 0.1rem;\">$1</span>"
+        return replacePattern(in: input, pattern: pattern, template: template)
+    }
+    
+    func replaceCaretSign(in input: String) -> String { // light green, chinese
+        let pattern = #"\^([^\^]*)\^"#
+        let template = "<span style=\"font-family: 'Source Han Serif CN'; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
+        return replacePattern(in: input, pattern: pattern, template: template)
+    }
+    
     func generateMessage() {
         // Combine the input into a message
         let labelTemplate = "<span style=\"font-family: Times; color: #716197; font-weight: bold;\">[%@]</span>" // purple
@@ -216,6 +236,9 @@ struct MainView: View {
             modifiedNotes = replacePOS(in: modifiedNotes)
             modifiedNotes = replacePlusSign(in: modifiedNotes)
             modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
+            modifiedNotes = replaceAsterisk(in: modifiedNotes)
+            modifiedNotes = replaceAndSign(in: modifiedNotes)
+            modifiedNotes = replaceCaretSign(in: modifiedNotes)
             
             modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
         }
