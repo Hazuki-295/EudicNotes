@@ -36,6 +36,28 @@ struct SingleNotesView: View {
     }
 }
 
+class SavedNotes: ObservableObject {
+    @Published var history: [String: String] = [:]
+    
+    init() {
+        loadHistory()
+    }
+    
+    func loadHistory() {
+        history = UserDefaults.standard.dictionary(forKey: "savedNotes") as? [String: String] ?? [:]
+    }
+    
+    func saveHistory() {
+        UserDefaults.standard.set(history, forKey: "savedNotes")
+    }
+    
+    func addToHistory(key: String, value: String) {
+        guard !key.isEmpty, !value.isEmpty else { return }
+        history[key] = value
+        saveHistory()
+    }
+}
+
 struct CombineNotesView: View {
     @State private var note1: String = ""
     @State private var note2: String = ""
@@ -44,6 +66,13 @@ struct CombineNotesView: View {
     @State private var combinedNotes: String = ""
     
     private let separator:String = "\n<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0; margin-left: 0; margin-right: 0;\">"
+    
+    @State private var selectedkey: String = ""
+    @StateObject private var savedNotes = SavedNotes()
+    
+    var sortedKeys: [String] {
+        savedNotes.history.keys.sorted()
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -61,20 +90,46 @@ struct CombineNotesView: View {
                     note2 = ""
                     note3 = ""
                     note4 = ""
+                    selectedkey = ""
                 }) {
                     Image(systemName: "eraser.line.dashed")
                     Text("Clear All")
                 }
                 
-                Button(action: {
-                    let notes = [note1, note2, note3, note4]
-                    combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
-                    ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
-                }) {
-                    Image(systemName: "book").foregroundColor(.indigo)
-                    Text("Combine Notes").foregroundColor(.indigo)
+                HStack {
+                    Button(action: {
+                        let notes = [note1, note2, note3, note4]
+                        combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
+                        ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
+                    }) {
+                        Image(systemName: "book").foregroundColor(.indigo)
+                        Text("Combine Notes").foregroundColor(.indigo)
+                    }
+                    Button(action: {
+                        savedNotes.addToHistory(key: selectedkey, value: combinedNotes)
+                    }) {
+                        Image(systemName: "square.and.arrow.down").foregroundColor(.indigo)
+                        Text("Save").foregroundColor(.indigo)
+                    }
                 }
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
+                
+                HStack {
+                    Image(systemName: "clock.arrow.circlepath")
+                    ComboBox(text: $selectedkey, options: sortedKeys, label: "Notes Name")
+                        .onChange(of: selectedkey) {
+                            combinedNotes = savedNotes.history[selectedkey] ?? ""
+                            
+                            let noteComponents = combinedNotes.split(separator: separator).map(String.init)
+                            note1 = noteComponents.indices.contains(0) ? noteComponents[0] : ""
+                            note2 = noteComponents.indices.contains(1) ? noteComponents[1] : ""
+                            note3 = noteComponents.indices.contains(2) ? noteComponents[2] : ""
+                            note4 = noteComponents.indices.contains(3) ? noteComponents[3] : ""
+                            
+                        }
+                }
+                .frame(minWidth: 300, maxWidth: 300)
+                .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 165)
             }
             .padding(.top, 5)
             .padding(.bottom)
