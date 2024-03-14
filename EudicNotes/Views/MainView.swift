@@ -193,6 +193,12 @@ struct MainView: View {
         return replacePattern(in: input.replacingOccurrences(of: "⇿", with: replacement), pattern: pattern, template: template)
     }
     
+    func replaceExclamation(in input: String) -> String { // special style, tag
+        let pattern = #"\!([^\!]*)\!"#
+        let template = "<span style=\"font-family: Optima; color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
+        return replacePattern(in: input, pattern: pattern, template: template)
+    }
+    
     func replaceAtSign(in input: String) -> String { // light blue without mark
         let pattern = "@([^@]*)@"
         let template = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
@@ -213,7 +219,7 @@ struct MainView: View {
     
     func generateMessage() {
         // Combine the input into a message
-        let labelTemplate = "<span style=\"font-family: Times; color: #716197; font-weight: bold;\">[%@]</span>" // purple
+        let labelTemplate = "<span style=\"font-family: 'Times New Roman'; color: #716197; font-weight: bold;\">[%@]</span>" // purple
         
         // Source
         var modifiedSource = source
@@ -242,6 +248,7 @@ struct MainView: View {
             modifiedNotes = replacePlusSign(in: modifiedNotes)
             modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             modifiedNotes = replaceAsterisk(in: modifiedNotes)
+            modifiedNotes = replaceExclamation(in: modifiedNotes)
             modifiedNotes = replaceAtSign(in: modifiedNotes)
             modifiedNotes = replaceAndSign(in: modifiedNotes)
             modifiedNotes = replaceCaretSign(in: modifiedNotes)
@@ -252,7 +259,7 @@ struct MainView: View {
         // Tags
         var modifiedTags = tags
         if tags != "" {
-            modifiedTags = "\n\n" + tags
+            modifiedTags = "\n\n" + "<span style=\"font-family: 'Times New Roman';\">\(tags)</span>"
         }
         
         generatedMessage = """
