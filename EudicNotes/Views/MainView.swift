@@ -187,7 +187,7 @@ struct MainView: View {
     
     func replaceAsterisk(in input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^\*]*)\*"#
-        let template = "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px;\">$1</span>"
+        let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px;\">$1</span>"
         
         let replacement = "<span style=\"color: #DE002D;\">⇿</span>"
         return replacePattern(in: input.replacingOccurrences(of: "⇿", with: replacement), pattern: pattern, template: template)
@@ -195,31 +195,31 @@ struct MainView: View {
     
     func replaceExclamation(in input: String) -> String { // special style, tag
         let pattern = #"\!([^\!]*)\!"#
-        let template = "<span style=\"font-family: Optima; color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
+        let template = "<span style=\"color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceAtSign(in input: String) -> String { // light blue without mark
         let pattern = "@([^@]*)@"
-        let template = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
+        let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceAndSign(in input: String) -> String { // light green, italic, english
         let pattern = "&([^&]*)&"
-        let template = "<span style=\"font-family: Bookerly; color: #007A6C; font-size: 15px; font-style: italic; word-spacing: 0.1rem;\">$1</span>"
+        let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 15px; font-style: italic; word-spacing: 0.1rem;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceCaretSign(in input: String) -> String { // light green, chinese
         let pattern = #"\^([^\^]*)\^"#
-        let template = "<span style=\"font-family: 'Source Han Serif CN'; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
+        let template = "<span style=\"font-family: 'Source Han Serif CN', optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func generateMessage() {
         // Combine the input into a message
-        let labelTemplate = "<span style=\"font-family: 'Times New Roman'; color: #716197; font-weight: bold;\">[%@]</span>" // purple
+        let labelTemplate = "<span style=\"font-family: 'Times New Roman', optima, arial, helvetica, sans-serif; color: #716197; font-weight: bold;\">[%@]</span>" // purple
         
         // Source
         var modifiedSource = source
@@ -259,7 +259,7 @@ struct MainView: View {
         // Tags
         var modifiedTags = tags
         if tags != "" {
-            modifiedTags = "\n\n" + "<span style=\"font-family: 'Times New Roman';\">\(tags)</span>"
+            modifiedTags = "\n\n" + "<span style=\"font-family: 'Times New Roman', optima, arial, helvetica, sans-serif;\">\(tags)</span>"
         }
         
         generatedMessage = """
