@@ -180,7 +180,7 @@ struct MainView: View {
     }
     
     func replaceSlash(in input: String) -> String { // special style, hotpink
-        let pattern = #"(?<![<])/[A-Za-z]+(?:\s+[A-Za-z]+)*"#
+        let pattern = #"(?<![<]) /[A-Za-z]+(?:\s+[A-Za-z]+)*"#
         let template = "<span style=\"color: hotpink; font-weight: bold; font-size: 80%; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
