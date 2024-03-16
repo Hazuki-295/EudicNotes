@@ -25,7 +25,7 @@ struct MainView: View {
             // Source
             HStack {
                 Image(systemName: "text.book.closed")
-                ComboBox(text: $source, options: sourceHistory.history, label: "Source")
+                ComboBox(text: $source, options: sourceHistory.history.sorted(), label: "Source")
                     .onSubmit {sourceHistory.addToHistory(newEntry: source)}
             }
             
@@ -66,7 +66,7 @@ struct MainView: View {
             // Tags
             HStack {
                 Image(systemName: "tag")
-                ComboBox(text: $tags, options: tagsHistory.history, label: "Tags")
+                ComboBox(text: $tags, options: tagsHistory.history.sorted(), label: "Tags")
                     .onSubmit {tagsHistory.addToHistory(newEntry: tags)}
             }
             

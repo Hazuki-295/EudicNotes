@@ -7,32 +7,42 @@
 
 import Foundation
 
+/// Manages a history of input strings with a limit on the number of entries.
 class InputHistoryViewModel: ObservableObject {
     @Published var history: [String] = []
-    let historyEntryLimit: Int = 15
-    
+    private let historyEntryLimit: Int = 30
     private let key: String
     
+    /// Initializes a new `InputHistoryViewModel` with a specific UserDefaults key.
+    /// - Parameter variableName: The key used for storing the history in UserDefaults.
     init(variableName: String) {
         self.key = variableName
         loadHistory()
     }
     
-    func loadHistory() {
+    /// Loads the history from UserDefaults.
+    private func loadHistory() {
         history = UserDefaults.standard.stringArray(forKey: key) ?? []
     }
     
-    func saveHistory() {
+    /// Saves the current history to UserDefaults.
+    private func saveHistory() {
         UserDefaults.standard.set(history, forKey: key)
     }
     
+    /// Adds a new entry to the history, ensuring no duplicates and respecting the entry limit.
+    /// - Parameter newEntry: The new string to add to the history.
     func addToHistory(newEntry: String) {
         guard !newEntry.isEmpty, !history.contains(newEntry) else { return }
+        
+        // Add the new entry
         history.append(newEntry)
-        history.sort()
+        
+        // Ensure the history does not exceed the limit
         if history.count > historyEntryLimit {
-            history = Array(history.prefix(historyEntryLimit))
+            history.removeFirst() // Remove the oldest entry
         }
+        
         saveHistory()
     }
 }
