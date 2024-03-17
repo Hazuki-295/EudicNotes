@@ -187,7 +187,7 @@ struct MainView: View {
     
     func replaceAsterisk(in input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^\*]*)\*"#
-        let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px;\">$1</span>"
+        let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
         
         let replacement = "<span style=\"color: #DE002D;\">⇿</span>"
         return replacePattern(in: input.replacingOccurrences(of: "⇿", with: replacement), pattern: pattern, template: template)
