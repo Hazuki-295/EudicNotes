@@ -232,15 +232,15 @@ struct MainView: View {
         if notes != "" {
             modifiedNotes = replaceAngleBracketsNotes(in: modifiedNotes)
             
-            modifiedNotes = replaceSlash(in: modifiedNotes)
             modifiedNotes = replacePOS(in: modifiedNotes)
-            modifiedNotes = replacePlusSign(in: modifiedNotes)
-            modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
-            modifiedNotes = replaceAsterisk(in: modifiedNotes)
-            modifiedNotes = replaceExclamation(in: modifiedNotes)
+            modifiedNotes = replaceSlash(in: modifiedNotes)
             modifiedNotes = replaceAtSign(in: modifiedNotes)
             modifiedNotes = replaceAndSign(in: modifiedNotes)
+            modifiedNotes = replacePlusSign(in: modifiedNotes)
+            modifiedNotes = replaceAsterisk(in: modifiedNotes)
             modifiedNotes = replaceCaretSign(in: modifiedNotes)
+            modifiedNotes = replaceExclamation(in: modifiedNotes)
+            modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
             
             modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
         }
