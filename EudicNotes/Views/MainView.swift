@@ -36,11 +36,7 @@ struct MainView: View {
                         Image(systemName: "book")
                         Text("Original Text:")
                     }
-                    Button(action: {
-                        if let text = ClipboardManager.pasteFromClipboard() {
-                            originalText = text
-                        }
-                    }) {
+                    Button(action: {if let text = ClipboardManager.pasteFromClipboard() {originalText = text}}) {
                         Image(systemName: "doc.on.clipboard")
                         Text("Paste")
                     }
@@ -71,15 +67,10 @@ struct MainView: View {
             }
             
             HStack {
-                Button("Generate Message") {
-                    self.generateMessage()
-                }
-                Button("Recognize Message") {
-                    self.recognizeMessage()
-                }
+                Button("Generate Message") {self.generateMessage()}
+                Button("Recognize Message") {self.recognizeMessage()}
                 
                 Spacer()
-                
                 
                 Button(action: {self.clearFields()}){
                     HStack {
@@ -104,9 +95,7 @@ struct MainView: View {
             CustomTextEditor(text: $generatedMessage, minHeight: 200)
             
             HStack {
-                Button(action: {
-                    ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
-                }) {
+                Button(action: {ClipboardManager.copyToClipboard(textToCopy: generatedMessage)}) {
                     Image(systemName: "doc.on.doc")
                     Text("Copy to Clipboard")
                 }
@@ -144,19 +133,19 @@ struct MainView: View {
     }
     
     func replacePlusSign(in input: String) -> String {
-        let pattern = #"\+([^\+]*)\+"#
+        let pattern = #"\+([^+]*)\+"#
         let template = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSquareBrackets(in input: String) -> String {
-        let pattern = #"\[([^\]]*)\]"#
+        let pattern = #"\[([^]]*)\]"#
         let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceSquareBracketsNotes(in input: String) -> String { // signpost, special style
-        let pattern = #"\[([^\]]*)\]"#
+        let pattern = #"\[([^]]*)\]"#
         let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
@@ -180,13 +169,13 @@ struct MainView: View {
     }
     
     func replaceSlash(in input: String) -> String { // special style, hotpink
-        let pattern = #"(?<![<])/[A-Za-z]+(?:\s+[A-Za-z]+)*"#
+        let pattern = #"(?<![<A-Za-z.])/[A-Za-z.]+(?:\s+[A-Za-z.]+)*"#
         let template = "<span style=\"color: hotpink; font-weight: bold; font-size: 80%; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
     
     func replaceAsterisk(in input: String) -> String { // special style, light blue with mark
-        let pattern = #"\*([^\*]*)\*"#
+        let pattern = #"\*([^*]*)\*"#
         let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
         
         let replacement = "<span style=\"color: #DE002D;\">⇿</span>"
@@ -194,7 +183,7 @@ struct MainView: View {
     }
     
     func replaceExclamation(in input: String) -> String { // special style, tag
-        let pattern = #"\!([^\!]*)\!"#
+        let pattern = #"\!([^!]*)\!"#
         let template = "<span style=\"color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
@@ -212,7 +201,7 @@ struct MainView: View {
     }
     
     func replaceCaretSign(in input: String) -> String { // light green, chinese
-        let pattern = #"\^([^\^]*)\^"#
+        let pattern = #"\^([^^]*)\^"#
         let template = "<span style=\"font-family: 'Source Han Serif CN', optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
         return replacePattern(in: input, pattern: pattern, template: template)
     }
