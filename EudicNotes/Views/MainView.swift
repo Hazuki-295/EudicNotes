@@ -149,7 +149,7 @@ struct MainView: View {
         }
     }
     
-    
+    // 1. Colorful fonts
     func highlightWord(_ input: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
         let template = "+$0+"
@@ -174,6 +174,7 @@ struct MainView: View {
         return replacePattern(input, pattern: pattern, template: template)
     }
     
+    // 2. LDOCE Style
     func replacePOS(_ input: String) -> String { // special style, dark red
         let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
         let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-size: 85%; font-style: italic; font-weight: bold; margin: 0 2px;\">$0</span>"
@@ -186,13 +187,22 @@ struct MainView: View {
         return replacePattern(input, pattern: pattern, template: template)
     }
     
+    // 3. OALD Style
     func replaceAsterisk(_ input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^*]*)\*"#
         let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
         return replacePattern(input, pattern: pattern, template: template, transform: { match in
-            return match
+            var modifiedMatch = match
                 .replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
                 .replacingOccurrences(of: "⇿", with: "<span style=\"color: #DE002D;\">⇿</span>")
+            
+            if let index = match.firstIndex(where: { $0.isCJK }) {
+                let englishPart = match[match.startIndex..<index]
+                let chinesePart = match[index...]
+                modifiedMatch = "\(englishPart)<span style=\"font-family: 'Source Han Serif CN'; font-size: 13.5px; font-weight: 400; margin-left: 2px;\">\(chinesePart)</span>"
+            }
+            
+            return modifiedMatch
         })
     }
     
@@ -313,6 +323,15 @@ struct MainView: View {
         notes = ""
         //tags = ""
         generatedMessage = ""
+    }
+}
+
+extension Character {
+    // Check if the character is a CJK character
+    var isCJK: Bool {
+        return "\u{4E00}" <= self && self <= "\u{9FFF}" || // CJK Unified Ideographs
+        "\u{3000}" <= self && self <= "\u{303F}" || // CJK Symbols and Punctuation
+        "\u{FF00}" <= self && self <= "\u{FFEF}"    // Full-width ASCII + Half-width Katakana + Full-width symbols and punctuation
     }
 }
 
