@@ -114,134 +114,147 @@ struct MainView: View {
     }
     
     // Generalized function to replace patterns in a string
-    func replacePattern(in input: String, pattern: String, template: String, options: NSRegularExpression.Options = []) -> String {
+    func replacePattern(_ input: String, pattern: String, template: String,
+                        options: NSRegularExpression.Options = [],
+                        transform: ((String) -> String)? = nil) -> String {
         do {
             let regex = try NSRegularExpression(pattern: pattern, options: options)
             let range = NSRange(input.startIndex..<input.endIndex, in: input)
-            let modifiedString = regex.stringByReplacingMatches(in: input, options: [], range: range, withTemplate: template)
-            return modifiedString
+            let nsInput = input as NSString
+            var modifiedString = nsInput.mutableCopy() as! NSMutableString
+            
+            // Find matches and replace in reverse to avoid index issues
+            let matches = regex.matches(in: input, options: [], range: range).reversed()
+            for match in matches {
+                var replacement = template
+                for groupIndex in 0..<match.numberOfRanges {
+                    let groupRange = match.range(at: groupIndex)
+                    if groupRange.location != NSNotFound, groupRange.length != 0 {
+                        var groupMatch = nsInput.substring(with: groupRange)
+                        // Apply transformation if provided
+                        if let transform = transform {
+                            groupMatch = transform(groupMatch)
+                        }
+                        // Replace $0, $1, ..., $n in the template
+                        replacement = replacement.replacingOccurrences(of: "$\(groupIndex)", with: groupMatch)
+                    }
+                }
+                modifiedString.replaceCharacters(in: match.range, with: replacement)
+            }
+            
+            return modifiedString as String
         } catch {
             print("Regex error: \(error)")
             return input
         }
     }
     
-    func highlightWord(in input: String) -> String {
+    
+    func highlightWord(_ input: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
         let template = "+$0+"
-        return replacePattern(in: input, pattern: pattern, template: template, options: .caseInsensitive)
+        return replacePattern(input, pattern: pattern, template: template, options: .caseInsensitive)
     }
     
-    func replacePlusSign(in input: String) -> String {
+    func replacePlusSign(_ input: String) -> String {
         let pattern = #"\+([^+]*)\+"#
         let template = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceSquareBrackets(in input: String) -> String {
+    func replaceSquareBrackets(_ input: String) -> String {
         let pattern = #"\[([^]]*)\]"#
         let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceSquareBracketsNotes(in input: String) -> String { // signpost, special style
-        let pattern = #"\[([^]]*)\]"#
-        let template = "<span style=\"background-color: #647FB8; color: white; font-weight: bold; font-size: 85%; text-transform: uppercase; border-radius: 5px; padding: 1px 5px;\">$1</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
-    }
-    
-    func replaceAngleBrackets(in input: String) -> String {
+    func replaceAngleBrackets(_ input: String) -> String {
         let pattern = "<([^>]*)>"
         let template = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceAngleBracketsNotes(in input: String) -> String {
-        let pattern = "<([^>]*)>"
-        let template = "<span style=\"color: #5B75AA; font-weight: bold;\">$1</span>" // dark blue
-        return replacePattern(in: input, pattern: pattern, template: template)
-    }
-    
-    func replacePOS(in input: String) -> String { // special style, dark red
+    func replacePOS(_ input: String) -> String { // special style, dark red
         let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
         let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-size: 85%; font-style: italic; font-weight: bold; margin: 0 2px;\">$0</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceSlash(in input: String) -> String { // special style, hotpink
+    func replaceSlash(_ input: String) -> String { // special style, hotpink
         let pattern = #"(?<![<A-Za-z.])/[A-Za-z.]+(?:\s+[A-Za-z.]+)*"#
         let template = "<span style=\"color: hotpink; font-weight: bold; font-size: 80%; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceAsterisk(in input: String) -> String { // special style, light blue with mark
+    func replaceAsterisk(_ input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^*]*)\*"#
         let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template, transform: { match in
+            return match
+                .replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
+                .replacingOccurrences(of: "⇿", with: "<span style=\"color: #DE002D;\">⇿</span>")
+        })
     }
     
-    func replaceExclamation(in input: String) -> String { // special style, tag
+    func replaceExclamation(_ input: String) -> String { // special style, tag
         let pattern = #"\!([^!]*)\!"#
         let template = "<span style=\"color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceAtSign(in input: String) -> String { // light blue without mark
+    func replaceAtSign(_ input: String) -> String { // light blue without mark
         let pattern = "@([^@]*)@"
         let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceAndSign(in input: String) -> String { // light green, italic, english
+    func replaceAndSign(_ input: String) -> String { // light green, italic, english
         let pattern = "&([^&]*)&"
         let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 15px; font-style: italic; word-spacing: 0.1rem;\">$1</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
-    func replaceCaretSign(in input: String) -> String { // light green, chinese
+    func replaceCaretSign(_ input: String) -> String { // light green, chinese
         let pattern = #"\^([^^]*)\^"#
         let template = "<span style=\"font-family: 'Source Han Serif CN', optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
-        return replacePattern(in: input, pattern: pattern, template: template)
+        return replacePattern(input, pattern: pattern, template: template)
     }
     
     func generateMessage() {
-        // Combine the input into a message
+        // Combine the input into a single message
         let labelTemplate = "<span style=\"font-family: 'Times New Roman', optima, arial, helvetica, sans-serif; color: #716197; font-weight: bold;\">[%@]</span>" // purple
         
         // Source
         var modifiedSource = source
         if wordPhrase != "" {
-            modifiedSource = highlightWord(in: modifiedSource)
+            modifiedSource = highlightWord(modifiedSource)
         }
-        modifiedSource = replacePlusSign(in: modifiedSource)
+        modifiedSource = replacePlusSign(modifiedSource)
         
         // Original Text
         var modifiedOriginalText = originalText
-        modifiedOriginalText = replaceAngleBrackets(in: modifiedOriginalText)
+        modifiedOriginalText = replaceAngleBrackets(modifiedOriginalText)
         
         if wordPhrase != "" {
-            modifiedOriginalText = highlightWord(in: modifiedOriginalText)
+            modifiedOriginalText = highlightWord(modifiedOriginalText)
         }
-        modifiedOriginalText = replacePlusSign(in: modifiedOriginalText)
-        modifiedOriginalText = replaceSquareBrackets(in: modifiedOriginalText)
+        modifiedOriginalText = replacePlusSign(modifiedOriginalText)
+        modifiedOriginalText = replaceSquareBrackets(modifiedOriginalText)
         
         // Notes
         var modifiedNotes = notes
         if notes != "" {
-            modifiedNotes = replaceAngleBracketsNotes(in: modifiedNotes)
+            modifiedNotes = replaceAngleBrackets(modifiedNotes)
             
-            modifiedNotes = replacePOS(in: modifiedNotes)
-            modifiedNotes = replaceSlash(in: modifiedNotes)
-            modifiedNotes = replaceAtSign(in: modifiedNotes)
-            modifiedNotes = replaceAndSign(in: modifiedNotes)
-            modifiedNotes = replacePlusSign(in: modifiedNotes)
-            modifiedNotes = replaceAsterisk(in: modifiedNotes)
-            modifiedNotes = replaceCaretSign(in: modifiedNotes)
-            modifiedNotes = replaceExclamation(in: modifiedNotes)
-            modifiedNotes = replaceSquareBracketsNotes(in: modifiedNotes)
-            
-            modifiedNotes = modifiedNotes.replacingOccurrences(of: "⇿⇿", with: "<span style=\"color: #DE002D;\">,</span>")
-            modifiedNotes = modifiedNotes.replacingOccurrences(of: "⇿", with: "<span style=\"color: #DE002D;\">⇿</span>")
+            modifiedNotes = replacePOS(modifiedNotes)
+            modifiedNotes = replaceSlash(modifiedNotes)
+            modifiedNotes = replaceAtSign(modifiedNotes)
+            modifiedNotes = replaceAndSign(modifiedNotes)
+            modifiedNotes = replacePlusSign(modifiedNotes)
+            modifiedNotes = replaceAsterisk(modifiedNotes)
+            modifiedNotes = replaceCaretSign(modifiedNotes)
+            modifiedNotes = replaceExclamation(modifiedNotes)
+            modifiedNotes = replaceSquareBrackets(modifiedNotes)
             
             modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
         }
@@ -306,3 +319,4 @@ struct MainView: View {
 #Preview {
     MainView()
 }
+
