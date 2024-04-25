@@ -216,7 +216,9 @@ struct MainView: View {
     func replaceAtSign(_ input: String) -> String { // light blue without mark
         let pattern = "@([^@]*)@"
         let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
-        return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
+        return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
+            return match.replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
+        })
     }
     
     func replaceAndSign(_ input: String) -> String { // light green, italic, english
