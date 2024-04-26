@@ -31,16 +31,8 @@ struct MainView: View {
             
             // Original Text
             HStack {
-                VStack() {
-                    HStack {
-                        Image(systemName: "book")
-                        Text("Original Text:")
-                    }
-                    Button(action: {if let text = ClipboardManager.pasteFromClipboard() {originalText = text}}) {
-                        Image(systemName: "doc.on.clipboard")
-                        Text("Paste")
-                    }
-                }
+                Image(systemName: "book")
+                Text("Original Text:")
                 CustomTextEditor(text: $originalText)
             }
             
@@ -66,6 +58,7 @@ struct MainView: View {
                     .onSubmit {tagsHistory.addToHistory(newEntry: tags)}
             }
             
+            // buttons
             HStack {
                 Button("Generate Message") {self.generateMessage()}
                 Button("Recognize Message") {self.recognizeMessage()}
@@ -86,6 +79,7 @@ struct MainView: View {
                 }
             }
             
+            // Generated Notes
             HStack {
                 Image(systemName: "note.text")
                 Text("Generated Notes:")
@@ -122,7 +116,7 @@ struct MainView: View {
             let regex = try NSRegularExpression(pattern: regexPattern, options: regexOptions)
             let range = NSRange(input.startIndex..<input.endIndex, in: input)
             let nsInput = input as NSString
-            var resultString = NSMutableString(string: nsInput)
+            let resultString = NSMutableString(string: nsInput)
             
             // Find all matches and process them in reverse order to preserve indices for replacements
             let matches = regex.matches(in: input, options: [], range: range).reversed()
@@ -341,4 +335,3 @@ extension Character {
 #Preview {
     MainView()
 }
-
