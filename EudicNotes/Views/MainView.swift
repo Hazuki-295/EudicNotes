@@ -172,20 +172,20 @@ struct MainView: View {
     // 2. LDOCE Style
     func replacePOS(_ input: String) -> String { // special style, dark red
         let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
-        let template = "<span style=\"color: rgba(196, 21, 27, 0.8); font-family: Georgia, 'Times New Roman', serif; font-size: 85%; font-style: italic; font-weight: bold; margin: 0 2px;\">$0</span>"
+        let template = "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$0</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceSlash(_ input: String) -> String { // special style, hotpink
         let pattern = #"(?<![<A-Za-z.])/[A-Za-z.]+(?:\s+[A-Za-z.]+)*"#
-        let template = "<span style=\"color: hotpink; font-weight: bold; font-size: 80%; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
+        let template = "<span style=\"font-family: Optima; color: hotpink; font-size: 80%; font-weight: bold; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     // 3. OALD Style
     func replaceAsterisk(_ input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^*]*)\*"#
-        let template = "<span style=\"color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0,114,207,0.15) 55%, rgba(0,114,207,0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
+        let template = "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             var modifiedMatch = match
                 .replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
@@ -203,13 +203,13 @@ struct MainView: View {
     
     func replaceExclamation(_ input: String) -> String { // special style, tag
         let pattern = #"\!([^!]*)\!"#
-        let template = "<span style=\"color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
+        let template = "<span style=\"font-family: Optima; color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceAtSign(_ input: String) -> String { // light blue without mark
         let pattern = "@([^@]*)@"
-        let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
+        let template = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             return match.replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
         })
@@ -217,59 +217,57 @@ struct MainView: View {
     
     func replaceAndSign(_ input: String) -> String { // light green, italic, english
         let pattern = "&([^&]*)&"
-        let template = "<span style=\"font-family: Bookerly, optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 15px; font-style: italic; word-spacing: 0.1rem;\">$1</span>"
+        let template = "<span style=\"font-family: Bookerly; color: #007A6C; font-size: 15px; font-style: italic; word-spacing: 0.1rem;\">$1</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceCaretSign(_ input: String) -> String { // light green, chinese
         let pattern = #"\^([^^]*)\^"#
-        let template = "<span style=\"font-family: 'Source Han Serif CN', optima, arial, helvetica, sans-serif; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
+        let template = "<span style=\"font-family: 'Source Han Serif CN'; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
+    // Combine the input into a single message
     func generateMessage() {
-        // Combine the input into a single message
-        let labelTemplate = "<span style=\"font-family: 'Times New Roman', optima, arial, helvetica, sans-serif; color: #716197; font-weight: bold;\">[%@]</span>" // purple
-        
-        // Source
         var modifiedSource = source
+        var modifiedOriginalText = originalText
+        var modifiedNotes = notes
+        var modifiedTags = tags
+        
         if wordPhrase != "" {
             modifiedSource = highlightWord(modifiedSource)
-        }
-        modifiedSource = replacePlusSign(modifiedSource)
-        
-        // Original Text
-        var modifiedOriginalText = originalText
-        modifiedOriginalText = replaceAngleBrackets(modifiedOriginalText)
-        
-        if wordPhrase != "" {
             modifiedOriginalText = highlightWord(modifiedOriginalText)
         }
-        modifiedOriginalText = replacePlusSign(modifiedOriginalText)
-        modifiedOriginalText = replaceSquareBrackets(modifiedOriginalText)
+        
+        // Source
+        modifiedSource = replacePlusSign(modifiedSource) // light blue
+        
+        // Original Text
+        modifiedOriginalText = replaceAngleBrackets(modifiedOriginalText) // red
+        modifiedOriginalText = replacePlusSign(modifiedOriginalText) // light blue
+        modifiedOriginalText = replaceSquareBrackets(modifiedOriginalText) // green
         
         // Notes
-        var modifiedNotes = notes
         if notes != "" {
-            modifiedNotes = replaceAngleBrackets(modifiedNotes)
-            
+            modifiedNotes = replaceAngleBrackets(modifiedNotes) // red
             modifiedNotes = replacePOS(modifiedNotes)
             modifiedNotes = replaceSlash(modifiedNotes)
             modifiedNotes = replaceAtSign(modifiedNotes)
             modifiedNotes = replaceAndSign(modifiedNotes)
-            modifiedNotes = replacePlusSign(modifiedNotes)
+            modifiedNotes = replacePlusSign(modifiedNotes) // light blue
             modifiedNotes = replaceAsterisk(modifiedNotes)
             modifiedNotes = replaceCaretSign(modifiedNotes)
             modifiedNotes = replaceExclamation(modifiedNotes)
-            modifiedNotes = replaceSquareBrackets(modifiedNotes)
-            
-            modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
+            modifiedNotes = replaceSquareBrackets(modifiedNotes) // green
         }
         
-        // Tags
-        var modifiedTags = tags
+        let labelTemplate = "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>" // median dark blue
+        
+        if notes != "" {
+            modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
+        }
         if tags != "" {
-            modifiedTags = "\n\n" + "<span style=\"font-family: 'Times New Roman', optima, arial, helvetica, sans-serif;\">\(tags)</span>"
+            modifiedTags = "\n\n" + "<span style=\"font-family: Bookerly;\">\(tags)</span>"
         }
         
         generatedMessage = """
@@ -279,7 +277,8 @@ struct MainView: View {
         
         \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
         """
-        generatedMessage = "<span style=\"font-family: optima, arial, helvetica, sans-serif; font-size: 16px;\">" + generatedMessage + "</span>"
+        
+        generatedMessage = "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">" + generatedMessage + "</span>"
         
         ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
     }
