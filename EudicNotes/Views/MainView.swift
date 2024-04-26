@@ -224,7 +224,15 @@ struct MainView: View {
         let pattern = "&([^&]*)&"
         let baseTemplate = "<span style=\"font-family: Bookerly; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
         let template = String(format: invisibleTemplate, "&") + baseTemplate + String(format: invisibleTemplate, "&")
-        return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
+        return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
+            let pattern = #"\{([^}]*)\}"#
+            let baseTemplate = "<span style=\"color: #007A6C; font-style: italic;\">$1</span>"
+            let template = String(format: invisibleTemplate, "{") + baseTemplate + String(format: invisibleTemplate, "}")
+            
+            let regex = try! NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(match.startIndex..<match.endIndex, in: match)
+            return regex.stringByReplacingMatches(in: match, options: [], range: range, withTemplate: template)
+        })
     }
     
     func replaceCaretSign(_ input: String) -> String { // light green, chinese
