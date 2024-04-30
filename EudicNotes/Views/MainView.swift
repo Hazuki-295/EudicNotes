@@ -249,7 +249,7 @@ struct Utils {
         let template = String(format: invisibleTemplate, "@") + baseTemplate + String(format: invisibleTemplate, "@")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             let modifiedMatch = match
-                .replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
+                .replacingOccurrences(of: "{,}", with: "<span style=\"color: #DE002D;\">,</span>")
                 .replacingOccurrences(of: "|", with: "<span style=\"color: #DE002D;\">|</span>")
             
             let pattern = #"\{([^}]*)\}"#

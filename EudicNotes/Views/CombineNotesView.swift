@@ -91,15 +91,6 @@ struct CombineNotesView: View {
                 // combine notes
                 HStack {
                     Button(action: {
-                        let notes = [renderedNote1, renderedNote2, renderedNote3, renderedNote4]
-                        combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
-                        ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
-                    }) {
-                        Image(systemName: "book").foregroundColor(.indigo)
-                        Text("Combine Notes").foregroundColor(.indigo)
-                    }
-                    
-                    Button(action: {
                         var noteComponents = retrieveNotes()
                         
                         while noteComponents.count < 4 {
@@ -114,7 +105,14 @@ struct CombineNotesView: View {
                         Image(systemName: "list.clipboard").foregroundColor(.purple)
                         Text("Retrieve Clipboard").foregroundColor(.purple)
                     }
-                    
+                    Button(action: {
+                        let notes = [renderedNote1, renderedNote2, renderedNote3, renderedNote4]
+                        combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
+                        ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
+                    }) {
+                        Image(systemName: "book").foregroundColor(.indigo)
+                        Text("Combine Notes").foregroundColor(.indigo)
+                    }
                 }
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
             }

@@ -58,6 +58,16 @@ struct TrimPassageView: View {
                 }
                 .padding(.top, 5)
                 
+                // clear all
+                Button(action: {
+                    originalPassage = ""
+                    trimmedPassage = ""
+                    trimmedCount = 0
+                }) {
+                    Image(systemName: "eraser.line.dashed")
+                    Text("Clear All")
+                }
+                
                 Button(action: {
                     trimmedPassage = processPassage(input: originalPassage, replacements: replacements)
                     ClipboardManager.copyToClipboard(textToCopy: trimmedPassage)
@@ -80,7 +90,7 @@ struct TrimPassageView: View {
         allowedCharacterSet.formUnion(CharacterSet.decimalDigits)
         
         // Define additional common punctuation and whitespace characters
-        let additionalCharacters = "@#^&*+⇿⟨⟩<> ,.!?;:'\"()[]{}-–—_/\n\t"
+        let additionalCharacters = "@#^&*+⇿⟨⟩<>、，。！？；：‘’/“” ,.!?;:'\"()[]{}-–—_\n\t"
         
         // Include these additional characters into the allowed set
         allowedCharacterSet.formUnion(CharacterSet(charactersIn: additionalCharacters))
