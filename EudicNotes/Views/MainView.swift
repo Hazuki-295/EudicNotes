@@ -61,12 +61,11 @@ struct MainView: View {
             // buttons
             HStack {
                 Button("Generate Message") {
-                    generatedMessage = self.generateMessage(source: self.source, originalText: self.originalText, notes: self.notes, tags: self.tags)
+                    generatedMessage = Utils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags)
                     ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
                 }
                 Button("Recognize Message") {
-                    self.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
-                    wordPhrase = ""
+                    self.recognizeMessage()
                 }
                 
                 Spacer()
@@ -102,8 +101,7 @@ struct MainView: View {
                 Button(action: {
                     if let text = ClipboardManager.pasteFromClipboard() {
                         generatedMessage = text
-                        self.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
-                        wordPhrase = ""
+                        self.recognizeMessage()
                     }
                 }) {
                     Image(systemName: "doc.on.clipboard")
@@ -114,10 +112,28 @@ struct MainView: View {
         .padding()
     }
     
+    func recognizeMessage() {
+        Utils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
+        wordPhrase = ""
+    }
+    
+    func clearFields() {
+        source = ""
+        originalText = ""
+        wordPhrase = ""
+        notes = ""
+        //tags = ""
+        generatedMessage = ""
+    }
+}
+
+struct Utils {
+    static private let invisibleTemplate = "<span style=\"opacity: 0; position: absolute;\">%@</span>"
+    
     // Generalized function to replace patterns in a string
-    func replacePattern(in input: String, withRegexPattern regexPattern: String,
-                        usingTemplate replacementTemplate: String, options regexOptions: NSRegularExpression.Options = [],
-                        transform: ((String) -> String)? = nil) -> String {
+    static private func replacePattern(in input: String, withRegexPattern regexPattern: String,
+                                       usingTemplate replacementTemplate: String, options regexOptions: NSRegularExpression.Options = [],
+                                       transform: ((String) -> String)? = nil) -> String {
         do {
             // Compile the regular expression based on the provided pattern and options
             let regex = try NSRegularExpression(pattern: regexPattern, options: regexOptions)
@@ -151,30 +167,28 @@ struct MainView: View {
         }
     }
     
-    private let invisibleTemplate = "<span style=\"opacity: 0; position: absolute;\">%@</span>"
-    
     // 1. Colorful fonts
-    func highlightWord(_ input: String) -> String {
+    static private func highlightWord(_ input: String, wordPhrase: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
         let template = "+$0+"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, options: .caseInsensitive)
     }
     
-    func replacePlusSign(_ input: String) -> String {
+    static private func replacePlusSign(_ input: String) -> String {
         let pattern = #"\+([^+]*)\+"#
         let baseTemplate = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
         let template = String(format: invisibleTemplate, "+") + baseTemplate + String(format: invisibleTemplate, "+")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    func replaceSquareBrackets(_ input: String) -> String {
+    static private func replaceSquareBrackets(_ input: String) -> String {
         let pattern = #"\[([^]]*)\]"#
         let baseTemplate = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
         let template = String(format: invisibleTemplate, "[") + baseTemplate + String(format: invisibleTemplate, "]")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    func replaceAngleBrackets(_ input: String) -> String {
+    static private func replaceAngleBrackets(_ input: String) -> String {
         let pattern = "<([^>]*)>"
         let baseTemplate = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
         let template = String(format: invisibleTemplate, "<") + baseTemplate + String(format: invisibleTemplate, ">")
@@ -182,7 +196,7 @@ struct MainView: View {
     }
     
     // 2. LDOCE Style
-    func replacePOS(_ input: String) -> String { // special style, dark red
+    static private func replacePOS(_ input: String) -> String { // special style, dark red
         let patternTemplatePairs: [String: String] = [
             #"\b(noun|verb|adjective|adverb|preposition|conjunction)\b"#: "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$1</span>",
             #"\b(Phrasal Verb)\b"#: "<span style=\"font-family: Optima; color: rgba(196, 21, 27, 0.8); font-size: 74%; border: 1px solid rgba(196, 21, 27, 0.8); padding: 0px 3px; margin: 0 2px;\">$1</span>",
@@ -196,14 +210,14 @@ struct MainView: View {
         return modifiedInput
     }
     
-    func replaceSlash(_ input: String) -> String { // special style, hotpink
+    static private func replaceSlash(_ input: String) -> String { // special style, hotpink
         let pattern = #"(?<![<A-Za-z.])/[A-Za-z.]+(?:\s+[A-Za-z.]+)*"#
         let template = "<span style=\"font-family: Optima; color: hotpink; font-size: 80%; font-weight: bold; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     // 3. OALD Style
-    func replaceAsterisk(_ input: String) -> String { // special style, light blue with mark
+    static private func replaceAsterisk(_ input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^*]*)\*"#
         let baseTemplate = "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
         let template = String(format: invisibleTemplate, "*") + baseTemplate + String(format: invisibleTemplate, "*")
@@ -222,14 +236,14 @@ struct MainView: View {
         })
     }
     
-    func replaceExclamation(_ input: String) -> String { // special style, tag
+    static private func replaceExclamation(_ input: String) -> String { // special style, tag
         let pattern = #"\!([^!]*)\!"#
         let baseTemplate = "<span style=\"font-family: Optima; color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
         let template = String(format: invisibleTemplate, "!") + baseTemplate + String(format: invisibleTemplate, "!")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    func replaceAtSign(_ input: String) -> String { // light blue without mark
+    static private func replaceAtSign(_ input: String) -> String { // light blue without mark
         let pattern = "@([^@]*)@"
         let baseTemplate = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
         let template = String(format: invisibleTemplate, "@") + baseTemplate + String(format: invisibleTemplate, "@")
@@ -248,7 +262,7 @@ struct MainView: View {
         })
     }
     
-    func replaceAndSign(_ input: String) -> String { // black Bookerly
+    static private func replaceAndSign(_ input: String) -> String { // black Bookerly
         let pattern = "&([^&]*)&"
         let baseTemplate = "<span style=\"font-family: Bookerly; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
         let template = String(format: invisibleTemplate, "&") + baseTemplate + String(format: invisibleTemplate, "&")
@@ -263,7 +277,7 @@ struct MainView: View {
         })
     }
     
-    func replaceCaretSign(_ input: String) -> String { // light green, chinese
+    static private func replaceCaretSign(_ input: String) -> String { // light green, chinese
         let pattern = #"\^([^^]*)\^"#
         let baseTemplate = "<span style=\"font-family: 'Source Han Serif CN'; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
         let template = String(format: invisibleTemplate, "^") + baseTemplate + String(format: invisibleTemplate, "^")
@@ -271,15 +285,15 @@ struct MainView: View {
     }
     
     // Combine the input into a single message
-    func generateMessage(source: String, originalText: String, notes: String, tags: String) -> String {
+    static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String) -> String {
         var modifiedSource = source
         var modifiedOriginalText = originalText
         var modifiedNotes = notes
         var modifiedTags = tags
         
         if wordPhrase != "" {
-            modifiedSource = highlightWord(modifiedSource)
-            modifiedOriginalText = highlightWord(modifiedOriginalText)
+            modifiedSource = highlightWord(modifiedSource, wordPhrase: wordPhrase)
+            modifiedOriginalText = highlightWord(modifiedOriginalText, wordPhrase: wordPhrase)
         }
         
         // Source
@@ -326,42 +340,34 @@ struct MainView: View {
         return generatedMessage
     }
     
-    func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
+    static func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
         // Regular expression patterns for capturing the contents
         let sourcePattern = #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#
-        let originalTextPattern = #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#)"#
-        let notesPattern = #"\[Notes\]\s*([\s\S]+?)\s*#"#
+        let originalTextPattern = #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#|$)"#
+        let notesPattern = #"\[Notes\]\s*([\s\S]+?)\s*(?=#|$)"#
         let tagsPattern = "(#[A-Za-z]+)"
         
-        // Function to find and trim the first capturing group using a regular expression pattern
-        func matchAndTrim(_ input: String, withRegexPattern pattern: String) -> String? {
+        // Function to find and trim the first and only capturing group using a regular expression pattern
+        func matchAndTrim(_ input: String, withRegexPattern pattern: String) -> String {
+            // Since we assume the regex is always correct, directly create the regex
             let regex = try! NSRegularExpression(pattern: pattern, options: [])
             let range = NSRange(input.startIndex..., in: input)
             
-            // Look for the first match
+            // Access the first match
             guard let match = regex.firstMatch(in: input, options: [], range: range),
                   let captureRange = Range(match.range(at: 1), in: input) else {
-                return nil
+                return ""  // Return an empty string if no content is captured
             }
             
-            // Return the trimmed captured group
+            // Return the trimmed captured group, handle potentially empty capture gracefully
             return String(input[captureRange]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
         
         // Extracting and trimming the contents
-        source = matchAndTrim(input, withRegexPattern: sourcePattern) ?? ""
-        originalText = matchAndTrim(input, withRegexPattern: originalTextPattern) ?? ""
-        notes = matchAndTrim(input, withRegexPattern: notesPattern) ?? ""
-        tags = matchAndTrim(input, withRegexPattern: tagsPattern) ?? ""
-    }
-    
-    func clearFields() {
-        source = ""
-        originalText = ""
-        wordPhrase = ""
-        notes = ""
-        //tags = ""
-        generatedMessage = ""
+        source = matchAndTrim(input, withRegexPattern: sourcePattern)
+        originalText = matchAndTrim(input, withRegexPattern: originalTextPattern)
+        notes = matchAndTrim(input, withRegexPattern: notesPattern)
+        tags = matchAndTrim(input, withRegexPattern: tagsPattern)
     }
 }
 

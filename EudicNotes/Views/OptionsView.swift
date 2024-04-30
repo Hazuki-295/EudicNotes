@@ -13,10 +13,10 @@ enum Tabs {
 }
 
 struct OptionsView: View {
-    @State private var selectedTab: Tabs = .trimPassage
+    @State private var selectedTab: Tabs = .combineNotes
     
-    private let width: CGFloat = 600
-    private let height: CGFloat = 780
+    private let width: CGFloat = 750
+    private let height: CGFloat = 850
     
     var body: some View {
         TabView(selection: $selectedTab) {
