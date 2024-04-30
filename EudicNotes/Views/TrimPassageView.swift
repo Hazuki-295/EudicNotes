@@ -80,7 +80,7 @@ struct TrimPassageView: View {
         allowedCharacterSet.formUnion(CharacterSet.decimalDigits)
         
         // Define additional common punctuation and whitespace characters
-        let additionalCharacters = "#*> ,.!?;:'\"()[]{}-–—_/\n\t"
+        let additionalCharacters = "@#^&*+⇿⟨⟩<> ,.!?;:'\"()[]{}-–—_/\n\t"
         
         // Include these additional characters into the allowed set
         allowedCharacterSet.formUnion(CharacterSet(charactersIn: additionalCharacters))
@@ -89,8 +89,13 @@ struct TrimPassageView: View {
         let filteredScalars = input.unicodeScalars.filter { allowedCharacterSet.contains($0) }
         let cleanedText = String(filteredScalars)
         
-        // Debugging: Calculate and print the number of characters removed
-        trimmedCount = input.count - cleanedText.count
+        // To correctly count invisible characters removed:
+        // Convert both the original and cleaned text into their respective arrays of unicode scalars.
+        let originalScalars = Array(input.unicodeScalars)
+        let cleanedScalarsArray = Array(cleanedText.unicodeScalars)
+        
+        // Debugging: Calculate the number of characters removed
+        trimmedCount = originalScalars.count - cleanedScalarsArray.count
         
         // Return the cleaned text
         return cleanedText
