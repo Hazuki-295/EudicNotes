@@ -60,8 +60,14 @@ struct MainView: View {
             
             // buttons
             HStack {
-                Button("Generate Message") {self.generateMessage()}
-                Button("Recognize Message") {self.recognizeMessage()}
+                Button("Generate Message") {
+                    generatedMessage = self.generateMessage(source: self.source, originalText: self.originalText, notes: self.notes, tags: self.tags)
+                    ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
+                }
+                Button("Recognize Message") {
+                    self.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
+                    wordPhrase = ""
+                }
                 
                 Spacer()
                 
@@ -96,7 +102,8 @@ struct MainView: View {
                 Button(action: {
                     if let text = ClipboardManager.pasteFromClipboard() {
                         generatedMessage = text
-                        self.recognizeMessage()
+                        self.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
+                        wordPhrase = ""
                     }
                 }) {
                     Image(systemName: "doc.on.clipboard")
@@ -264,7 +271,7 @@ struct MainView: View {
     }
     
     // Combine the input into a single message
-    func generateMessage() {
+    func generateMessage(source: String, originalText: String, notes: String, tags: String) -> String {
         var modifiedSource = source
         var modifiedOriginalText = originalText
         var modifiedNotes = notes
@@ -306,7 +313,7 @@ struct MainView: View {
             modifiedTags = "\n\n" + "<span style=\"font-family: Bookerly;\">\(tags)</span>"
         }
         
-        generatedMessage = """
+        var generatedMessage = """
         \(String(format: labelTemplate, "Source")) \(modifiedSource)
         
         \(String(format: labelTemplate, "Original Text"))
@@ -316,36 +323,36 @@ struct MainView: View {
         
         generatedMessage = "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">" + generatedMessage + "</span>"
         
-        ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
+        return generatedMessage
     }
     
-    func recognizeMessage() {
-        // Regular expression patterns for capturing the contents, adjusted for multiline capture
+    func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
+        // Regular expression patterns for capturing the contents
         let sourcePattern = #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#
         let originalTextPattern = #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#)"#
         let notesPattern = #"\[Notes\]\s*([\s\S]+?)\s*#"#
-        let tagsPattern = "#[A-Za-z]+"
+        let tagsPattern = "(#[A-Za-z]+)"
         
-        // Function to find and trim contents using a regular expression pattern
-        func findAndTrim(from text: String, using pattern: String, n: Int = 1) -> String? {
-            let regex = try? NSRegularExpression(pattern: pattern, options: [])
-            let nsRange = NSRange(text.startIndex..<text.endIndex, in: text)
-            guard let match = regex?.firstMatch(in: text, options: [], range: nsRange) else {
+        // Function to find and trim the first capturing group using a regular expression pattern
+        func matchAndTrim(_ input: String, withRegexPattern pattern: String) -> String? {
+            let regex = try! NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(input.startIndex..., in: input)
+            
+            // Look for the first match
+            guard let match = regex.firstMatch(in: input, options: [], range: range),
+                  let captureRange = Range(match.range(at: 1), in: input) else {
                 return nil
             }
             
-            if let range = Range(match.range(at: n), in: text) {
-                return String(text[range]).trimmingCharacters(in: .whitespacesAndNewlines)
-            }
-            return nil
+            // Return the trimmed captured group
+            return String(input[captureRange]).trimmingCharacters(in: .whitespacesAndNewlines)
         }
         
         // Extracting and trimming the contents
-        source = findAndTrim(from: generatedMessage, using: sourcePattern) ?? ""
-        originalText = findAndTrim(from: generatedMessage, using: originalTextPattern) ?? ""
-        wordPhrase = ""
-        notes = findAndTrim(from: generatedMessage, using: notesPattern) ?? ""
-        tags = findAndTrim(from: generatedMessage, using: tagsPattern, n: 0) ?? ""
+        source = matchAndTrim(input, withRegexPattern: sourcePattern) ?? ""
+        originalText = matchAndTrim(input, withRegexPattern: originalTextPattern) ?? ""
+        notes = matchAndTrim(input, withRegexPattern: notesPattern) ?? ""
+        tags = matchAndTrim(input, withRegexPattern: tagsPattern) ?? ""
     }
     
     func clearFields() {

@@ -8,21 +8,18 @@
 import SwiftUI
 
 struct SingleNotesView: View {
+    let label: String
+    let labelColor: Color
+    let systemImage: String
+    
     @Binding var noteText: String
-    var label: String
-    var systemImage: String
-    var labelColor: Color
     
     var body: some View {
         VStack(alignment: .leading) {
             Label(label, systemImage: systemImage).foregroundColor(labelColor)
             CustomTextEditor(text: $noteText)
             HStack {
-                Button(action: {
-                    if let text = ClipboardManager.pasteFromClipboard() {
-                        noteText = text
-                    }
-                }) {
+                Button(action: {if let text = ClipboardManager.pasteFromClipboard() {noteText = text}}) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
@@ -36,28 +33,6 @@ struct SingleNotesView: View {
     }
 }
 
-class SavedNotes: ObservableObject {
-    @Published var history: [String: String] = [:]
-    
-    init() {
-        loadHistory()
-    }
-    
-    func loadHistory() {
-        history = UserDefaults.standard.dictionary(forKey: "savedNotes") as? [String: String] ?? [:]
-    }
-    
-    func saveHistory() {
-        UserDefaults.standard.set(history, forKey: "savedNotes")
-    }
-    
-    func addToHistory(key: String, value: String) {
-        guard !key.isEmpty, !value.isEmpty else { return }
-        history[key] = value
-        saveHistory()
-    }
-}
-
 struct CombineNotesView: View {
     @State private var note1: String = ""
     @State private var note2: String = ""
@@ -67,69 +42,49 @@ struct CombineNotesView: View {
     
     private let separator:String = "\n<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0; margin-left: 0; margin-right: 0;\">"
     
-    @State private var selectedkey: String = ""
-    @StateObject private var savedNotes = SavedNotes()
-    
-    var sortedKeys: [String] {
-        savedNotes.history.keys.sorted()
-    }
-    
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 15) {
-                    SingleNotesView(noteText: $note1, label: "First Notes", systemImage: "note.text", labelColor: .brown)
-                    SingleNotesView(noteText: $note2, label: "Second Notes", systemImage: "2.square", labelColor: .purple)
-                    SingleNotesView(noteText: $note3, label: "Third Notes", systemImage: "3.square", labelColor: .blue)
-                    SingleNotesView(noteText: $note4, label: "Fourth Notes", systemImage: "4.square", labelColor: .red)
+                    SingleNotesView(label: "First Notes", labelColor: .brown, systemImage: "note.text", noteText: $note1)
+                    SingleNotesView(label: "Second Notes", labelColor: .purple, systemImage: "2.square", noteText: $note2)
+                    SingleNotesView(label: "Third Notes", labelColor: .blue, systemImage: "3.square", noteText: $note3)
+                    SingleNotesView(label: "Fourth Notes", labelColor: .red, systemImage: "4.square", noteText: $note4)
                 }
                 .padding(.top, 5)
                 
+                // clear all
                 Button(action: {
                     note1 = ""
                     note2 = ""
                     note3 = ""
                     note4 = ""
-                    selectedkey = ""
                 }) {
                     Image(systemName: "eraser.line.dashed")
                     Text("Clear All")
                 }
                 
-                HStack {
-                    Button(action: {
-                        let notes = [note1, note2, note3, note4]
-                        combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
-                        ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
-                    }) {
-                        Image(systemName: "book").foregroundColor(.indigo)
-                        Text("Combine Notes").foregroundColor(.indigo)
-                    }
-                    Button(action: {
-                        savedNotes.addToHistory(key: selectedkey, value: combinedNotes)
-                    }) {
-                        Image(systemName: "square.and.arrow.down").foregroundColor(.indigo)
-                        Text("Save").foregroundColor(.indigo)
-                    }
+                // combine notes
+                Button(action: {
+                    let notes = [note1, note2, note3, note4]
+                    combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
+                    ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
+                }) {
+                    Image(systemName: "book").foregroundColor(.indigo)
+                    Text("Combine Notes").foregroundColor(.indigo)
                 }
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 10)
                 
-                HStack {
-                    ComboBox(text: $selectedkey, options: sortedKeys, label: "Saved Notes")
-                    Button(action: {
-                        combinedNotes = savedNotes.history[selectedkey] ?? ""
-                        
-                        let noteComponents = combinedNotes.split(separator: separator).map(String.init)
-                        note1 = noteComponents.indices.contains(0) ? noteComponents[0] : ""
-                        note2 = noteComponents.indices.contains(1) ? noteComponents[1] : ""
-                        note3 = noteComponents.indices.contains(2) ? noteComponents[2] : ""
-                        note4 = noteComponents.indices.contains(3) ? noteComponents[3] : ""
-                    }) {
-                        Image(systemName: "clock.arrow.circlepath")
-                        Text("Load")
-                    }
+                Button(action: {
+                    let noteComponents = retrieveNotes()
+                    note1 = noteComponents.indices.contains(0) ? noteComponents[0] : ""
+                    note2 = noteComponents.indices.contains(1) ? noteComponents[1] : ""
+                    note3 = noteComponents.indices.contains(2) ? noteComponents[2] : ""
+                    note4 = noteComponents.indices.contains(3) ? noteComponents[3] : ""
+                }) {
+                    Image(systemName: "list.clipboard")
+                    Text("Retrieve Clipboard")
                 }
-                .frame(minWidth: 340, maxWidth: 340)
                 .position(x: geometry.size.width / 2 - 20, y: geometry.safeAreaInsets.top + 165)
             }
             .padding(.top, 5)
@@ -137,6 +92,23 @@ struct CombineNotesView: View {
             .padding(.leading)
             .padding(.trailing)
         }
+    }
+    
+    func retrieveNotes() -> [String] {
+        // retrieve clipboard
+        let combinedNotes = ClipboardManager.pasteFromClipboard() ?? ""
+        
+        let pattern = "(\\[Source\\][\\s\\S]*?)(?=\\[Source\\]|$)"
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+        let range = NSRange(combinedNotes.startIndex..., in: combinedNotes)
+        let matches = regex.matches(in: combinedNotes, options: [], range: range)
+        
+        // Convert each match into a Swift String and collect them into an array
+        let noteComponents = matches.map {
+            String(combinedNotes[Range($0.range, in: combinedNotes)!])
+        }
+        
+        return noteComponents
     }
 }
 
