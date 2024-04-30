@@ -144,6 +144,8 @@ struct MainView: View {
         }
     }
     
+    private let invisibleTemplate = "<span style=\"opacity: 0; position: absolute;\">%@</span>"
+    
     // 1. Colorful fonts
     func highlightWord(_ input: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
@@ -153,19 +155,22 @@ struct MainView: View {
     
     func replacePlusSign(_ input: String) -> String {
         let pattern = #"\+([^+]*)\+"#
-        let template = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
+        let baseTemplate = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
+        let template = String(format: invisibleTemplate, "+") + baseTemplate + String(format: invisibleTemplate, "+")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceSquareBrackets(_ input: String) -> String {
         let pattern = #"\[([^]]*)\]"#
-        let template = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
+        let baseTemplate = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
+        let template = String(format: invisibleTemplate, "[") + baseTemplate + String(format: invisibleTemplate, "]")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceAngleBrackets(_ input: String) -> String {
         let pattern = "<([^>]*)>"
-        let template = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
+        let baseTemplate = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
+        let template = String(format: invisibleTemplate, "<") + baseTemplate + String(format: invisibleTemplate, ">")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
@@ -191,8 +196,6 @@ struct MainView: View {
     }
     
     // 3. OALD Style
-    private let invisibleTemplate = "<span style=\"opacity: 0; position: absolute;\">%@</span>"
-    
     func replaceAsterisk(_ input: String) -> String { // special style, light blue with mark
         let pattern = #"\*([^*]*)\*"#
         let baseTemplate = "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
@@ -229,7 +232,7 @@ struct MainView: View {
                 .replacingOccurrences(of: "|", with: "<span style=\"color: #DE002D;\">|</span>")
             
             let pattern = #"\{([^}]*)\}"#
-            let baseTemplate = "<span style=\"font-size: 13.5px;\">$1</span>"
+            let baseTemplate = "<span style=\"font-size: 13.5px;\">$1</span>" // smaller
             let template = String(format: invisibleTemplate, "{") + baseTemplate + String(format: invisibleTemplate, "}")
             
             let regex = try! NSRegularExpression(pattern: pattern, options: [])
@@ -244,7 +247,7 @@ struct MainView: View {
         let template = String(format: invisibleTemplate, "&") + baseTemplate + String(format: invisibleTemplate, "&")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             let pattern = #"\{([^}]*)\}"#
-            let baseTemplate = "<span style=\"color: #007A6C; font-style: italic;\">$1</span>"
+            let baseTemplate = "<span style=\"color: #007A6C; font-style: italic;\">$1</span>" // light green, italic
             let template = String(format: invisibleTemplate, "{") + baseTemplate + String(format: invisibleTemplate, "}")
             
             let regex = try! NSRegularExpression(pattern: pattern, options: [])
