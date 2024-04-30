@@ -9,12 +9,14 @@ import SwiftUI
 
 struct TrimPassageView: View {
     @State private var originalPassage: String = ""
-    @State private var trimedPassage: String = ""
+    @State private var trimmedPassage: String = ""
+    @State private var trimmedCount: Int = 0
     
-    private let replacements = ["(Traveler)": "Stella",
-                                "(Traveler)'s": "Stella's",
+    private let replacements = ["(Traveler)'s": "Stella's",
+                                "(Traveler)": "Stella",
                                 "Traveler": "Stella",
-                                "Icon Dialogue Talk": "(Option) Stella:"]
+                                "Icon Dialogue Talk": "(Option) Stella:",
+                                "(sister/brother)": "brother"]
     
     var body: some View {
         GeometryReader { geometry in
@@ -27,8 +29,8 @@ struct TrimPassageView: View {
                         Button(action: {
                             if let text = ClipboardManager.pasteFromClipboard() {
                                 originalPassage = text
-                                trimedPassage = processPassage(input: originalPassage, replacements: replacements)
-                                ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
+                                trimmedPassage = processPassage(input: originalPassage, replacements: replacements)
+                                ClipboardManager.copyToClipboard(textToCopy: trimmedPassage)
                             }
                         }) {
                             Image(systemName: "doc.on.clipboard")
@@ -38,23 +40,27 @@ struct TrimPassageView: View {
                     .padding(.bottom, 10)
                     
                     VStack(alignment: .leading) {
-                        Label("Trimed Passage:", systemImage: "note.text.badge.plus")
+                        Label("Trimmed Passage:", systemImage: "note.text.badge.plus")
                             .foregroundColor(.purple)
-                        CustomTextEditor(text: $trimedPassage)
+                        CustomTextEditor(text: $trimmedPassage)
                         
-                        Button(action: {
-                            ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
-                        }) {
-                            Image(systemName: "doc.on.doc")
-                            Text("Copy to Clipboard")
+                        HStack {
+                            Button(action: {
+                                ClipboardManager.copyToClipboard(textToCopy: trimmedPassage)
+                            }) {
+                                Image(systemName: "doc.on.doc")
+                                Text("Copy to Clipboard")
+                            }
+                            Spacer()
+                            Text("Trimmed Count: \(trimmedCount)")
                         }
                     }
                 }
                 .padding(.top, 5)
                 
                 Button(action: {
-                    trimedPassage = processPassage(input: originalPassage, replacements: replacements)
-                    ClipboardManager.copyToClipboard(textToCopy: trimedPassage)
+                    trimmedPassage = processPassage(input: originalPassage, replacements: replacements)
+                    ClipboardManager.copyToClipboard(textToCopy: trimmedPassage)
                 }) {
                     Image(systemName: "scissors").foregroundColor(.indigo)
                     Text("Trim Passage").foregroundColor(.indigo)
@@ -68,9 +74,32 @@ struct TrimPassageView: View {
         }
     }
     
+    func cleanText(_ input: String) -> String {
+        // Start with built-in character sets for letters and decimal digits
+        var allowedCharacterSet = CharacterSet.letters
+        allowedCharacterSet.formUnion(CharacterSet.decimalDigits)
+        
+        // Define additional common punctuation and whitespace characters
+        let additionalCharacters = "#*> ,.!?;:'\"()[]{}-–—_/\n\t"
+        
+        // Include these additional characters into the allowed set
+        allowedCharacterSet.formUnion(CharacterSet(charactersIn: additionalCharacters))
+        
+        // Filter the input string to retain only characters in the allowed character set
+        let filteredScalars = input.unicodeScalars.filter { allowedCharacterSet.contains($0) }
+        let cleanedText = String(filteredScalars)
+        
+        // Debugging: Calculate and print the number of characters removed
+        trimmedCount = input.count - cleanedText.count
+        
+        // Return the cleaned text
+        return cleanedText
+    }
+    
     func processPassage(input: String, replacements: [String: String]) -> String {
+        var modifiedInput = cleanText(input)
+        
         // Step 1: Replace keywords based on the replacements dictionary
-        var modifiedInput = input
         for (keyword, replacement) in replacements {
             modifiedInput = modifiedInput.replacingOccurrences(of: keyword, with: replacement)
         }
