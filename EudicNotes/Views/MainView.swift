@@ -171,9 +171,17 @@ struct MainView: View {
     
     // 2. LDOCE Style
     func replacePOS(_ input: String) -> String { // special style, dark red
-        let pattern = #"\b(?:noun|verb|adjective|adverb)\b"#
-        let template = "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$0</span>"
-        return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
+        let patternTemplatePairs: [String: String] = [
+            #"\b(noun|verb|adjective|adverb|preposition|conjunction)\b"#: "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$1</span>",
+            #"\b(Phrasal Verb)\b"#: "<span style=\"font-family: Optima; color: rgba(196, 21, 27, 0.8); font-size: 74%; border: 1px solid rgba(196, 21, 27, 0.8); padding: 0px 3px; margin: 0 2px;\">$1</span>",
+            #"\b(Idioms)\b"#: "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; margin: 0 2px;\">$1</span>"
+        ]
+        
+        var modifiedInput = input
+        for (pattern, template) in patternTemplatePairs {
+            modifiedInput = replacePattern(in: modifiedInput, withRegexPattern: pattern, usingTemplate: template)
+        }
+        return modifiedInput
     }
     
     func replaceSlash(_ input: String) -> String { // special style, hotpink
@@ -216,7 +224,17 @@ struct MainView: View {
         let baseTemplate = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
         let template = String(format: invisibleTemplate, "@") + baseTemplate + String(format: invisibleTemplate, "@")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, transform: { match in
-            return match.replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
+            let modifiedMatch = match
+                .replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
+                .replacingOccurrences(of: "|", with: "<span style=\"color: #DE002D;\">|</span>")
+            
+            let pattern = #"\{([^}]*)\}"#
+            let baseTemplate = "<span style=\"font-size: 13.5px;\">$1</span>"
+            let template = String(format: invisibleTemplate, "{") + baseTemplate + String(format: invisibleTemplate, "}")
+            
+            let regex = try! NSRegularExpression(pattern: pattern, options: [])
+            let range = NSRange(match.startIndex..<match.endIndex, in: match)
+            return regex.stringByReplacingMatches(in: modifiedMatch, options: [], range: range, withTemplate: template)
         })
     }
     
