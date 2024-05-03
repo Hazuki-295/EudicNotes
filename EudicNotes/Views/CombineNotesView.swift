@@ -80,9 +80,13 @@ struct CombineNotesView: View {
                 // clear all
                 Button(action: {
                     note1 = ""
+                    renderedNote1 = ""
                     note2 = ""
+                    renderedNote2 = ""
                     note3 = ""
+                    renderedNote3 = ""
                     note4 = ""
+                    renderedNote4 = ""
                 }) {
                     Image(systemName: "eraser.line.dashed")
                     Text("Clear All")

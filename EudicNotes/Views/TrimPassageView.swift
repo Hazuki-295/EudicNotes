@@ -12,11 +12,14 @@ struct TrimPassageView: View {
     @State private var trimmedPassage: String = ""
     @State private var trimmedCount: Int = 0
     
-    private let replacements = ["(Traveler)'s": "Stella's",
-                                "(Traveler)": "Stella",
-                                "Traveler": "Stella",
-                                "Icon Dialogue Talk": "(Option) Stella:",
-                                "(sister/brother)": "brother"]
+    private let replacements: [(String, String)] = [
+        ("(Traveler)'s", "Stella's"),
+        ("(Traveler)", "Stella"),
+        ("Traveler", "Stella"),
+        ("Icon Dialogue Talk", "(Option) Stella:"),
+        ("(sister/brother)", "brother"),
+        ("(Mister/Miss)", "Miss"),
+        ("(He/She)", "She"),]
     
     var body: some View {
         GeometryReader { geometry in
@@ -111,7 +114,7 @@ struct TrimPassageView: View {
         return cleanedText
     }
     
-    func processPassage(input: String, replacements: [String: String]) -> String {
+    func processPassage(input: String, replacements: [(String, String)]) -> String {
         var modifiedInput = cleanText(input)
         
         // Step 1: Replace keywords based on the replacements dictionary

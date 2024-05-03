@@ -198,7 +198,7 @@ struct Utils {
     // 2. LDOCE Style
     static private func replacePOS(_ input: String) -> String { // special style, dark red
         let patternTemplatePairs: [String: String] = [
-            #"\b(noun|verb|adjective|adverb|preposition|conjunction)\b"#: "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$1</span>",
+            #"\b(noun|verb|adjective|adverb|preposition|conjunction|pronoun)\b"#: "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$1</span>",
             #"\b(Phrasal Verb)\b"#: "<span style=\"font-family: Optima; color: rgba(196, 21, 27, 0.8); font-size: 74%; border: 1px solid rgba(196, 21, 27, 0.8); padding: 0px 3px; margin: 0 2px;\">$1</span>",
             #"\b(Idioms)\b"#: "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; margin: 0 2px;\">$1</span>"
         ]
@@ -252,9 +252,8 @@ struct Utils {
                 .replacingOccurrences(of: "{,}", with: "<span style=\"color: #DE002D;\">,</span>")
                 .replacingOccurrences(of: "|", with: "<span style=\"color: #DE002D;\">|</span>")
             
-            let pattern = #"\{([^}]*)\}"#
-            let baseTemplate = "<span style=\"font-size: 13.5px;\">$1</span>" // smaller
-            let template = String(format: invisibleTemplate, "{") + baseTemplate + String(format: invisibleTemplate, "}")
+            let pattern = #"⟨([^⟩]*)⟩"#
+            let template = "<span style=\"font-size: 13.5px;\">$0</span>" // smaller
             
             let regex = try! NSRegularExpression(pattern: pattern, options: [])
             let range = NSRange(match.startIndex..<match.endIndex, in: match)
