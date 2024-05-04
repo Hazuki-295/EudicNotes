@@ -64,8 +64,6 @@ struct CombineNotesView: View {
     
     @State private var combinedNotes: String = ""
     
-    private let separator: String = "\n<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0;\">"
-    
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
@@ -90,17 +88,16 @@ struct CombineNotesView: View {
                 HStack {
                     Button(action: {
                         var noteComponents = retrieveNotes()
-                        
                         while noteComponents.count < 4 {
                             noteComponents.append("")
                         }
-                        
                         (plainNotes1, plainNotes2, plainNotes3, plainNotes4) = (noteComponents[0], noteComponents[1], noteComponents[2], noteComponents[3])
                     }) {
                         Image(systemName: "list.clipboard").foregroundColor(.purple)
                         Text("Retrieve Clipboard").foregroundColor(.purple)
                     }
                     Button(action: {
+                        let separator = "\n" + "<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0;\">"
                         let notes = [renderedNotes1, renderedNotes2, renderedNotes3, renderedNotes4]
                         combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
                         ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
@@ -122,7 +119,7 @@ struct CombineNotesView: View {
         // retrieve clipboard
         let combinedNotes = ClipboardManager.pasteFromClipboard() ?? ""
         
-        let pattern = "(\\[Source\\][\\s\\S]*?)(?=\\[Source\\]|$)"
+        let pattern = #"(\[Source\][\s\S]+?)(?=\[Source\]|$)"#
         let regex = try! NSRegularExpression(pattern: pattern, options: [])
         let range = NSRange(combinedNotes.startIndex..., in: combinedNotes)
         let matches = regex.matches(in: combinedNotes, options: [], range: range)

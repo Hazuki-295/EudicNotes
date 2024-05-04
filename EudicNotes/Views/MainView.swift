@@ -165,10 +165,10 @@ struct MessageUtils {
     // Recognize the content from the message using regex
     static func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
         let patterns = [
-            "source": #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#,
-            "originalText": #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#|$)"#,
-            "notes": #"\[Notes\]\s*([\s\S]+?)\s*(?=#|$)"#,
-            "tags": "(#[A-Za-z]+)"
+            "source": #"\[Source\]([\s\S]+?)(?=\[Original Text\])"#, // capturing with non-greedy plus
+            "originalText": #"\[Original Text\]([\s\S]+?)(?=(\[Notes\]|#|$))"#, // stop at "[Notes]" or tags or end of string
+            "notes": #"\[Notes\]([\s\S]+?)(?=(#|$))"#, // stop at tags or end of string
+            "tags": "(#[A-Za-z]+)" // capture tags
         ]
         source = matchAndTrim(input, withRegexPattern: patterns["source"]!)
         originalText = matchAndTrim(input, withRegexPattern: patterns["originalText"]!)
@@ -185,7 +185,7 @@ struct MessageUtils {
         // Access the first match
         guard let match = regex.firstMatch(in: input, range: range),
               let captureRange = Range(match.range(at: 1), in: input) else {
-            return ""  // Return an empty string if no content is captured
+            return "" // Return an empty string if no content is captured
         }
         
         // Return the trimmed captured group, handle potentially empty capture gracefully

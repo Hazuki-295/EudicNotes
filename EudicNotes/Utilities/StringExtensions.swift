@@ -94,7 +94,7 @@ extension String {
     }
     
     func replaceSlash() -> String { // special style, hotpink
-        let pattern = #"(?<![<A-Za-z.])/[A-Za-z.]+(?:\s+[A-Za-z.]+)*"#
+        let pattern = #"(?<![<A-Za-z.])/[A-Za-z.-]+(\s+[A-Za-z.-]+)*"# // not inside </span>, not words that separated by '/'
         let template = "<span style=\"font-family: Optima; color: hotpink; font-size: 80%; font-weight: bold; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
@@ -138,7 +138,8 @@ extension String {
             
             let replacements: [String: String] = [
                 "⟨([^⟩]*)⟩": "<span style=\"font-size: 13.5px;\">$0</span>", // smaller
-                #"\{([^}]*)\}"#: invisibleTemplate("{", middleString: "<span style=\"font-style: italic;\">$1</span>", "}") // italic
+                #"\{([^}]*)\}"#: invisibleTemplate("{", middleString: "<span style=\"font-style: italic;\">$1</span>", "}"), // italic
+                "_([^_]*)_": invisibleTemplate("_", middleString: "<span style=\"font-family: Bookerly, 'Source Han Serif CN'; color: #007A6C;\">$1</span>", "_") // light green
             ]
             
             for (pattern, template) in replacements {
