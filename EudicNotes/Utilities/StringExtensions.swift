@@ -51,10 +51,10 @@ private func invisibleTemplate(_ firstChar: Character, middleString: String, _ l
 
 extension String {
     // 1. Colorful fonts
-    mutating func highlightWord(wordPhrase: String) {
+    func highlightWord(_ wordPhrase: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
         let template = "+$0+"
-        self = replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template, options: .caseInsensitive)
+        return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template, options: .caseInsensitive)
     }
     
     func replacePlusSign(revert: Bool = false) -> String {

@@ -145,51 +145,21 @@ struct MainView: View {
 }
 
 struct MessageUtils {
+    // Centralized style templates
+    private static let styleTemplates = [
+        "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
+        "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
+        "Bookerly": "<span style=\"font-family: Bookerly;\">%@</span>"
+    ]
+    
     // Combine the input into a single message
     static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String) -> String {
-        let styleTemplates = [
-            "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
-            "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
-            "Bookerly": "<span style=\"font-family: Bookerly;\">%@</span>"
-        ]
+        let modifiedSource = formatSource(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
+        let modifiedOriginalText = formatOriginalText(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))
+        let modifiedNotes = notes.isEmpty ? "" : formatNotes(notes)
+        let modifiedTags = tags.isEmpty ? "" : formatTags(tags)
         
-        var (modifiedSource, modifiedOriginalText, modifiedNotes, modifiedTags) = (source, originalText, notes, tags)
-        
-        // Highlight the wordPhrase if provided
-        if !wordPhrase.isEmpty {
-            modifiedSource.highlightWord(wordPhrase: wordPhrase)
-            modifiedOriginalText.highlightWord(wordPhrase: wordPhrase)
-        }
-        
-        // Source
-        modifiedSource = modifiedSource.replacePlusSign() // light blue
-        
-        // Original Text
-        modifiedOriginalText = modifiedOriginalText.replaceAngleBrackets() // red
-            .replacePlusSign() // light blue
-            .replaceSquareBrackets() // green
-        
-        // Notes
-        if !notes.isEmpty {
-            modifiedNotes = modifiedNotes.replaceAngleBrackets() // red
-                .replacePOS()
-                .replaceSlash()
-                .replaceAtSign()
-                .replaceAndSign()
-                .replacePlusSign() // light blue
-                .replaceAsterisk()
-                .replaceCaretSign()
-                .replaceExclamation()
-                .replaceSquareBrackets() // green
-            
-            modifiedNotes = "\n\n" + String(format: styleTemplates["label"]!, "Notes") + " " + modifiedNotes
-        }
-        
-        if !tags.isEmpty {
-            modifiedTags = "\n\n" + String(format: styleTemplates["Bookerly"]!, tags)
-        }
-        
-        // Generate the final message
+        // Combine into the final message
         let message = """
             \(String(format: styleTemplates["label"]!, "Source")) \(modifiedSource)
             
@@ -200,34 +170,60 @@ struct MessageUtils {
         return String(format: styleTemplates["content"]!, message)
     }
     
+    // Recognize the content from the message using regex
     static func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
-        // Regular expression patterns for capturing the contents
-        let sourcePattern = #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#
-        let originalTextPattern = #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#|$)"#
-        let notesPattern = #"\[Notes\]\s*([\s\S]+?)\s*(?=#|$)"#
-        let tagsPattern = "(#[A-Za-z]+)"
+        let patterns = [
+            "source": #"\[Source\]\s*([\s\S]+?)\s*(?=\[Original Text\])"#,
+            "originalText": #"\[Original Text\]\s*([\s\S]+?)\s*(?=\[Notes\]|#|$)"#,
+            "notes": #"\[Notes\]\s*([\s\S]+?)\s*(?=#|$)"#,
+            "tags": "(#[A-Za-z]+)"
+        ]
+        source = matchAndTrim(input, withRegexPattern: patterns["source"]!)
+        originalText = matchAndTrim(input, withRegexPattern: patterns["originalText"]!)
+        notes = matchAndTrim(input, withRegexPattern: patterns["notes"]!)
+        tags = matchAndTrim(input, withRegexPattern: patterns["tags"]!)
+    }
+    
+    // Helper function for regex matching and trimming the first and only capturing group using a regular expression pattern
+    private static func matchAndTrim(_ input: String, withRegexPattern pattern: String) -> String {
+        // Since we assume the regex is always correct, directly create the regex
+        let regex = try! NSRegularExpression(pattern: pattern)
+        let range = NSRange(input.startIndex..., in: input)
         
-        // Function to find and trim the first and only capturing group using a regular expression pattern
-        func matchAndTrim(_ input: String, withRegexPattern pattern: String) -> String {
-            // Since we assume the regex is always correct, directly create the regex
-            let regex = try! NSRegularExpression(pattern: pattern, options: [])
-            let range = NSRange(input.startIndex..., in: input)
-            
-            // Access the first match
-            guard let match = regex.firstMatch(in: input, options: [], range: range),
-                  let captureRange = Range(match.range(at: 1), in: input) else {
-                return ""  // Return an empty string if no content is captured
-            }
-            
-            // Return the trimmed captured group, handle potentially empty capture gracefully
-            return String(input[captureRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+        // Access the first match
+        guard let match = regex.firstMatch(in: input, range: range),
+              let captureRange = Range(match.range(at: 1), in: input) else {
+            return ""  // Return an empty string if no content is captured
         }
         
-        // Extracting and trimming the contents
-        source = matchAndTrim(input, withRegexPattern: sourcePattern)
-        originalText = matchAndTrim(input, withRegexPattern: originalTextPattern)
-        notes = matchAndTrim(input, withRegexPattern: notesPattern)
-        tags = matchAndTrim(input, withRegexPattern: tagsPattern)
+        // Return the trimmed captured group, handle potentially empty capture gracefully
+        return String(input[captureRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    // Helper functions to format different parts of the message
+    private static func formatSource(_ source: String) -> String {
+        return source.replacePlusSign()
+    }
+    
+    private static func formatOriginalText(_ text: String) -> String {
+        return text.replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
+    }
+    
+    private static func formatNotes(_ notes: String) -> String {
+        return "\n\n" + String(format: styleTemplates["label"]!, "Notes") + " " + notes.replaceAngleBrackets()
+            .replacePOS()
+            .replaceSlash()
+            .replaceAtSign()
+            .replaceAndSign()
+            .replacePlusSign()
+            .replaceAsterisk()
+            .replaceCaretSign()
+            .replaceExclamation()
+            .replaceSquareBrackets()
+    }
+    
+    private static func formatTags(_ tags: String) -> String {
+        return "\n\n" + String(format: styleTemplates["Bookerly"]!, tags)
     }
 }
 
