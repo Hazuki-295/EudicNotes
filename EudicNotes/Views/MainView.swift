@@ -31,8 +31,18 @@ struct MainView: View {
             
             // Original Text
             HStack {
-                Image(systemName: "book")
-                Text("Original Text:")
+                VStack {
+                    HStack {
+                        Image(systemName: "book")
+                        Text("Original Text:")
+                    }
+                    Button(action: {self.clearLabels()}){
+                        HStack {
+                            Image(systemName: "eraser.line.dashed")
+                            Text("Clear")
+                        }
+                    }
+                }
                 CustomTextEditor(text: $originalText)
             }
             
@@ -125,6 +135,12 @@ struct MainView: View {
         //tags = ""
         generatedMessage = ""
     }
+    
+    func clearLabels() {
+        originalText = Utils.replacePlusSign(originalText, revert: true)
+        originalText = Utils.replaceAngleBrackets(originalText, revert: true)
+        originalText = Utils.replaceSquareBrackets(originalText, revert: true)
+    }
 }
 
 struct Utils {
@@ -176,24 +192,24 @@ struct Utils {
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template, options: .caseInsensitive)
     }
     
-    static private func replacePlusSign(_ input: String) -> String {
+    static public func replacePlusSign(_ input: String, revert: Bool = false) -> String {
         let pattern = #"\+([^+]*)\+"#
         let baseTemplate = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
-        let template = invisibleTemplate("+", middleString: baseTemplate, "+")
+        let template = revert ? "$1" : invisibleTemplate("+", middleString: baseTemplate, "+")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    static private func replaceSquareBrackets(_ input: String) -> String {
+    static public func replaceSquareBrackets(_ input: String, revert: Bool = false) -> String {
         let pattern = #"\[([^]]*)\]"#
         let baseTemplate = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
-        let template = invisibleTemplate("[", middleString: baseTemplate, "]")
+        let template = revert ? "$1" : invisibleTemplate("[", middleString: baseTemplate, "]")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    static private func replaceAngleBrackets(_ input: String) -> String {
+    static public func replaceAngleBrackets(_ input: String, revert: Bool = false) -> String {
         let pattern = "<([^>]*)>"
         let baseTemplate = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
-        let template = invisibleTemplate("<", middleString: baseTemplate, ">")
+        let template = revert ? "$1" : invisibleTemplate("<", middleString: baseTemplate, ">")
         return replacePattern(in: input, withRegexPattern: pattern, usingTemplate: template)
     }
     
