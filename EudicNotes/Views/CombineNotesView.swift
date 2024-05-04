@@ -29,8 +29,8 @@ struct SingleNotesView: View {
                 CustomTextEditor(text: $renderedNote, minWidth: 300)
                     .onChange(of: noteText) { [noteText] in
                         if noteText != "" {
-                            Utils.recognizeMessage(in: noteText, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
-                            renderedNote = Utils.generateMessage(source: source, originalText: originalText, notes: notes, tags: tags)
+                            MessageUtils.recognizeMessage(in: noteText, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
+                            renderedNote = MessageUtils.generateMessage(source: source, originalText: originalText, notes: notes, tags: tags)
                         } else {
                             renderedNote = ""
                         }

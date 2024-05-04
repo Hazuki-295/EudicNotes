@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */; };
 		B37B26522B99DCD90072477F /* ComboBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26512B99DCD90072477F /* ComboBox.swift */; };
 		B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26532B99DF380072477F /* InputHistoryViewModel.swift */; };
 		B37B26562B9A05390072477F /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26552B9A05390072477F /* OptionsView.swift */; };
@@ -43,6 +44,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		B37B26512B99DCD90072477F /* ComboBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboBox.swift; sourceTree = "<group>"; };
 		B37B26532B99DF380072477F /* InputHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHistoryViewModel.swift; sourceTree = "<group>"; };
 		B37B26552B9A05390072477F /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				B37B26592B9A263F0072477F /* ClipboardManager.swift */,
+				B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */,
 				B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */,
 				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
