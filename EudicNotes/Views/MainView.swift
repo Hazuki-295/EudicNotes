@@ -147,12 +147,16 @@ struct MainView: View {
 struct MessageUtils {
     // Combine the input into a single message
     static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String) -> String {
-        var modifiedSource = source
-        var modifiedOriginalText = originalText
-        var modifiedNotes = notes
-        var modifiedTags = tags
+        let styleTemplates = [
+            "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
+            "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
+            "Bookerly": "<span style=\"font-family: Bookerly;\">%@</span>"
+        ]
         
-        if wordPhrase != "" {
+        var (modifiedSource, modifiedOriginalText, modifiedNotes, modifiedTags) = (source, originalText, notes, tags)
+        
+        // Highlight the wordPhrase if provided
+        if !wordPhrase.isEmpty {
             modifiedSource.highlightWord(wordPhrase: wordPhrase)
             modifiedOriginalText.highlightWord(wordPhrase: wordPhrase)
         }
@@ -166,7 +170,7 @@ struct MessageUtils {
             .replaceSquareBrackets() // green
         
         // Notes
-        if notes != "" {
+        if !notes.isEmpty {
             modifiedNotes = modifiedNotes.replaceAngleBrackets() // red
                 .replacePOS()
                 .replaceSlash()
@@ -177,28 +181,23 @@ struct MessageUtils {
                 .replaceCaretSign()
                 .replaceExclamation()
                 .replaceSquareBrackets() // green
+            
+            modifiedNotes = "\n\n" + String(format: styleTemplates["label"]!, "Notes") + " " + modifiedNotes
         }
         
-        let labelTemplate = "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>" // median dark blue
-        
-        if notes != "" {
-            modifiedNotes = "\n\n" + String(format: labelTemplate, "Notes") + " " + modifiedNotes
-        }
-        if tags != "" {
-            modifiedTags = "\n\n" + "<span style=\"font-family: Bookerly;\">\(tags)</span>"
+        if !tags.isEmpty {
+            modifiedTags = "\n\n" + String(format: styleTemplates["Bookerly"]!, tags)
         }
         
-        var generatedMessage = """
-        \(String(format: labelTemplate, "Source")) \(modifiedSource)
-        
-        \(String(format: labelTemplate, "Original Text"))
-        
-        \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
-        """
-        
-        generatedMessage = "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">" + generatedMessage + "</span>"
-        
-        return generatedMessage
+        // Generate the final message
+        let message = """
+            \(String(format: styleTemplates["label"]!, "Source")) \(modifiedSource)
+            
+            \(String(format: styleTemplates["label"]!, "Original Text"))
+            
+            \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
+            """
+        return String(format: styleTemplates["content"]!, message)
     }
     
     static func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
