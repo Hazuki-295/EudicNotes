@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-enum Tabs {
-    case trimPassage
-    case combineNotes
-}
-
 struct OptionsView: View {
+    private enum Tabs {
+        case combineNotes, trimPassage
+    }
+    
     @State private var selectedTab: Tabs = .combineNotes
     
     private let width: CGFloat = 750
@@ -20,17 +19,17 @@ struct OptionsView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            TrimPassageView()
-                .tabItem {
-                    Text("Trim Passage")
-                }
-                .tag(Tabs.trimPassage)
-            
             CombineNotesView()
                 .tabItem {
                     Text("Combine Notes")
                 }
                 .tag(Tabs.combineNotes)
+            
+            TrimPassageView()
+                .tabItem {
+                    Text("Trim Passage")
+                }
+                .tag(Tabs.trimPassage)
         }
         .frame(minWidth: width, maxWidth: width,
                minHeight: height, maxHeight: height)

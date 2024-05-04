@@ -87,7 +87,7 @@ struct TrimPassageView: View {
         }
     }
     
-    func cleanText(_ input: String) -> String {
+    private func cleanText(_ input: String) -> String {
         // Start with built-in character sets for letters and decimal digits
         var allowedCharacterSet = CharacterSet.letters
         allowedCharacterSet.formUnion(CharacterSet.decimalDigits)
@@ -114,7 +114,7 @@ struct TrimPassageView: View {
         return cleanedText
     }
     
-    func processPassage(input: String, replacements: [(String, String)]) -> String {
+    private func processPassage(input: String, replacements: [(String, String)]) -> String {
         var modifiedInput = cleanText(input)
         
         // Step 1: Replace keywords based on the replacements dictionary

@@ -75,7 +75,8 @@ struct MainView: View {
                     ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
                 }
                 Button("Recognize Message") {
-                    self.recognizeMessage()
+                    wordPhrase = ""
+                    MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
                 }
                 
                 Spacer()
@@ -110,8 +111,9 @@ struct MainView: View {
                 }
                 Button(action: {
                     if let text = ClipboardManager.pasteFromClipboard() {
+                        wordPhrase = ""
                         generatedMessage = text
-                        self.recognizeMessage()
+                        MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
                     }
                 }) {
                     Image(systemName: "doc.on.clipboard")
@@ -122,18 +124,8 @@ struct MainView: View {
         .padding()
     }
     
-    func recognizeMessage() {
-        MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
-        wordPhrase = ""
-    }
-    
     func clearFields() {
-        source = ""
-        originalText = ""
-        wordPhrase = ""
-        notes = ""
-        //tags = ""
-        generatedMessage = ""
+        (source, originalText, wordPhrase, notes, tags, generatedMessage) = ("", "", "", "", "", "")
     }
     
     func clearLabels() {
