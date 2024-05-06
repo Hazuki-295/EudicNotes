@@ -23,7 +23,7 @@ struct HTMLStringView: NSViewRepresentable {
     func updateNSView(_ nsView: WKWebView, context: Context) {
         let modifiedHtmlContent = """
         <style>
-        body { visibility: hidden; } // Ensure body is hidden until fully styled
+        body { visibility: hidden; font-family: Optima, Bookerly, 'Source Han Serif CN'; } // Ensure body is hidden until fully styled
         </style>
         \(htmlContent)
         """

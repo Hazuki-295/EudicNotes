@@ -47,7 +47,7 @@ struct MainView: View {
                 }
                 CustomTextEditor(text: $originalText)
             }
-            .frame(height: 150)
+            .frame(height: 120)
             
             // Word or Phrase
             HStack {
@@ -63,7 +63,7 @@ struct MainView: View {
                 Text("Notes:")
                 CustomTextEditor(text: $notes)
             }
-            .frame(height: 100)
+            .frame(height: 60)
             
             // Tags
             HStack {
@@ -100,8 +100,11 @@ struct MainView: View {
             }
             .padding(.trailing, 5)
             
-            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", plainNotes: $plainNotes, renderedNotes: $renderedNotes)
-                .frame(height: 200)
+            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", plainNotes: $plainNotes, renderedNotes: $renderedNotes, pasteAction: {
+                wordPhrase = ""
+                MessageUtils.recognizeMessage(in: plainNotes, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
+            })
+            .frame(height: 250)
         }
         .padding()
     }
@@ -123,7 +126,7 @@ struct MessageUtils {
     private static let styleTemplates = [
         "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
         "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
-        "Bookerly": "<span style=\"font-family: Bookerly;\">%@</span>"
+        "tags": "<span style=\"font-family: Bookerly; color: #0D85FF;\">%@</span>"
     ]
     
     // Combine the input into a single message
@@ -213,7 +216,7 @@ struct MessageUtils {
     }
     
     private static func formatTags(_ tags: String) -> String {
-        return "\n\n" + String(format: styleTemplates["Bookerly"]!, tags)
+        return "\n\n" + String(format: styleTemplates["tags"]!, tags)
     }
 }
 

@@ -20,6 +20,8 @@ struct SingleNotesView: View {
     @Binding var plainNotes: String
     @Binding var renderedNotes: String
     
+    var pasteAction: (() -> Void)?
+    
     @State private var showTextEditor = false
     
     var body: some View {
@@ -51,7 +53,7 @@ struct SingleNotesView: View {
             }
             
             HStack {
-                Button(action: {if let text = ClipboardManager.pasteFromClipboard() {plainNotes = text}}) {
+                Button(action: { if let text = ClipboardManager.pasteFromClipboard() { plainNotes = text; pasteAction?() } }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
