@@ -75,12 +75,12 @@ struct MainView: View {
             // buttons
             HStack {
                 Button("Generate Message") {
-                    // generatedMessage = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags)
-                    // ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
+                    plainNotes = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags, plain: true)
+                    ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
                 }
                 Button("Recognize Message") {
-                    // wordPhrase = ""
-                    // MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
+                    wordPhrase = ""
+                    MessageUtils.recognizeMessage(in: plainNotes, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
                 }
                 
                 Spacer()
@@ -127,21 +127,37 @@ struct MessageUtils {
     ]
     
     // Combine the input into a single message
-    static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String) -> String {
+    static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String, plain: Bool = false) -> String {
+        // plain notes
+        let plainNotes = """
+            [Source] \(source)
+            
+            [Original Text]
+            
+            \(originalText)\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
+            """
+        
+        if plain {
+            return plainNotes
+        }
+        
+        // rendered notes
         let modifiedSource = formatSource(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
         let modifiedOriginalText = formatOriginalText(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))
         let modifiedNotes = notes.isEmpty ? "" : formatNotes(notes)
         let modifiedTags = tags.isEmpty ? "" : formatTags(tags)
         
-        // Combine into the final message
-        let message = """
+        var renderedNotes = """
             \(String(format: styleTemplates["label"]!, "Source")) \(modifiedSource)
             
             \(String(format: styleTemplates["label"]!, "Original Text"))
             
             \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
             """
-        return String(format: styleTemplates["content"]!, message)
+        
+        renderedNotes = String(format: styleTemplates["content"]!, renderedNotes)
+        
+        return renderedNotes
     }
     
     // Recognize the content from the message using regex
