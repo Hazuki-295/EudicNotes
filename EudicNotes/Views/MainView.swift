@@ -74,13 +74,22 @@ struct MainView: View {
             
             // buttons
             HStack {
-                Button("Generate Message") {
+                Button(action: {
                     plainNotes = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags, plain: true)
                     ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
+                }) {
+                    HStack {
+                        Image(systemName: "paintbrush")
+                        Text("Generate Notes")
+                    }
                 }
-                Button("Recognize Message") {
-                    wordPhrase = ""
-                    MessageUtils.recognizeMessage(in: plainNotes, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
+                Button(action: {
+                    ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
+                }) {
+                    HStack {
+                        Image(systemName: "list.clipboard")
+                        Text("Copy Row HTML")
+                    }
                 }
                 
                 Spacer()
