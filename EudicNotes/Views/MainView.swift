@@ -75,8 +75,7 @@ struct MainView: View {
             // buttons
             HStack {
                 Button(action: {
-                    plainNotes = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags, plain: true)
-                    ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
+                    plainNotes = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags, plain: true, copy: true)
                 }) {
                     HStack {
                         Image(systemName: "paintbrush")
@@ -139,7 +138,7 @@ struct MessageUtils {
     ]
     
     // Combine the input into a single message
-    static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String, plain: Bool = false) -> String {
+    static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String, plain: Bool = false, copy: Bool = false) -> String {
         // plain notes
         let plainNotes = """
             [Source] \(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
@@ -148,10 +147,6 @@ struct MessageUtils {
             
             \(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
             """
-        
-        if plain {
-            return plainNotes
-        }
         
         // rendered notes
         let modifiedSource = formatSource(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
@@ -169,7 +164,11 @@ struct MessageUtils {
         
         renderedNotes = String(format: styleTemplates["content"]!, renderedNotes)
         
-        return renderedNotes
+        if copy {
+            ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
+        }
+        
+        return plain ? plainNotes : renderedNotes
     }
     
     // Recognize the content from the message using regex
