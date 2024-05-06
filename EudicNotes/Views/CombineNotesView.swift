@@ -26,7 +26,7 @@ struct SingleNotesView: View {
             
             HStack {
                 CustomTextEditor(text: $plainNotes, minWidth: 300)
-                CustomTextEditor(text: $renderedNotes, minWidth: 300)
+                CustomWebView(htmlString: $renderedNotes, minWidth: 300)
                     .onChange(of: plainNotes) { [plainNotes] in
                         if !plainNotes.isEmpty {
                             MessageUtils.recognizeMessage(in: plainNotes, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
