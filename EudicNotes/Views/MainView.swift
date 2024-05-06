@@ -38,7 +38,7 @@ struct MainView: View {
                         Image(systemName: "book")
                         Text("Original Text:")
                     }
-                    Button(action: {self.clearLabels()}){
+                    Button(action: { self.clearLabels(); wordPhrase = "" }){
                         HStack {
                             Image(systemName: "eraser.line.dashed")
                             Text("Clear")
@@ -142,11 +142,11 @@ struct MessageUtils {
     static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String, plain: Bool = false) -> String {
         // plain notes
         let plainNotes = """
-            [Source] \(source)
+            [Source] \(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
             
             [Original Text]
             
-            \(originalText)\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
+            \(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
             """
         
         if plain {
