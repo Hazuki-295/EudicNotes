@@ -56,23 +56,17 @@ struct HTMLStringView: NSViewRepresentable {
 struct CustomWebView: View {
     @Binding var htmlString: String
     
-    var minWidth: CGFloat = 300
-    var minHeight: CGFloat = 100
-    
     var body: some View {
         let paragraphs = htmlString.components(separatedBy: "\n").map { "<p>\($0)</p>" }.joined()
         
-        ZStack {
-            HTMLStringView(htmlContent: paragraphs)
-                .frame(minWidth: minWidth, minHeight: minHeight)
-                .lineSpacing(2)
-                .padding(5)
-                .background(Color.white)
-                .cornerRadius(5)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 5)
-                        .stroke(Color.gray, lineWidth: 1)
-                )
-        }
+        HTMLStringView(htmlContent: paragraphs)
+            .lineSpacing(2)
+            .padding(5)
+            .background(Color.white)
+            .cornerRadius(5)
+            .overlay(
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Color.gray, lineWidth: 1)
+            )
     }
 }

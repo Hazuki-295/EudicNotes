@@ -8,13 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    private let width: CGFloat = 550
-    private let height: CGFloat = 650
-    
     var body: some View {
         MainView()
-            .frame(minWidth: width, maxWidth: width,
-                   minHeight: height, maxHeight: height)
+            .frame(width: 600, height: 660)
+            .fixedSize()
     }
 }
 

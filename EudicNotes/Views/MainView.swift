@@ -13,7 +13,9 @@ struct MainView: View {
     @State private var wordPhrase: String = ""
     @State private var notes: String = ""
     @State private var tags: String = ""
-    @State private var generatedMessage: String = ""
+    
+    @State private var plainNotes: String = ""
+    @State private var renderedNotes: String = ""
     
     @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
     @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
@@ -45,6 +47,7 @@ struct MainView: View {
                 }
                 CustomTextEditor(text: $originalText)
             }
+            .frame(height: 150)
             
             // Word or Phrase
             HStack {
@@ -58,8 +61,9 @@ struct MainView: View {
             HStack {
                 Image(systemName: "bookmark")
                 Text("Notes:")
-                CustomTextEditor(text: $notes, minHeight: 40)
+                CustomTextEditor(text: $notes)
             }
+            .frame(height: 100)
             
             // Tags
             HStack {
@@ -71,12 +75,12 @@ struct MainView: View {
             // buttons
             HStack {
                 Button("Generate Message") {
-                    generatedMessage = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags)
-                    ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
+                    // generatedMessage = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags)
+                    // ClipboardManager.copyToClipboard(textToCopy: generatedMessage)
                 }
                 Button("Recognize Message") {
-                    wordPhrase = ""
-                    MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
+                    // wordPhrase = ""
+                    // MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
                 }
                 
                 Spacer()
@@ -94,38 +98,16 @@ struct MainView: View {
                     }
                 }
             }
+            .padding(.trailing, 5)
             
-            // Generated Notes
-            HStack {
-                Image(systemName: "note.text")
-                Text("Generated Notes:")
-            }
-            .padding(.top, 5)
-            
-            CustomTextEditor(text: $generatedMessage, minHeight: 200)
-            
-            HStack {
-                Button(action: {ClipboardManager.copyToClipboard(textToCopy: generatedMessage)}) {
-                    Image(systemName: "doc.on.doc")
-                    Text("Copy to Clipboard")
-                }
-                Button(action: {
-                    if let text = ClipboardManager.pasteFromClipboard() {
-                        wordPhrase = ""
-                        generatedMessage = text
-                        MessageUtils.recognizeMessage(in: generatedMessage, source: &self.source, originalText: &self.originalText, notes: &self.notes, tags: &self.tags)
-                    }
-                }) {
-                    Image(systemName: "doc.on.clipboard")
-                    Text("Paste from Clipboard")
-                }
-            }
+            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", plainNotes: $plainNotes, renderedNotes: $renderedNotes)
+                .frame(height: 200)
         }
         .padding()
     }
     
     func clearFields() {
-        (source, originalText, wordPhrase, notes, tags, generatedMessage) = ("", "", "", "", "", "")
+        (source, originalText, wordPhrase, notes, tags, plainNotes) = ("", "", "", "", "", "")
     }
     
     func clearLabels() {
