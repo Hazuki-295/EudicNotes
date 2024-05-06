@@ -10,7 +10,7 @@ import SwiftUI
 struct CustomTextEditor: View {
     @Binding var text: String
     
-    var minWidth: CGFloat = 350
+    var minWidth: CGFloat = 300
     var minHeight: CGFloat = 100
     
     var body: some View {

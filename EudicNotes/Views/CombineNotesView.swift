@@ -20,28 +20,46 @@ struct SingleNotesView: View {
     @Binding var plainNotes: String
     @Binding var renderedNotes: String
     
+    @State private var showTextEditor = false
+    
     var body: some View {
         VStack(alignment: .leading) {
             Label(label, systemImage: systemImage).foregroundColor(labelColor)
             
             HStack {
-                CustomTextEditor(text: $plainNotes, minWidth: 300)
-                CustomWebView(htmlString: $renderedNotes, minWidth: 300)
-                    .onChange(of: plainNotes) { [plainNotes] in
-                        if !plainNotes.isEmpty {
-                            MessageUtils.recognizeMessage(in: plainNotes, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
-                            renderedNotes = MessageUtils.generateMessage(source: source, originalText: originalText, notes: notes, tags: tags)
-                        } else {
-                            renderedNotes = ""
-                        }
+                CustomTextEditor(text: $plainNotes)
+                
+                ZStack {
+                    // visible by default
+                    if !showTextEditor {
+                        CustomWebView(htmlString: $renderedNotes)
                     }
+                    
+                    // hidden by default
+                    if showTextEditor {
+                        CustomTextEditor(text: $renderedNotes)
+                    }
+                }
+                .onChange(of: plainNotes) { [plainNotes] in
+                    if !plainNotes.isEmpty {
+                        MessageUtils.recognizeMessage(in: plainNotes, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
+                        renderedNotes = MessageUtils.generateMessage(source: source, originalText: originalText, notes: notes, tags: tags)
+                    } else {
+                        renderedNotes = ""
+                    }
+                }
             }
+            
             HStack {
                 Button(action: {if let text = ClipboardManager.pasteFromClipboard() {plainNotes = text}}) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
                 Spacer()
+                Button(action: { showTextEditor.toggle() }) {
+                    Image(systemName: "switch.2")
+                    Text("Switch")
+                }
                 Button(action: { (plainNotes, renderedNotes) = ("", "") }) {
                     Image(systemName: "eraser.line.dashed")
                     Text("Clear")

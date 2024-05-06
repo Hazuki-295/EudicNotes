@@ -56,7 +56,7 @@ struct HTMLStringView: NSViewRepresentable {
 struct CustomWebView: View {
     @Binding var htmlString: String
     
-    var minWidth: CGFloat = 350
+    var minWidth: CGFloat = 300
     var minHeight: CGFloat = 100
     
     var body: some View {
