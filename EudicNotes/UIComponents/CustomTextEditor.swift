@@ -13,7 +13,8 @@ struct CustomTextEditor: View {
     var body: some View {
         TextEditor(text: $text)
             .lineSpacing(2)
-            .padding(5)
+            .padding([.top, .bottom], 5)
+            .padding([.leading, .trailing], 2)
             .background(Color.white)
             .cornerRadius(5)
             .overlay(

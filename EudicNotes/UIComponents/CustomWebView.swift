@@ -61,7 +61,8 @@ struct CustomWebView: View {
         
         HTMLStringView(htmlContent: paragraphs)
             .lineSpacing(2)
-            .padding(5)
+            .padding([.top, .bottom], -5)
+            .padding([.leading, .trailing], 0)
             .background(Color.white)
             .cornerRadius(5)
             .overlay(
