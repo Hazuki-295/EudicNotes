@@ -12,15 +12,7 @@ struct SingleNotesView: View {
     let labelColor: Color
     let systemImage: String
     
-    @State private var source = ""
-    @State private var originalText = ""
-    @State private var notes = ""
-    @State private var tags = ""
-    
-    @Binding var plainNotes: String
-    @Binding var renderedNotes: String
-    
-    var pasteAction: (() -> Void)?
+    @StateObject var noteData: NoteData
     
     @State private var showTextEditor = false
     
@@ -29,31 +21,31 @@ struct SingleNotesView: View {
             Label(label, systemImage: systemImage).foregroundColor(labelColor)
             
             HStack {
-                CustomTextEditor(text: $plainNotes)
+                CustomTextEditor(text: $noteData.userInputPlainNote)
                 
                 ZStack {
                     // visible by default
                     if !showTextEditor {
-                        CustomWebView(htmlString: $renderedNotes)
+                        CustomWebView(htmlString: $noteData.userInputRenderedNote)
                     }
                     
                     // hidden by default
                     if showTextEditor {
-                        CustomTextEditor(text: $renderedNotes)
+                        CustomTextEditor(text: $noteData.userInputRenderedNote)
                     }
                 }
-                .onChange(of: plainNotes) { [plainNotes] in
-                    if !plainNotes.isEmpty {
-                        MessageUtils.recognizeMessage(in: plainNotes, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
-                        renderedNotes = MessageUtils.generateMessage(source: source, originalText: originalText, notes: notes, tags: tags)
+                .onChange(of: noteData.userInputPlainNote) {
+                    if !noteData.userInputPlainNote.isEmpty {
+                        let noteDataTemp = NoteData(plainNote: noteData.userInputPlainNote)
+                        noteData.userInputRenderedNote = noteDataTemp.renderedNote
                     } else {
-                        renderedNotes = ""
+                        noteData.userInputRenderedNote = ""
                     }
                 }
             }
             
             HStack {
-                Button(action: { if let text = ClipboardManager.pasteFromClipboard() { plainNotes = text; pasteAction?() } }) {
+                Button(action: { if let text = ClipboardManager.pasteFromClipboard() { noteData.userInputPlainNote = text; noteData.recognizeNote(plainNote: text) } }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
@@ -62,7 +54,7 @@ struct SingleNotesView: View {
                     Image(systemName: "switch.2")
                     Text("Switch")
                 }
-                Button(action: { (plainNotes, renderedNotes) = ("", "") }) {
+                Button(action: { noteData.clearFields() }) {
                     Image(systemName: "eraser.line.dashed")
                     Text("Clear")
                 }
@@ -72,15 +64,10 @@ struct SingleNotesView: View {
 }
 
 struct CombineNotesView: View {
-    @State private var plainNotes1: String = ""
-    @State private var plainNotes2: String = ""
-    @State private var plainNotes3: String = ""
-    @State private var plainNotes4: String = ""
-    
-    @State private var renderedNotes1: String = ""
-    @State private var renderedNotes2: String = ""
-    @State private var renderedNotes3: String = ""
-    @State private var renderedNotes4: String = ""
+    @StateObject private var noteData1 = NoteData()
+    @StateObject private var noteData2 = NoteData()
+    @StateObject private var noteData3 = NoteData()
+    @StateObject private var noteData4 = NoteData()
     
     @State private var combinedNotes: String = ""
     
@@ -88,17 +75,19 @@ struct CombineNotesView: View {
         GeometryReader { geometry in
             ZStack(alignment: .topTrailing) {
                 VStack(alignment: .leading, spacing: 15) {
-                    SingleNotesView(label: "First Notes", labelColor: .brown, systemImage: "note.text", plainNotes: $plainNotes1, renderedNotes: $renderedNotes1)
-                    SingleNotesView(label: "Second Notes", labelColor: .purple, systemImage: "2.square", plainNotes: $plainNotes2, renderedNotes: $renderedNotes2)
-                    SingleNotesView(label: "Third Notes", labelColor: .blue, systemImage: "3.square", plainNotes: $plainNotes3, renderedNotes: $renderedNotes3)
-                    SingleNotesView(label: "Fourth Notes", labelColor: .red, systemImage: "4.square", plainNotes: $plainNotes4, renderedNotes: $renderedNotes4)
+                    SingleNotesView(label: "First Notes", labelColor: .brown, systemImage: "note.text", noteData: noteData1)
+                    SingleNotesView(label: "Second Notes", labelColor: .purple, systemImage: "2.square", noteData: noteData2)
+                    SingleNotesView(label: "Third Notes", labelColor: .blue, systemImage: "3.square", noteData: noteData3)
+                    SingleNotesView(label: "Fourth Notes", labelColor: .red, systemImage: "4.square", noteData: noteData4)
                 }
                 .padding(.top, 5)
                 
                 // clear all
                 Button(action: {
-                    (plainNotes1, plainNotes2, plainNotes3, plainNotes4) = ("", "", "", "")
-                    (renderedNotes1, renderedNotes2, renderedNotes3, renderedNotes4) = ("", "", "", "")
+                    noteData1.clearFields()
+                    noteData2.clearFields()
+                    noteData3.clearFields()
+                    noteData4.clearFields()
                 }) {
                     Image(systemName: "eraser.line.dashed")
                     Text("Clear All")
@@ -111,14 +100,14 @@ struct CombineNotesView: View {
                         while noteComponents.count < 4 {
                             noteComponents.append("")
                         }
-                        (plainNotes1, plainNotes2, plainNotes3, plainNotes4) = (noteComponents[0], noteComponents[1], noteComponents[2], noteComponents[3])
+                        (noteData1.userInputPlainNote, noteData2.userInputPlainNote, noteData3.userInputPlainNote, noteData4.userInputPlainNote) = (noteComponents[0], noteComponents[1], noteComponents[2], noteComponents[3])
                     }) {
                         Image(systemName: "list.clipboard").foregroundColor(.purple)
                         Text("Retrieve Clipboard").foregroundColor(.purple)
                     }
                     Button(action: {
                         let separator = "\n" + "<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0;\">"
-                        let notes = [renderedNotes1, renderedNotes2, renderedNotes3, renderedNotes4]
+                        let notes = [noteData1.userInputRenderedNote, noteData2.userInputRenderedNote, noteData3.userInputRenderedNote, noteData4.userInputRenderedNote]
                         combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
                         ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
                     }) {

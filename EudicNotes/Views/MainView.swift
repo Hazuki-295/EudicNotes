@@ -7,186 +7,91 @@
 
 import SwiftUI
 
-struct MainView: View {
-    @State private var source: String = ""
-    @State private var originalText: String = ""
-    @State private var wordPhrase: String = ""
-    @State private var notes: String = ""
-    @State private var tags: String = ""
+class NoteData: ObservableObject {
+    @Published var source: String = ""
+    @Published var originalText: String = ""
+    @Published var wordPhrase: String = ""
+    @Published var notes: String = ""
+    @Published var tags: String = ""
     
-    @State private var plainNotes: String = ""
-    @State private var renderedNotes: String = ""
+    @Published var userInputPlainNote: String = ""
+    @Published var userInputRenderedNote: String = ""
     
-    @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
-    @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
-    
-    private let optionsWindowController = OptionsWindowController()
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            // Source
-            HStack {
-                Image(systemName: "text.book.closed")
-                ComboBox(text: $source, options: sourceHistory.history.sorted(), label: "Source")
-                    .onSubmit {sourceHistory.addToHistory(newEntry: source)}
-            }
-            
-            // Original Text
-            HStack {
-                VStack {
-                    HStack {
-                        Image(systemName: "book")
-                        Text("Original Text:")
-                    }
-                    Button(action: { self.clearLabels(); wordPhrase = "" }){
-                        HStack {
-                            Image(systemName: "eraser.line.dashed")
-                            Text("Clear")
-                        }
-                    }
-                }
-                CustomTextEditor(text: $originalText)
-            }
-            .frame(height: 120)
-            
-            // Word or Phrase
-            HStack {
-                Image(systemName: "highlighter")
-                Text("Word / Phrase:")
-                TextField("Enter Word or Phrase", text: $wordPhrase)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-            }
-            
-            // Notes
-            HStack {
-                Image(systemName: "bookmark")
-                Text("Notes:")
-                CustomTextEditor(text: $notes)
-            }
-            .frame(height: 60)
-            
-            // Tags
-            HStack {
-                Image(systemName: "tag")
-                ComboBox(text: $tags, options: tagsHistory.history.sorted(), label: "Tags")
-                    .onSubmit {tagsHistory.addToHistory(newEntry: tags)}
-            }
-            
-            // buttons
-            HStack {
-                Button(action: {
-                    plainNotes = MessageUtils.generateMessage(source: self.source, originalText: self.originalText, wordPhrase: self.wordPhrase, notes: self.notes, tags: self.tags, plain: true, copy: true)
-                }) {
-                    HStack {
-                        Image(systemName: "paintbrush")
-                        Text("Generate Notes")
-                    }
-                }
-                Button(action: {
-                    ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
-                }) {
-                    HStack {
-                        Image(systemName: "list.clipboard")
-                        Text("Copy Row HTML")
-                    }
-                }
-                
-                Spacer()
-                
-                Button(action: {self.clearFields()}){
-                    HStack {
-                        Image(systemName: "eraser.line.dashed")
-                        Text("Clear")
-                    }
-                }
-                Button(action: {optionsWindowController.openOptionsWindow()}) {
-                    HStack {
-                        Image(systemName: "gearshape")
-                        Text("Options")
-                    }
-                }
-            }
-            .padding(.trailing, 5)
-            
-            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", plainNotes: $plainNotes, renderedNotes: $renderedNotes, pasteAction: {
-                wordPhrase = ""
-                MessageUtils.recognizeMessage(in: plainNotes, source: &source, originalText: &originalText, notes: &notes, tags: &tags)
-            })
-            .frame(height: 250)
-        }
-        .padding()
-    }
-    
-    func clearFields() {
-        (source, originalText, wordPhrase, notes, tags, plainNotes) = ("", "", "", "", "", "")
-    }
-    
-    func clearLabels() {
-        originalText = originalText
-            .replacePlusSign(revert: true)
-            .replaceAngleBrackets(revert: true)
-            .replaceSquareBrackets(revert: true)
-    }
-}
-
-struct MessageUtils {
-    // Centralized style templates
     private static let styleTemplates = [
-        "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
         "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
+        "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
         "tags": "<span style=\"font-family: Bookerly; color: #0D85FF;\">%@</span>"
     ]
     
-    // Combine the input into a single message
-    static func generateMessage(source: String, originalText: String, wordPhrase: String = "", notes: String, tags: String, plain: Bool = false, copy: Bool = false) -> String {
-        // plain notes
-        let plainNotes = """
-            [Source] \(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
-            
-            [Original Text]
-            
-            \(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
-            """
+    private static let patterns = [
+        "source": #"\[Source\]([\s\S]+?)(?=\[Original Text\])"#, // capturing with non-greedy plus
+        "originalText": #"\[Original Text\]([\s\S]+?)(?=(\[Notes\]|#|$))"#, // stop at "[Notes]" or tags or end of string
+        "notes": #"\[Notes\]([\s\S]+?)(?=(#|$))"#, // stop at tags or end of string
+        "tags": "(#[A-Za-z]+)" // capture tags
+    ]
+    
+    var plainNote: String {
+        """
+        [Source] \(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
         
-        // rendered notes
-        let modifiedSource = formatSource(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
-        let modifiedOriginalText = formatOriginalText(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))
-        let modifiedNotes = notes.isEmpty ? "" : formatNotes(notes)
-        let modifiedTags = tags.isEmpty ? "" : formatTags(tags)
+        [Original Text]
         
-        var renderedNotes = """
-            \(String(format: styleTemplates["label"]!, "Source")) \(modifiedSource)
-            
-            \(String(format: styleTemplates["label"]!, "Original Text"))
-            
-            \(modifiedOriginalText)\(modifiedNotes)\(modifiedTags)
-            """
-        
-        renderedNotes = String(format: styleTemplates["content"]!, renderedNotes)
-        
-        if copy {
-            ClipboardManager.copyToClipboard(textToCopy: renderedNotes)
-        }
-        
-        return plain ? plainNotes : renderedNotes
+        \(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
+        """
     }
     
-    // Recognize the content from the message using regex
-    static func recognizeMessage(in input: String, source: inout String, originalText: inout String, notes: inout String, tags: inout String) {
-        let patterns = [
-            "source": #"\[Source\]([\s\S]+?)(?=\[Original Text\])"#, // capturing with non-greedy plus
-            "originalText": #"\[Original Text\]([\s\S]+?)(?=(\[Notes\]|#|$))"#, // stop at "[Notes]" or tags or end of string
-            "notes": #"\[Notes\]([\s\S]+?)(?=(#|$))"#, // stop at tags or end of string
-            "tags": "(#[A-Za-z]+)" // capture tags
-        ]
-        source = matchAndTrim(input, withRegexPattern: patterns["source"]!)
-        originalText = matchAndTrim(input, withRegexPattern: patterns["originalText"]!)
-        notes = matchAndTrim(input, withRegexPattern: patterns["notes"]!)
-        tags = matchAndTrim(input, withRegexPattern: patterns["tags"]!)
+    var renderedNote: String {
+        String(format: NoteData.styleTemplates["content"]!, """
+        \(String(format: NoteData.styleTemplates["label"]!, "Source")) \(formatSource())
+        
+        \(String(format: NoteData.styleTemplates["label"]!, "Original Text"))
+        
+        \(formatOriginalText())\(formatNotes())\(formatTags())
+        """)
+    }
+    
+    // Helper functions to format different parts of the note
+    private func formatSource() -> String {
+        return (wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase)).replacePlusSign()
+    }
+    
+    private func formatOriginalText() -> String {
+        return (wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase)).replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
+    }
+    
+    private func formatNotes() -> String {
+        return notes.isEmpty ? "" : "\n\n" + String(format: NoteData.styleTemplates["label"]!, "Notes") + " " + notes.replaceAngleBrackets()
+            .replacePOS()
+            .replaceSlash()
+            .replaceAtSign()
+            .replaceAndSign()
+            .replacePlusSign()
+            .replaceAsterisk()
+            .replaceCaretSign()
+            .replaceExclamation()
+            .replaceSquareBrackets()
+    }
+    
+    private func formatTags() -> String {
+        return tags.isEmpty ? "" : "\n\n" + String(format: NoteData.styleTemplates["tags"]!, tags)
+    }
+    
+    init() {}
+    
+    init(plainNote: String) {
+        recognizeNote(plainNote: plainNote)
+    }
+    
+    func recognizeNote(plainNote: String) {
+        source = NoteData.matchAndTrim(plainNote, NoteData.patterns["source"]!)
+        originalText = NoteData.matchAndTrim(plainNote, NoteData.patterns["originalText"]!)
+        wordPhrase = ""
+        notes = NoteData.matchAndTrim(plainNote, NoteData.patterns["notes"]!)
+        tags = NoteData.matchAndTrim(plainNote, NoteData.patterns["tags"]!)
     }
     
     // Helper function for regex matching and trimming the first and only capturing group using a regular expression pattern
-    private static func matchAndTrim(_ input: String, withRegexPattern pattern: String) -> String {
+    private static func matchAndTrim(_ input: String, _ pattern: String) -> String {
         // Since we assume the regex is always correct, directly create the regex
         let regex = try! NSRegularExpression(pattern: pattern)
         let range = NSRange(input.startIndex..., in: input)
@@ -201,30 +106,116 @@ struct MessageUtils {
         return String(input[captureRange]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
-    // Helper functions to format different parts of the message
-    private static func formatSource(_ source: String) -> String {
-        return source.replacePlusSign()
+    func clearFields() {
+        (source, originalText, wordPhrase, notes, tags) = ("", "", "", "", "")
+        (userInputPlainNote, userInputRenderedNote) = ("", "")
     }
     
-    private static func formatOriginalText(_ text: String) -> String {
-        return text.replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
+    func clearLabels() {
+        wordPhrase = ""
+        originalText = originalText
+            .replacePlusSign(revert: true)
+            .replaceAngleBrackets(revert: true)
+            .replaceSquareBrackets(revert: true)
     }
+}
+
+struct MainView: View {
+    @StateObject private var noteData = NoteData()
+    @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
+    @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
     
-    private static func formatNotes(_ notes: String) -> String {
-        return "\n\n" + String(format: styleTemplates["label"]!, "Notes") + " " + notes.replaceAngleBrackets()
-            .replacePOS()
-            .replaceSlash()
-            .replaceAtSign()
-            .replaceAndSign()
-            .replacePlusSign()
-            .replaceAsterisk()
-            .replaceCaretSign()
-            .replaceExclamation()
-            .replaceSquareBrackets()
-    }
+    private let optionsWindowController = OptionsWindowController()
     
-    private static func formatTags(_ tags: String) -> String {
-        return "\n\n" + String(format: styleTemplates["tags"]!, tags)
+    var body: some View {
+        VStack(alignment: .leading, spacing: 15) {
+            // Source
+            HStack {
+                Image(systemName: "text.book.closed")
+                ComboBox(text: $noteData.source, options: sourceHistory.history.sorted(), label: "Source")
+                    .onSubmit {sourceHistory.addToHistory(newEntry: noteData.source)}
+            }
+            
+            // Original Text
+            HStack {
+                VStack {
+                    HStack {
+                        Image(systemName: "book")
+                        Text("Original Text:")
+                    }
+                    Button(action: { noteData.clearLabels(); }){
+                        HStack {
+                            Image(systemName: "eraser.line.dashed")
+                            Text("Clear")
+                        }
+                    }
+                }
+                CustomTextEditor(text: $noteData.originalText)
+            }
+            .frame(height: 120)
+            
+            // Word or Phrase
+            HStack {
+                Image(systemName: "highlighter")
+                Text("Word / Phrase:")
+                TextField("Enter Word or Phrase", text: $noteData.wordPhrase)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            }
+            
+            // Notes
+            HStack {
+                Image(systemName: "bookmark")
+                Text("Notes:")
+                CustomTextEditor(text: $noteData.notes)
+            }
+            .frame(height: 60)
+            
+            // Tags
+            HStack {
+                Image(systemName: "tag")
+                ComboBox(text: $noteData.tags, options: tagsHistory.history.sorted(), label: "Tags")
+                    .onSubmit {tagsHistory.addToHistory(newEntry: noteData.tags)}
+            }
+            
+            // buttons
+            HStack {
+                Button(action: {
+                    noteData.userInputPlainNote = noteData.plainNote
+                    ClipboardManager.copyToClipboard(textToCopy: noteData.renderedNote)
+                }) {
+                    HStack {
+                        Image(systemName: "paintbrush")
+                        Text("Generate Notes")
+                    }
+                }
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.userInputRenderedNote) }) {
+                    HStack {
+                        Image(systemName: "list.clipboard")
+                        Text("Copy Row HTML")
+                    }
+                }
+                
+                Spacer()
+                
+                Button(action: { noteData.clearFields() }){
+                    HStack {
+                        Image(systemName: "eraser.line.dashed")
+                        Text("Clear")
+                    }
+                }
+                Button(action: { optionsWindowController.openOptionsWindow() }) {
+                    HStack {
+                        Image(systemName: "gearshape")
+                        Text("Options")
+                    }
+                }
+            }
+            .padding(.trailing, 5)
+            
+            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", noteData: noteData)
+                .frame(height: 250)
+        }
+        .padding()
     }
 }
 
