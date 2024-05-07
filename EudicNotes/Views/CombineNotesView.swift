@@ -8,13 +8,23 @@
 import SwiftUI
 
 struct SingleNotesView: View {
-    let label: String
-    let labelColor: Color
-    let systemImage: String
+    private let label: String
+    private let labelColor: Color
+    private let systemImage: String
     
+    @EnvironmentObject var sharedNoteData: NoteData
     @StateObject var noteData: NoteData
+    private let mainNoteData: Bool
     
     @State private var showTextEditor = false
+    
+    init (label: String, labelColor: Color, systemImage: String, noteData: NoteData, mainNoteData: Bool = false) {
+        self.label = label
+        self.labelColor = labelColor
+        self.systemImage = systemImage
+        self._noteData = StateObject(wrappedValue: noteData)
+        self.mainNoteData = mainNoteData
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -48,6 +58,12 @@ struct SingleNotesView: View {
                 Button(action: { if let text = ClipboardManager.pasteFromClipboard() { noteData.userInputPlainNote = text; noteData.recognizeNote(plainNote: text) } }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
+                }
+                if !mainNoteData {
+                    Button(action: { noteData.userInputPlainNote = sharedNoteData.userInputPlainNote }) {
+                        Image(systemName: "doc.on.clipboard")
+                        Text("Paste From Main")
+                    }
                 }
                 Spacer()
                 Button(action: { showTextEditor.toggle() }) {

@@ -11,11 +11,11 @@ import SwiftUI
 class OptionsWindowController: NSObject, NSWindowDelegate {
     private var optionsWindow: NSWindow?
     
-    func openOptionsWindow() {
+    func openOptionsWindow(sharedNoteData: NoteData) {
         if let existingWindow = optionsWindow {
             existingWindow.makeKeyAndOrderFront(nil) // Bring the existing window to the front
         } else {
-            let optionsView = OptionsView() // SwiftUI view
+            let optionsView = OptionsView().environmentObject(sharedNoteData) // SwiftUI view
             let hostingController = NSHostingController(rootView: optionsView)
             
             // Create the window with the hosting controller

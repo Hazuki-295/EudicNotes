@@ -121,10 +121,10 @@ class NoteData: ObservableObject {
 }
 
 struct MainView: View {
-    @StateObject private var noteData = NoteData()
     @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
     @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
     
+    @StateObject private var sharedNoteData = NoteData() // shared MainView NoteData
     private let optionsWindowController = OptionsWindowController()
     
     var body: some View {
@@ -132,8 +132,8 @@ struct MainView: View {
             // Source
             HStack {
                 Image(systemName: "text.book.closed")
-                ComboBox(text: $noteData.source, options: sourceHistory.history.sorted(), label: "Source")
-                    .onSubmit {sourceHistory.addToHistory(newEntry: noteData.source)}
+                ComboBox(text: $sharedNoteData.source, options: sourceHistory.history.sorted(), label: "Source")
+                    .onSubmit {sourceHistory.addToHistory(newEntry: sharedNoteData.source)}
             }
             
             // Original Text
@@ -143,14 +143,14 @@ struct MainView: View {
                         Image(systemName: "book")
                         Text("Original Text:")
                     }
-                    Button(action: { noteData.clearLabels(); }){
+                    Button(action: { sharedNoteData.clearLabels(); }){
                         HStack {
                             Image(systemName: "eraser.line.dashed")
                             Text("Clear")
                         }
                     }
                 }
-                CustomTextEditor(text: $noteData.originalText)
+                CustomTextEditor(text: $sharedNoteData.originalText)
             }
             .frame(height: 120)
             
@@ -158,7 +158,7 @@ struct MainView: View {
             HStack {
                 Image(systemName: "highlighter")
                 Text("Word / Phrase:")
-                TextField("Enter Word or Phrase", text: $noteData.wordPhrase)
+                TextField("Enter Word or Phrase", text: $sharedNoteData.wordPhrase)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
             }
             
@@ -166,29 +166,29 @@ struct MainView: View {
             HStack {
                 Image(systemName: "bookmark")
                 Text("Notes:")
-                CustomTextEditor(text: $noteData.notes)
+                CustomTextEditor(text: $sharedNoteData.notes)
             }
             .frame(height: 60)
             
             // Tags
             HStack {
                 Image(systemName: "tag")
-                ComboBox(text: $noteData.tags, options: tagsHistory.history.sorted(), label: "Tags")
-                    .onSubmit {tagsHistory.addToHistory(newEntry: noteData.tags)}
+                ComboBox(text: $sharedNoteData.tags, options: tagsHistory.history.sorted(), label: "Tags")
+                    .onSubmit {tagsHistory.addToHistory(newEntry: sharedNoteData.tags)}
             }
             
             // buttons
             HStack {
                 Button(action: {
-                    noteData.userInputPlainNote = noteData.plainNote
-                    ClipboardManager.copyToClipboard(textToCopy: noteData.renderedNote)
+                    sharedNoteData.userInputPlainNote = sharedNoteData.plainNote
+                    ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.renderedNote)
                 }) {
                     HStack {
                         Image(systemName: "paintbrush")
                         Text("Generate Notes")
                     }
                 }
-                Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.userInputRenderedNote) }) {
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.userInputRenderedNote) }) {
                     HStack {
                         Image(systemName: "list.clipboard")
                         Text("Copy Row HTML")
@@ -197,13 +197,13 @@ struct MainView: View {
                 
                 Spacer()
                 
-                Button(action: { noteData.clearFields() }){
+                Button(action: { sharedNoteData.clearFields() }){
                     HStack {
                         Image(systemName: "eraser.line.dashed")
                         Text("Clear")
                     }
                 }
-                Button(action: { optionsWindowController.openOptionsWindow() }) {
+                Button(action: { optionsWindowController.openOptionsWindow(sharedNoteData: sharedNoteData) }) {
                     HStack {
                         Image(systemName: "gearshape")
                         Text("Options")
@@ -212,7 +212,7 @@ struct MainView: View {
             }
             .padding(.trailing, 5)
             
-            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", noteData: noteData)
+            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", noteData: sharedNoteData, mainNoteData: true)
                 .frame(height: 250)
         }
         .padding()
@@ -229,5 +229,5 @@ extension Character {
 }
 
 #Preview {
-    MainView()
+    ContentView()
 }

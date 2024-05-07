@@ -11,7 +11,6 @@ struct ContentView: View {
     var body: some View {
         MainView()
             .frame(width: 600, height: 640)
-            .fixedSize()
     }
 }
 

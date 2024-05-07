@@ -30,7 +30,6 @@ struct OptionsView: View {
         }
         .padding()
         .frame(width: 750, height: 850)
-        .fixedSize()
     }
 }
 
