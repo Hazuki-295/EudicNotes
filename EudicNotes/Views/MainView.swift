@@ -8,14 +8,56 @@
 import SwiftUI
 
 class NoteData: ObservableObject {
+    // Properties to hold note data
     @Published var source: String = ""
     @Published var originalText: String = ""
     @Published var wordPhrase: String = ""
     @Published var notes: String = ""
     @Published var tags: String = ""
     
+    // Properties to hold user input and its rendered version
     @Published var userInputPlainNote: String = ""
     @Published var userInputRenderedNote: String = ""
+    
+    private var autoUpdateEnabled: Bool = true
+    
+    static private var noteDataTemp: NoteData = NoteData()
+    
+    init() {
+        setupPipeline()
+    }
+    
+    func setupPipeline() {
+        $userInputPlainNote
+            .removeDuplicates()
+            .filter { _ in self.autoUpdateEnabled }
+            .map { userInputPlainNote -> String in
+                guard !userInputPlainNote.isEmpty else { return "" }
+                NoteData.noteDataTemp.recognizeNote(plainNote: userInputPlainNote)
+                return NoteData.noteDataTemp.renderedNote
+            }
+            .assign(to: &$userInputRenderedNote)
+    }
+    
+    func updateWith(noteData: NoteData) {
+        self.source = noteData.source
+        self.originalText = noteData.originalText
+        self.wordPhrase = noteData.wordPhrase
+        self.notes = noteData.notes
+        self.tags = noteData.tags
+        
+        self.autoUpdateEnabled.toggle()
+        self.userInputPlainNote = noteData.userInputPlainNote
+        self.userInputRenderedNote = noteData.userInputRenderedNote
+        self.autoUpdateEnabled.toggle()
+    }
+    
+    func manualUpdate() {
+        self.autoUpdateEnabled.toggle()
+        self.userInputPlainNote = self.plainNote
+        self.userInputRenderedNote = self.renderedNote
+        self.autoUpdateEnabled.toggle()
+    }
     
     private static let styleTemplates = [
         "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
@@ -74,12 +116,6 @@ class NoteData: ObservableObject {
     
     private func formatTags() -> String {
         return tags.isEmpty ? "" : "\n\n" + String(format: NoteData.styleTemplates["tags"]!, tags)
-    }
-    
-    init() {}
-    
-    init(plainNote: String) {
-        recognizeNote(plainNote: plainNote)
     }
     
     func recognizeNote(plainNote: String) {
@@ -180,8 +216,8 @@ struct MainView: View {
             // buttons
             HStack {
                 Button(action: {
-                    sharedNoteData.userInputPlainNote = sharedNoteData.plainNote
-                    ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.renderedNote)
+                    sharedNoteData.manualUpdate()
+                    ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.userInputRenderedNote)
                 }) {
                     HStack {
                         Image(systemName: "paintbrush")

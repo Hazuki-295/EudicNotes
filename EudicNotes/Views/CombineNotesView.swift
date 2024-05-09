@@ -44,23 +44,20 @@ struct SingleNotesView: View {
                         CustomTextEditor(text: $noteData.userInputRenderedNote)
                     }
                 }
-                .onChange(of: noteData.userInputPlainNote) {
-                    if !noteData.userInputPlainNote.isEmpty {
-                        let noteDataTemp = NoteData(plainNote: noteData.userInputPlainNote)
-                        noteData.userInputRenderedNote = noteDataTemp.renderedNote
-                    } else {
-                        noteData.userInputRenderedNote = ""
-                    }
-                }
             }
             
             HStack {
-                Button(action: { if let text = ClipboardManager.pasteFromClipboard() { noteData.userInputPlainNote = text; noteData.recognizeNote(plainNote: text) } }) {
+                Button(action: {
+                    if let text = ClipboardManager.pasteFromClipboard() {
+                        noteData.recognizeNote(plainNote: text)
+                        noteData.manualUpdate()
+                    }
+                }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
                 if !mainNoteData {
-                    Button(action: { noteData.userInputPlainNote = sharedNoteData.userInputPlainNote }) {
+                    Button(action: { noteData.updateWith(noteData: sharedNoteData) }) {
                         Image(systemName: "doc.on.clipboard")
                         Text("Paste From Main")
                     }

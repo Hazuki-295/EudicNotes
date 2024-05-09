@@ -17,15 +17,11 @@ struct OptionsView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             CombineNotesView()
-                .tabItem {
-                    Text("Combine Notes")
-                }
+                .tabItem { Text("Combine Notes") }
                 .tag(Tabs.combineNotes)
             
             TrimPassageView()
-                .tabItem {
-                    Text("Trim Passage")
-                }
+                .tabItem { Text("Trim Passage") }
                 .tag(Tabs.trimPassage)
         }
         .padding()
