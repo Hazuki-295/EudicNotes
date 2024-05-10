@@ -21,6 +21,10 @@ class NoteData: ObservableObject {
     
     private var autoUpdateEnabled: Bool = true
     
+    static private let maxHistoryLimit = 5
+    static private var histories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
+    static var latestHistoryIndex = histories.count - 1
+    
     static private var noteDataTemp: NoteData = NoteData()
     
     init() {
@@ -57,6 +61,46 @@ class NoteData: ObservableObject {
         self.userInputPlainNote = self.plainNote
         self.userInputRenderedNote = self.renderedNote
         self.autoUpdateEnabled.toggle()
+    }
+    
+    func saveToHistory() {
+        let currentState = [
+            "source": source,
+            "originalText": originalText,
+            "wordPhrase": wordPhrase,
+            "notes": notes,
+            "tags": tags,
+            "userInputPlainNote": userInputPlainNote,
+            "userInputRenderedNote": userInputRenderedNote
+        ]
+        NoteData.histories.append(currentState)
+        if NoteData.histories.count > NoteData.maxHistoryLimit {
+            NoteData.histories.removeFirst()
+        }
+        NoteData.latestHistoryIndex = NoteData.histories.count - 1
+        UserDefaults.standard.set(NoteData.histories, forKey: "NoteDataHistory")
+    }
+    
+    static func deleteHistory(at index: Int) {
+        guard NoteData.histories.indices.contains(index) else { return }
+        NoteData.histories.remove(at: index)
+        NoteData.latestHistoryIndex = NoteData.histories.count - 1
+        UserDefaults.standard.set(NoteData.histories, forKey: "NoteDataHistory")
+    }
+    
+    func loadFromHistory(index: Int) {
+        guard NoteData.histories.indices.contains(index) else { return }
+        let history = NoteData.histories[index]
+        source = history["source"] ?? ""
+        originalText = history["originalText"] ?? ""
+        wordPhrase = history["wordPhrase"] ?? ""
+        notes = history["notes"] ?? ""
+        tags = history["tags"] ?? ""
+        
+        autoUpdateEnabled.toggle()
+        userInputPlainNote = history["userInputPlainNote"] ?? ""
+        userInputRenderedNote = history["userInputRenderedNote"] ?? ""
+        autoUpdateEnabled.toggle()
     }
     
     private static let styleTemplates = [
@@ -246,7 +290,6 @@ struct MainView: View {
                     }
                 }
             }
-            .padding(.trailing, 5)
             
             SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", noteData: sharedNoteData, mainNoteData: true)
                 .frame(height: 250)

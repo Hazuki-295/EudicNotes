@@ -14,5 +14,8 @@ struct EudicNotesApp: App {
             ContentView()
         }
         .windowResizability(.contentSize)
+        .commands {
+            CommandGroup(replacing: .newItem) {} // Disable new window
+        }
     }
 }

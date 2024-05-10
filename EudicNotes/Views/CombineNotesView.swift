@@ -18,6 +18,8 @@ struct SingleNotesView: View {
     
     @State private var showTextEditor = false
     
+    @State private var historyIndex = NoteData.latestHistoryIndex
+    
     init (label: String, labelColor: Color, systemImage: String, noteData: NoteData, mainNoteData: Bool = false) {
         self.label = label
         self.labelColor = labelColor
@@ -28,7 +30,39 @@ struct SingleNotesView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Label(label, systemImage: systemImage).foregroundColor(labelColor)
+            HStack {
+                Label(label, systemImage: systemImage).foregroundColor(labelColor)
+                
+                if mainNoteData {
+                    Spacer()
+                    Button(action: {
+                        historyIndex -= 1
+                        noteData.loadFromHistory(index: historyIndex)
+                    }) {
+                        Image(systemName: "arrowshape.turn.up.left")
+                        Text("Previous")
+                    }
+                    .disabled(historyIndex <= 0)
+                    
+                    Text("\(historyIndex + 1)/\(NoteData.latestHistoryIndex + 1)")
+                        .frame(minWidth: 40)
+                        .background(Color.blue.opacity(0.1))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                        )
+                    
+                    Button(action: {
+                        historyIndex += 1
+                        noteData.loadFromHistory(index: historyIndex)
+                    }) {
+                        Image(systemName: "arrowshape.turn.up.right")
+                        Text("Next")
+                    }
+                    .disabled(historyIndex == NoteData.latestHistoryIndex)
+                }
+            }
             
             HStack {
                 CustomTextEditor(text: $noteData.userInputPlainNote)
@@ -60,6 +94,31 @@ struct SingleNotesView: View {
                     Button(action: { noteData.updateWith(noteData: sharedNoteData) }) {
                         Image(systemName: "doc.on.clipboard")
                         Text("Paste From Main")
+                    }
+                }
+                if mainNoteData {
+                    Button(action: {
+                        noteData.loadFromHistory(index: historyIndex)
+                    }) {
+                        Image(systemName: "arrowshape.turn.up.backward.2")
+                        Text("Load")
+                    }
+                    Button(action: {
+                        noteData.saveToHistory()
+                        historyIndex = NoteData.latestHistoryIndex
+                    }) {
+                        Image(systemName: "externaldrive.badge.plus")
+                        Text("Save")
+                    }
+                    Button(action: {
+                        NoteData.deleteHistory(at: historyIndex)
+                        if historyIndex > NoteData.latestHistoryIndex {
+                            historyIndex = NoteData.latestHistoryIndex
+                        }
+                        noteData.loadFromHistory(index: historyIndex)
+                    }) {
+                        Image(systemName: "trash")
+                        Text("Delete")
                     }
                 }
                 Spacer()
