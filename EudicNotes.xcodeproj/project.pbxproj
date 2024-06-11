@@ -25,6 +25,7 @@
 		B3EDC43D2B98370C006894D1 /* EudicNotesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC43C2B98370C006894D1 /* EudicNotesTests.swift */; };
 		B3EDC4472B98370C006894D1 /* EudicNotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC4462B98370C006894D1 /* EudicNotesUITests.swift */; };
 		B3EDC4492B98370C006894D1 /* EudicNotesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC4482B98370C006894D1 /* EudicNotesUITestsLaunchTests.swift */; };
+		B3FC8A712C182457002DBB49 /* NlpAnnotatorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		B3EDC4422B98370C006894D1 /* EudicNotesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EudicNotesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC4462B98370C006894D1 /* EudicNotesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesUITests.swift; sourceTree = "<group>"; };
 		B3EDC4482B98370C006894D1 /* EudicNotesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NlpAnnotatorsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				B37B26552B9A05390072477F /* OptionsView.swift */,
 				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
 				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
+				B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -342,6 +345,7 @@
 				B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */,
 				B37B26562B9A05390072477F /* OptionsView.swift in Sources */,
 				B37B26522B99DCD90072477F /* ComboBox.swift in Sources */,
+				B3FC8A712C182457002DBB49 /* NlpAnnotatorsView.swift in Sources */,
 				B311B06E2BE87C740076E40D /* CustomWebView.swift in Sources */,
 				B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */,
 				B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */,

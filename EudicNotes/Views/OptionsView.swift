@@ -9,13 +9,17 @@ import SwiftUI
 
 struct OptionsView: View {
     private enum Tabs {
-        case combineNotes, trimPassage
+        case combineNotes, trimPassage, nlpAnnotators
     }
     
-    @State private var selectedTab: Tabs = .combineNotes
+    @State private var selectedTab: Tabs = .nlpAnnotators
     
     var body: some View {
         TabView(selection: $selectedTab) {
+            NlpAnnotatorsView()
+                .tabItem { Text("NLP Annotators") }
+                .tag(Tabs.nlpAnnotators)
+            
             CombineNotesView()
                 .tabItem { Text("Combine Notes") }
                 .tag(Tabs.combineNotes)
