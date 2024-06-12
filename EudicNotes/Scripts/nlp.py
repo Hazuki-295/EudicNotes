@@ -117,7 +117,7 @@ def handle_signal(sig, frame):
         signal.SIGTERM: "SIGTERM (Termination signal)",
     }.get(sig, f"Unknown signal ({sig})")
     
-    print(f"\nReceived {signal_name}. Exiting...")
+    print(f"Received {signal_name}. Exiting...")
     cleanup_resources()
     sys.exit(0)
 

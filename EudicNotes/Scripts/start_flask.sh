@@ -19,8 +19,10 @@ log_message() {
 
 # Start Flask server and log its output
 start_flask() {
-    source "$HOME/.zshrc" && conda activate "$CONDA_ENV" && python "$FLASK_SERVER" 2>&1 | tee -a "$LOG_FILE" &
-    FLASK_PID=$!
+    source "$HOME/.zshrc" && conda activate "$CONDA_ENV"
+    python "$FLASK_SERVER" 2>&1 | tee -a "$LOG_FILE" &
+    sleep 1 # Give it a moment to start
+    FLASK_PID=$(pgrep -f "$FLASK_SERVER")
     log_message "Flask server started with PID $FLASK_PID." "Flask"
 }
 
@@ -39,13 +41,12 @@ is_eudicnotes_running() {
 # Terminate Flask server
 terminate_flask() {
     if [[ -n "$FLASK_PID" ]]; then
-        kill "$FLASK_PID" && log_message "Flask server with PID $FLASK_PID terminated." "Flask"
+        kill "$FLASK_PID" && wait "$FLASK_PID" && log_message "Flask server with PID $FLASK_PID terminated." "Flask"
     fi
 }
 
 # Main execution flow
 main() {
-    setup_environment
     log_message "-------------------"
     log_message "Script execution started."
     start_flask
