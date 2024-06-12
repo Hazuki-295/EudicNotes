@@ -1,3 +1,4 @@
+import logging
 import os
 import signal
 import socket
@@ -16,6 +17,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 app = Flask(__name__)
+
+class SuppressStatusEndpointLoggingFilter(logging.Filter):
+    def filter(self, record):
+        return '/status' not in record.getMessage()
+
+logging.getLogger('werkzeug').addFilter(SuppressStatusEndpointLoggingFilter())
 
 def read_svg(filename):
     with open(filename, 'r', encoding='utf-8') as file:
@@ -135,6 +142,10 @@ def get_input_data():
     if not input_data:
         input_data = default_input
     return input_data
+
+@app.route('/status', methods=['HEAD'])
+def status():
+    return '', 200
 
 @app.route('/spaCy', methods=['GET', 'POST'])
 def spacy_request():
