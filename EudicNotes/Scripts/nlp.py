@@ -1,6 +1,8 @@
 import os
+import subprocess
 import sys
 import signal
+import time
 
 import spacy
 from spacy import displacy
@@ -130,15 +132,12 @@ def get_input_data():
                   request.form.get('input') or
                   request.data.decode())
     if not input_data:
-        print("No input provided, using default.")
         input_data = default_input
     return input_data
 
 @app.route('/spaCy', methods=['GET', 'POST'])
 def spacy_request():
     input_data = get_input_data()
-    if input_data != default_input:
-        print(f"Received input data for spaCy: {input_data}")
     spacy_driver.process_input(input_data)
     svg_data = {
     'deps-merged': ('Dependency (Merge Phrases)', read_svg(spacy_driver.svg_filenames['dependency_tree_merged'])),
@@ -149,12 +148,30 @@ def spacy_request():
 @app.route('/CoreNLP', methods=['GET', 'POST'])
 def core_nlp_request():
     input_data = get_input_data()
-    if input_data != default_input:
-        print(f"Received input data for CoreNLP: {input_data}")
     results = core_nlp_driver.process_input(input_data)
     return render_template('corenlp_results.html', results=results)
+
+def kill_process_on_port(port):
+    try:
+        subprocess.run(f"lsof -ti:{port} | xargs kill -9", shell=True, check=True)
+        print(f"Killed process on port {port}.")
+        return True
+    except subprocess.CalledProcessError:
+        print(f"Could not kill process on port {port}.")
+        return False
+
+def run_app_with_retry(app, port, delay=5):
+    while True:
+        if kill_process_on_port(port):
+            time.sleep(delay)  # Give some time for the port to be freed
+        try:
+            app.run(debug=True, use_reloader=False, port=port)
+            break  # App started successfully
+        except Exception as e:
+            print(f"Failed to start app on port {port}. Error: {e}")
+            time.sleep(delay)  # Wait before retrying
 
 if __name__ == '__main__':
     spacy_driver = spaCyDriver()
     core_nlp_driver = CoreNLPDriver()
-    app.run(debug=True, use_reloader=False)
+    run_app_with_retry(app, 8000)

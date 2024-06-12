@@ -25,7 +25,8 @@
 
         .container .tab-content {
             flex-grow: 1;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .container div,
@@ -41,25 +42,26 @@
 
         [data-demo="displacy"] .d-scroller {
             overflow-x: auto;
-            overflow-y: hidden;
         }
 
         [data-demo="displacy"] svg {
             overflow: visible;
             background: transparent !important;
             color: rgb(245, 244, 240) !important;
-            height: 100vh !important;
             padding: 0 50px;
+            max-height: 100%;
+            width: auto;
+            font-size: 16px;
         }
 
         [data-demo="displacy"] .d-label,
         [data-demo="displacy"] .displacy-token {
-            font-size: 1.1rem
+            font-size: 1.1em
         }
 
         [data-demo="displacy"] .d-tag,
         [data-demo="displacy"] .displacy-tag {
-            font: 1rem "Hack", Consolas, "Andale Mono", Menlo, Monaco, Courier, monospace;
+            font: 1em "Hack", Consolas, "Andale Mono", Menlo, Monaco, Courier, monospace;
             color: #a6e22d
         }
 
@@ -123,8 +125,28 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Append each arrowhead to the end of the SVG to ensure they are on top
+            // Initialize the Brat visualizer
+            var navTabs = document.querySelector('.nav-tabs');
+            var tabContent = document.querySelector('.tab-content');
+
+            function adjustTabContentHeight() {
+                var navHeight = navTabs.offsetHeight;
+                tabContent.style.height = 'calc(100vh - ' + navHeight + 'px)';
+            }
+            adjustTabContentHeight();
+            window.addEventListener('resize', adjustTabContentHeight);
+
             const svgElements = document.querySelectorAll('svg');
+
+            // Set the viewBox to scale the SVG
+            svgElements.forEach(svg => {
+                const svgWidth = svg.getAttribute("width");
+                const svgHeight = svg.getAttribute("height");
+
+                svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+            });
+
+            // Append each arrowhead to the end of the SVG to ensure they are on top
             svgElements.forEach(svg => {
                 const arrowheadContainer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 arrowheadContainer.setAttribute('class', 'arrowhead-container');
@@ -134,12 +156,6 @@
                 arrowheads.forEach(arrowhead => {
                     arrowheadContainer.appendChild(arrowhead);
                 });
-
-                const svgWidth = svg.getAttribute("width");
-                const svgHeight = svg.getAttribute("height");
-
-                // Set the viewBox to scale the SVG
-                svg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
             });
 
             // Set the 'data-displacy-tag' attribute based on the inner text of the element

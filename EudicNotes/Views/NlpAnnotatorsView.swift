@@ -80,7 +80,7 @@ struct NlpAnnotatorsView: View {
     }
     
     func fetchData(for endpoint: String, htmlString: Binding<String>) {
-        guard let url = URL(string: "http://127.0.0.1:5000/\(endpoint)") else {
+        guard let url = URL(string: "http://127.0.0.1:8000/\(endpoint)") else {
             print("Invalid URL")
             return
         }
