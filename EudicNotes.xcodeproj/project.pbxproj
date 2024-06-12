@@ -144,6 +144,13 @@
 			path = UIComponents;
 			sourceTree = "<group>";
 		};
+		B3DE6E672C19788400BA601C /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
 		B3EDC41E2B98370B006894D1 = {
 			isa = PBXGroup;
 			children = (
@@ -167,6 +174,7 @@
 		B3EDC4292B98370B006894D1 /* EudicNotes */ = {
 			isa = PBXGroup;
 			children = (
+				B3DE6E672C19788400BA601C /* Scripts */,
 				B3EDC42E2B98370C006894D1 /* Assets.xcassets */,
 				B3EDC4332B98370C006894D1 /* EudicNotes.entitlements */,
 				B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */,
