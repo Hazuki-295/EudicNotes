@@ -156,10 +156,23 @@ def is_port_in_use(port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         return s.connect_ex(('localhost', port)) == 0
 
-def kill_process_on_port(port):
+def kill_process_on_port(port, timeout=5):
     try:
+        # Send SIGTERM to gracefully terminate the process
+        subprocess.run(f"lsof -ti:{port} | xargs kill -SIGTERM", shell=True, check=True)
+        print(f"Sent SIGTERM to process on port {port}. Waiting for process to exit...")
+        
+        # Wait for the process to terminate
+        for _ in range(timeout):
+            if not is_port_in_use(port):
+                print(f"Process on port {port} terminated gracefully.")
+                return True
+            time.sleep(1)
+        
+        # If the process is still running after the timeout, force kill it
+        print("Process did not terminate, sending SIGKILL...")
         subprocess.run(f"lsof -ti:{port} | xargs kill -9", shell=True, check=True)
-        print(f"Killed process on port {port}.")
+        print(f"Killed process on port {port} with SIGKILL.")
         return True
     except subprocess.CalledProcessError:
         print(f"Could not kill process on port {port}.")
@@ -168,15 +181,13 @@ def kill_process_on_port(port):
 def run_app_with_retry(app, port, delay=5):
     while True:
         if is_port_in_use(port):
-            if kill_process_on_port(port):
-                time.sleep(delay)  # Give some time for the port to be freed
-        else:
-            try:
-                app.run(debug=True, use_reloader=False, port=port)
-                break  # App started successfully
-            except Exception as e:
-                print(f"Failed to start app on port {port}. Error: {e}")
-                time.sleep(delay)  # Wait before retrying
+            kill_process_on_port(port)  # Attempt to kill the process on the port
+        try:
+            app.run(debug=True, use_reloader=False, port=port)
+            break  # App started successfully
+        except Exception as e:
+            print(f"Failed to start app on port {port}. Error: {e}")
+            time.sleep(delay)  # Wait before retrying
 
 if __name__ == '__main__':
     spacy_driver = spaCyDriver()
