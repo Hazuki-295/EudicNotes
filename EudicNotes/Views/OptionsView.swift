@@ -29,7 +29,8 @@ struct OptionsView: View {
                 .tag(Tabs.trimPassage)
         }
         .padding()
-        .frame(width: 750, height: 850)
+        .frame(minWidth: 750, maxWidth: 800)
+        .frame(minHeight: 850, maxHeight: .infinity)
     }
 }
 

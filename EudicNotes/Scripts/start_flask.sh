@@ -1,39 +1,45 @@
 #!/bin/zsh
 
-# Setup environment and paths
+# Setup environment
 SCRIPT_PATH=$(dirname "$0")
 CONDA_ENV=NLP
-FLASK_SERVER_SCRIPT="$SCRIPT_PATH/nlp.py"
+
+# Set application paths
+FLASK_SERVER="$SCRIPT_PATH/nlp.py"
+EUDICNOTES_APP_PATH="/Applications/EudicNotes/EudicNotes.app"
+
+# Log file
 LOG_FILE="$SCRIPT_PATH/log/flask_eudicnotes.log"
 
-# Log messages with timestamp and type
 log_message() {
     local message="$1"
-    local msg_type="${2:-EudicNotes}"
+    local msg_type="${2:-Script}"
     echo "$(date '+%Y-%m-%d %H:%M:%S') - [$msg_type] $message" >> $LOG_FILE
 }
 
 # Start Flask server and log its output
 start_flask() {
-    source "$HOME/.zshrc" && conda activate "$CONDA_ENV" && python "$FLASK_SERVER_SCRIPT" 2>&1 | tee -a "$LOG_FILE" &
+    source "$HOME/.zshrc" && conda activate "$CONDA_ENV" && python "$FLASK_SERVER" 2>&1 | tee -a "$LOG_FILE" &
     FLASK_PID=$!
-    log_message "Flask server started with PID $FLASK_PID." "FLASK"
+    log_message "Flask server started with PID $FLASK_PID." "Flask"
 }
 
 # Open EudicNotes app
 open_eudicnotes() {
-    open -a /Applications/EudicNotes/EudicNotes.app && log_message "EudicNotes app opened."
+    open -a "$EUDICNOTES_APP_PATH" && sleep 1
+    EUDICNOTES_PID=$(pgrep -fx "$EUDICNOTES_APP_PATH/Contents/MacOS/EudicNotes")
+    log_message "EudicNotes app opened with PID $EUDICNOTES_PID." "EudicNotes"
 }
 
 # Check if EudicNotes is running
 is_eudicnotes_running() {
-    pgrep -f EudicNotes > /dev/null
+    pgrep -fx "$EUDICNOTES_APP_PATH/Contents/MacOS/EudicNotes" > /dev/null
 }
 
 # Terminate Flask server
 terminate_flask() {
     if [[ -n "$FLASK_PID" ]]; then
-        kill "$FLASK_PID" && log_message "Flask server with PID $FLASK_PID terminated."
+        kill "$FLASK_PID" && log_message "Flask server with PID $FLASK_PID terminated." "Flask"
     fi
 }
 
@@ -47,7 +53,7 @@ main() {
 
     while true; do
         if ! is_eudicnotes_running; then
-            log_message "EudicNotes is not running. Terminating Flask server..."
+            log_message "EudicNotes is not running. Terminating Flask server..." "Flask"
             terminate_flask
             break
         fi
