@@ -1,136 +1,30 @@
+import json
 import logging
 import os
 import signal
-import socket
-import subprocess
 import sys
-import time
+
+import stanza
 
 import spacy
 from spacy import displacy
 
-from flask import Flask, request, render_template
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from flask import Flask, abort, render_template, request, send_from_directory
+from flask_cors import CORS
 
-app = Flask(__name__)
+# Initialize the Flask app
+app = Flask(__name__, static_folder='static')
 
+# Enable CORS for all routes
+CORS(app)
+
+# Define the logging filter class
 class SuppressStatusEndpointLoggingFilter(logging.Filter):
     def filter(self, record):
         return '/status' not in record.getMessage()
 
+# Add the filter to the logger
 logging.getLogger('werkzeug').addFilter(SuppressStatusEndpointLoggingFilter())
-
-def read_svg(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        return file.read()
-    
-def write_svg(filename, content):
-    with open(filename, 'w', encoding='utf-8') as file:
-        file.write(content)
-
-class spaCyDriver:
-    def __init__(self, model='en_core_web_sm'):
-        self.nlp = spacy.load(model)
-        self.svg_dir = os.path.join(app.root_path, 'static', 'spacy', 'svg')
-        self.svg_filenames = self.setup_svg_paths()
-
-    def setup_svg_paths(self):
-        os.makedirs(self.svg_dir, exist_ok=True)
-        return {
-            'dependency_tree': os.path.join(self.svg_dir, 'dependency_tree.svg'),
-            'dependency_tree_merged': os.path.join(self.svg_dir, 'dependency_tree_merged.svg')
-        }
-
-    def process_input(self, input_data):
-        doc = self.nlp(input_data)
-        svg = displacy.render(doc, style="dep")
-        svg_merged = displacy.render(doc, style="dep", options={"collapse_phrases": True})
-    
-        write_svg(self.svg_filenames['dependency_tree'], svg)
-        write_svg(self.svg_filenames['dependency_tree_merged'], svg_merged)
-
-class CoreNLPDriver():
-    def __init__(self):
-        self.driver = self.initialize_driver()
-        self.setup_corenlp_interface()
-
-    def initialize_driver(self):
-        options = Options()
-        options.add_argument("--headless")
-        options.add_argument("window-size=1920,1080")
-        return webdriver.Chrome(options=options)
-
-    def setup_corenlp_interface(self):
-        """Sets up the CoreNLP web interface for usage."""
-        self.driver.get('https://corenlp.run/')
-
-        # Setup annotators
-        self.driver.find_element(By.CSS_SELECTOR, '[data-option-array-index="2"]').click()
-        self.driver.find_element(By.CLASS_NAME, 'chosen-choices').click()
-        self.driver.find_element(By.CSS_SELECTOR, '[data-option-array-index="4"]').click()
-        
-        self.annotators = {'pos': 'Part-of-Speech',
-                'deps': 'Basic Dependencies',
-                'deps2': 'Enhanced++ Dependencies',
-                'parse': 'Constituency Parse'}
-        
-        self.text_box = self.driver.find_element(By.ID, 'text')
-        self.submit_button = self.driver.find_element(By.ID, "submit")
-        self.loading_element = self.driver.find_element(By.ID, "loading")
-
-    def process_input(self, input_data):
-        """Processes the input text through the CoreNLP interface."""
-        try:
-            self.text_box.clear()
-            self.text_box.send_keys(input_data)
-            self.submit_button.click()
-        except Exception as e:
-            print(f"Error during processing: {e}")
-            self.reinitialize_session()
-        
-        # Wait for the response to be generated
-        WebDriverWait(self.driver, 10).until(EC.invisibility_of_element_located(self.loading_element))
-        
-        results = {}
-        for key, label in self.annotators.items():
-            try:
-                element = self.driver.find_element(By.ID, key)
-                outer_html = element.get_attribute('outerHTML')
-                results[key] = (label, outer_html)
-            except Exception as e:
-                results[key] = (label, f"Error: {e}")
-        return results
-    
-    def reinitialize_session(self):
-        print("Reinitializing session...")
-        self.close()
-        self.driver = self.initialize_driver()
-        self.setup_corenlp_interface()
-        
-    def close(self):
-        self.driver.quit()
-
-def cleanup_resources():
-    print("Cleaning up resources...")
-    core_nlp_driver.close()
-
-def handle_signal(sig, frame):
-    signal_name = {
-        signal.SIGINT: "SIGINT (Interrupt from keyboard)",
-        signal.SIGTERM: "SIGTERM (Termination signal)",
-    }.get(sig, f"Unknown signal ({sig})")
-    
-    print(f"Received {signal_name}. Exiting...")
-    cleanup_resources()
-    sys.exit(0)
-
-# Setup signal handlers for graceful shutdown.
-signal.signal(signal.SIGINT, handle_signal)  # Handles Ctrl+C
-signal.signal(signal.SIGTERM, handle_signal)  # Handles termination signals
 
 default_input = 'The quick brown fox jumped over the lazy dog.'
 
@@ -147,60 +41,66 @@ def get_input_data():
 def status():
     return '', 200
 
+@app.route('/<path:path>')
+def static_file(path):
+    if path in ['stanza-brat.css', 'stanza-brat.js', 'stanza-parseviewer.js', 'loading.gif',
+                'favicon.png', 'stanza-logo.png']:
+        return send_from_directory('static/corenlp', path)
+    elif path == 'index.html':
+        return send_from_directory('static/corenlp', 'stanza-brat.html')
+    else:
+        abort(403)
+
 @app.route('/spaCy', methods=['GET', 'POST'])
 def spacy_request():
     input_data = get_input_data()
-    spacy_driver.process_input(input_data)
+    doc = nlp_spacy(input_data)
+    
+    svg = displacy.render(doc, style="dep")
+    svg_merged = displacy.render(doc, style="dep", options={"collapse_phrases": True})
     svg_data = {
-    'deps-merged': ('Dependency (Merge Phrases)', read_svg(spacy_driver.svg_filenames['dependency_tree_merged'])),
-    'deps': ('Dependency', read_svg(spacy_driver.svg_filenames['dependency_tree']))
+    'deps-merged': ('Dependency (Merge Phrases)', svg_merged),
+    'deps': ('Dependency', svg)
     }
     return render_template('spacy_results.html', svg_data=svg_data)
 
-@app.route('/CoreNLP', methods=['GET', 'POST'])
-def core_nlp_request():
-    input_data = get_input_data()
-    results = core_nlp_driver.process_input(input_data)
-    return render_template('corenlp_results.html', results=results)
+@app.route('/CoreNLP', methods=['GET'])
+def index():
+    return static_file('index.html')
 
-def is_port_in_use(port):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(('localhost', port)) == 0
+@app.route('/CoreNLP', methods=['POST'])
+def annotate():
+    text = list(request.form.keys())[0]
+    doc = nlp_corenlp(text)
 
-def kill_process_on_port(port, timeout=5):
-    try:
-        # Send SIGTERM to gracefully terminate the process
-        subprocess.run(f"lsof -ti:{port} | xargs kill -SIGTERM", shell=True, check=True)
-        print(f"Sent SIGTERM to process on port {port}. Waiting for process to exit...")
-        
-        # Wait for the process to terminate
-        for _ in range(timeout):
-            if not is_port_in_use(port):
-                print(f"Process on port {port} terminated gracefully.")
-                return True
-            time.sleep(1)
-        
-        # If the process is still running after the timeout, force kill it
-        print("Process did not terminate, sending SIGKILL...")
-        subprocess.run(f"lsof -ti:{port} | xargs kill -9", shell=True, check=True)
-        print(f"Killed process on port {port} with SIGKILL.")
-        return True
-    except subprocess.CalledProcessError:
-        print(f"Could not kill process on port {port}.")
-        return False
+    annotated_sentences = []
+    for sentence in doc.sentences:
+        tokens = []
+        deps = []
+        for word in sentence.words:
+            tokens.append({'index': word.id, 'word': word.text, 'lemma': word.lemma, 'pos': word.xpos, 'upos': word.upos, 'feats': word.feats, 'ner': word.parent.ner if word.parent.ner is None or word.parent.ner == 'O' else word.parent.ner[2:]})
+            deps.append({'dep': word.deprel, 'governor': word.head, 'governorGloss': sentence.words[word.head-1].text,
+                'dependent': word.id, 'dependentGloss': word.text})
+        annotated_sentences.append({'basicDependencies': deps, 'tokens': tokens})
+        if hasattr(sentence, 'constituency') and sentence.constituency is not None:
+            annotated_sentences[-1]['parse'] = str(sentence.constituency)
 
-def run_app_with_retry(app, port, delay=5):
-    while True:
-        if is_port_in_use(port):
-            kill_process_on_port(port)  # Attempt to kill the process on the port
-        try:
-            app.run(debug=True, use_reloader=False, port=port)
-            break  # App started successfully
-        except Exception as e:
-            print(f"Failed to start app on port {port}. Error: {e}")
-            time.sleep(delay)  # Wait before retrying
+    return json.dumps({'sentences': annotated_sentences})
+
+def handle_signal(sig, frame):
+    signal_name = {
+        signal.SIGINT: "SIGINT (Interrupt from keyboard)",
+        signal.SIGTERM: "SIGTERM (Termination signal)",
+    }.get(sig, f"Unknown signal ({sig})")
+    
+    print(f"Received {signal_name}. Exiting...")
+    sys.exit(0)
+    
+# Setup signal handlers for graceful shutdown.
+signal.signal(signal.SIGINT, handle_signal)  # Handles Ctrl+C
+signal.signal(signal.SIGTERM, handle_signal)  # Handles termination signals
 
 if __name__ == '__main__':
-    spacy_driver = spaCyDriver()
-    core_nlp_driver = CoreNLPDriver()
-    run_app_with_retry(app, 8000)
+    nlp_spacy = spacy.load('en_core_web_sm')
+    nlp_corenlp = stanza.Pipeline('en', download_method=None)
+    app.run(debug=True, use_reloader=False, port=8000)

@@ -1,7 +1,7 @@
 // Takes Stanford CoreNLP JSON output (var data = ... in data.js)
 // and uses brat to render everything.
 
-//var serverAddress = 'http://localhost:5000';
+var serverAddress = 'http://127.0.0.1:8000/CoreNLP';
 
 // Load Brat libraries
 var bratLocation = 'https://nlp.stanford.edu/js/brat/';

@@ -9,36 +9,8 @@ import SwiftUI
 import WebKit
 import Combine
 
-struct WebView: NSViewRepresentable {
-    var htmlContent: String
-    
-    func makeNSView(context: Context) -> WKWebView {
-        return WKWebView()
-    }
-    
-    func updateNSView(_ nsView: WKWebView, context: Context) {
-        nsView.loadHTMLString(htmlContent, baseURL: nil)
-    }
-}
-
-// Custom WebView for NLP display with consistent styling
-struct NLPView: View {
-    var htmlContent: String
-    
-    var body: some View {
-        WebView(htmlContent: htmlContent)
-            .lineSpacing(2)
-            .background(Color.white)
-            .cornerRadius(5)
-            .overlay(
-                RoundedRectangle(cornerRadius: 5)
-                    .stroke(Color.gray, lineWidth: 1)
-            )
-    }
-}
-
 struct ServerStatusView: View {
-    @StateObject private var viewModel = ServerStatusViewModel()
+    @ObservedObject var viewModel: ServerStatusViewModel
     
     var body: some View {
         Circle()
@@ -59,6 +31,8 @@ class ServerStatusViewModel: ObservableObject {
     private var timer: AnyCancellable?
     
     func startCheckingServer() {
+        self.checkServerStatus() // Initial check
+        
         timer = Timer.publish(every: 5.0, on: .main, in: .common)
             .autoconnect()
             .sink { _ in
@@ -108,12 +82,94 @@ extension Color {
     }
 }
 
+struct WebView: NSViewRepresentable {
+    var htmlContent: String
+    var initialJsToExecute: String?
+    
+    @Binding var webView: WKWebView?
+    
+    class Coordinator: NSObject, WKNavigationDelegate {
+        var parent: WebView
+        
+        init(parent: WebView) {
+            self.parent = parent
+        }
+        
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // Execute initial JavaScript once the web view finishes loading
+            if let jsToExecute = parent.initialJsToExecute {
+                webView.evaluateJavaScript(jsToExecute) { result, error in
+                    if let error = error {
+                        print("Initial JavaScript execution error: \(error.localizedDescription)")
+                    } else {
+                        print("Initial JavaScript execution result: \(result ?? "No result")")
+                    }
+                }
+            }
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+    
+    func makeNSView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.navigationDelegate = context.coordinator
+        DispatchQueue.main.async {
+            self.webView = webView
+        }
+        return webView
+    }
+    
+    func updateNSView(_ nsView: WKWebView, context: Context) {
+        nsView.loadHTMLString(htmlContent, baseURL: URL(string: "http://127.0.0.1:8000"))
+    }
+    
+    func executeJavaScript(_ jsToExecute: String) {
+        webView?.evaluateJavaScript(jsToExecute) { result, error in
+            if let error = error {
+                print("JavaScript execution error: \(error.localizedDescription)")
+            } else {
+                print("JavaScript execution result: \(result ?? "No result")")
+            }
+        }
+    }
+}
+
+// Custom WebView for NLP display with consistent styling
+struct NLPView: View {
+    var htmlContent: String
+    var initialJsToExecute: String?
+    @Binding var webView: WKWebView?
+    
+    var body: some View {
+        WebView(htmlContent: htmlContent, initialJsToExecute: initialJsToExecute, webView: $webView)
+            .lineSpacing(2)
+            .background(Color.white)
+            .cornerRadius(5)
+            .overlay(
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Color.gray, lineWidth: 1)
+            )
+    }
+}
+
 // Main view managing NLP annotations
 struct NlpAnnotatorsView: View {
-    @State private var input: String = "The big zucchini in the freezer will be shredded for bread."
+    static private var defaultInput = "The quick brown fox jumped over the lazy dog."
+    @State private var input: String = defaultInput
+    
     @State private var spacyHTML: String = ""
+    @State private var spacyWebView: WKWebView? = nil
+    
     @State private var corenlpHTML: String = ""
-    @State private var hasAppeared: Bool = false
+    @State private var corenlpWebView: WKWebView? = nil
+    
+    @State private var serverAvailableActionPerformed: Bool = false
+    @StateObject private var serverStatusViewModel = ServerStatusViewModel()
+    
+    @State private var selectAnnotators = false
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -128,7 +184,7 @@ struct NlpAnnotatorsView: View {
                     HStack {
                         Image(systemName: "paperplane")
                         Text("Submit")
-                        ServerStatusView()
+                        ServerStatusView(viewModel: serverStatusViewModel)
                     }
                 }
             }
@@ -137,10 +193,13 @@ struct NlpAnnotatorsView: View {
                 HStack {
                     Label("Stanford CoreNLP", systemImage: "note.text").foregroundColor(Color(hexString: "#aa1d36"))
                     Spacer()
+                    Toggle("Custom Annotators", isOn: $selectAnnotators).onChange(of: selectAnnotators) {
+                        corenlpWebView?.evaluateJavaScript("toggleAnnotatorSelector();")
+                    }
                     Image("corenlp").resizable().scaledToFit().background().border(Color.gray)
                 }
                 .frame(height: 30)
-                NLPView(htmlContent: corenlpHTML)
+                NLPView(htmlContent: corenlpHTML, initialJsToExecute: "initCorenlp('\(NlpAnnotatorsView.defaultInput)')", webView: $corenlpWebView)
             }
             
             VStack(alignment: .leading) {
@@ -150,45 +209,60 @@ struct NlpAnnotatorsView: View {
                     Image("spacy").resizable().scaledToFit()
                 }
                 .frame(height: 30)
-                NLPView(htmlContent: spacyHTML)
+                NLPView(htmlContent: spacyHTML, webView: $spacyWebView)
             }
         }
         .padding(.top, 5)
         .padding(.bottom)
         .padding(.leading)
         .padding(.trailing)
-        .onAppear {
-            if !hasAppeared {
-                submitData(); hasAppeared = true
+        .onReceive(serverStatusViewModel.$isServerAvailable) { isServerAvailable in
+            if isServerAvailable && !serverAvailableActionPerformed {
+                initCoreNLP();
+                submitSpacyData();
+                serverAvailableActionPerformed = true
             }
         }
     }
     
-    func submitData() {
-        fetchData(for: "CoreNLP", htmlString: $corenlpHTML)
-        fetchData(for: "spaCy", htmlString: $spacyHTML)
+    func initCoreNLP() {
+        var request = URLRequest(url: URL(string: "http://127.0.0.1:8000/CoreNLP")!)
+        request.httpMethod = "GET"
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let data = data, let htmlContent = String(data: data, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    corenlpHTML = htmlContent
+                }
+            } else {
+                print("Failed to fetch data: \(error?.localizedDescription ?? "Unknown error")")
+            }
+        }.resume()
     }
     
-    func fetchData(for endpoint: String, htmlString: Binding<String>) {
-        guard let url = URL(string: "http://127.0.0.1:8000/\(endpoint)") else {
-            print("Invalid URL")
-            return
-        }
-        
-        var request = URLRequest(url: url)
+    func submitData() {
+        submitSpacyData();
+        submitCorenlpData();
+    }
+    
+    func submitSpacyData () {
+        var request = URLRequest(url: URL(string: "http://127.0.0.1:8000/spaCy")!)
         request.httpMethod = "POST"
         request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
         request.httpBody = input.data(using: .utf8)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data, let htmlContent = String(data: data, encoding: .utf8) else {
+            if let data = data, let htmlContent = String(data: data, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    spacyHTML = htmlContent
+                }
+            } else {
                 print("Failed to fetch data: \(error?.localizedDescription ?? "Unknown error")")
-                return
-            }
-            DispatchQueue.main.async {
-                htmlString.wrappedValue = htmlContent
             }
         }.resume()
+    }
+    
+    func submitCorenlpData() {
+        corenlpWebView?.evaluateJavaScript("setInputAndSubmit('\(input)');")
     }
 }
 

@@ -23,6 +23,28 @@
     <script type="text/javascript" src="stanza-brat.js"></script>
 
     <meta charset="UTF-8">
+
+    <style>
+        .minimal .navbar {
+            display: none;
+        }
+
+        .minimal .container .row:nth-of-type(1) {
+            display: none;
+        }
+
+        .container .row:nth-of-type(2) {
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+
+        #parse svg {
+            max-width: 100%;
+            padding: 0 10px;
+            overflow: visible;
+            height: auto !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -56,10 +78,10 @@
                         <label for="annotators" class="label">&mdash; Annotations &mdash;</label>
                         <select id="annotators" data-placeholder="CoreNLP annotators" multiple class="chosen-select"
                             title="Select CoreNLP annotators">
-                            <option value="pos" selected> parts-of-speech </option>
-                            <option value="upos"> universal parts-of-speech </option>
-                            <option value="ner" selected> named entities </option>
-                            <option value="lemma" selected> lemmas </option>
+                            <option value="pos"> parts-of-speech </option>
+                            <option value="upos" selected> universal parts-of-speech </option>
+                            <option value="ner"> named entities </option>
+                            <option value="lemma"> lemmas </option>
                             <option value="depparse" selected> dependency parse </option>
                             <option value="parse" selected> constituency parse </option>
                         </select>
@@ -175,6 +197,65 @@
             </p>
         </div>
     </footer>
+
+    <script>
+        const wrap = document.getElementById('wrap');
+        const textBox = document.getElementById('text');
+        const submitButton = document.getElementById('submit');
+        const loadingElement = document.getElementById('loading');
+
+        submitButton.addEventListener('click', () => {
+            waitForLoadingToComplete(adjustSvg);
+        });
+
+        function initCorenlp(input) {
+            toggleAnnotatorSelector();
+            setInputAndSubmit(input);
+        }
+
+        function toggleAnnotatorSelector() {
+            wrap.classList.toggle('minimal');
+        }
+
+        function setInputAndSubmit(input) {
+            textBox.value = input;
+            submitButton.click();
+        }
+
+        // Function to initialize the MutationObserver
+        function waitForLoadingToComplete(callback) {
+            // Create a MutationObserver to watch for style changes
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const displayStyle = window.getComputedStyle(loadingElement).display;
+                        if (displayStyle === 'none') {
+                            observer.disconnect(); // Stop observing
+                            callback(); // Execute the callback function
+                        }
+                    }
+                });
+            });
+
+            // Start observing the loading element for attribute changes
+            observer.observe(loadingElement, {
+                attributes: true, // Listen for attribute changes
+                attributeFilter: ['style'] // Only listen for changes to the style attribute
+            });
+        }
+
+        function adjustSvg() {
+            const parseSvg = document.querySelector('#parse svg');
+            if (parseSvg) {
+                // Get the natural width and height from the SVG
+                const svgWidth = parseSvg.getAttribute('width');
+                const svgHeight = parseSvg.getAttribute('height');
+
+                // Set the viewBox to scale the SVG
+                parseSvg.setAttribute('viewBox', `0 0 ${svgWidth} ${svgHeight}`);
+            }
+        }
+    </script>
 
 </body>
 
