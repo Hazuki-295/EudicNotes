@@ -16,7 +16,6 @@
 		B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26592B9A263F0072477F /* ClipboardManager.swift */; };
 		B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A860592B9B021800542E8D /* TrimPassageView.swift */; };
 		B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605B2B9B022700542E8D /* CombineNotesView.swift */; };
-		B3A8605E2B9B041F00542E8D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605D2B9B041F00542E8D /* MainView.swift */; };
 		B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */; };
 		B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */; };
 		B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42C2B98370B006894D1 /* ContentView.swift */; };
@@ -55,7 +54,6 @@
 		B37B26592B9A263F0072477F /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
 		B3A860592B9B021800542E8D /* TrimPassageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrimPassageView.swift; sourceTree = "<group>"; };
 		B3A8605B2B9B022700542E8D /* CombineNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineNotesView.swift; sourceTree = "<group>"; };
-		B3A8605D2B9B041F00542E8D /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		B3EDC4272B98370B006894D1 /* EudicNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EudicNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesApp.swift; sourceTree = "<group>"; };
@@ -100,7 +98,6 @@
 			isa = PBXGroup;
 			children = (
 				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
-				B3A8605D2B9B041F00542E8D /* MainView.swift */,
 				B37B26552B9A05390072477F /* OptionsView.swift */,
 				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
 				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
@@ -347,7 +344,6 @@
 				B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */,
 				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
-				B3A8605E2B9B041F00542E8D /* MainView.swift in Sources */,
 				B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */,
 				B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */,
 				B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */,
