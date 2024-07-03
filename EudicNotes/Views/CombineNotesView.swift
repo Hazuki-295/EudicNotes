@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WebKit
 
 class NoteData: ObservableObject {
     // Properties to hold note data
@@ -15,33 +16,20 @@ class NoteData: ObservableObject {
     @Published var notes: String = ""
     @Published var tags: String = ""
     
-    // Properties to hold user input and its rendered version
-    @Published var userInputPlainNote: String = ""
-    @Published var userInputRenderedNote: String = ""
+    // @Published property for internal data management that will trigger view updates when changed
+    @Published var _renderedNote: String = ""
     
-    private var autoUpdateEnabled: Bool = true
+    // Resources for rendering the note
+    static private let useLocalResources = false
+    static private var cssContent = useLocalResources ? "<style>\n" + (loadResourceContent(fileName: "notes", withExtension: "css") ?? "") + "\n</style>" :
+    #"<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/notes.css">"#
+    static private var jsContent = useLocalResources ? "<script>\n" + (loadResourceContent(fileName: "notes", withExtension: "js") ?? "") + "\n</script>" :
+    #"<script src="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/notes.js"></script>"#
     
+    // History management
     static private let maxHistoryLimit = 5
     static private var histories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
     static var latestHistoryIndex = histories.count - 1
-    
-    static private var noteDataTemp: NoteData = NoteData()
-    
-    init() {
-        setupPipeline()
-    }
-    
-    func setupPipeline() {
-        $userInputPlainNote
-            .removeDuplicates()
-            .filter { _ in self.autoUpdateEnabled }
-            .map { userInputPlainNote -> String in
-                guard !userInputPlainNote.isEmpty else { return "" }
-                NoteData.noteDataTemp.recognizeNote(plainNote: userInputPlainNote)
-                return NoteData.noteDataTemp.renderedNote
-            }
-            .assign(to: &$userInputRenderedNote)
-    }
     
     func updateWith(noteData: NoteData) {
         self.source = noteData.source
@@ -50,17 +38,7 @@ class NoteData: ObservableObject {
         self.notes = noteData.notes
         self.tags = noteData.tags
         
-        self.autoUpdateEnabled.toggle()
-        self.userInputPlainNote = noteData.userInputPlainNote
-        self.userInputRenderedNote = noteData.userInputRenderedNote
-        self.autoUpdateEnabled.toggle()
-    }
-    
-    func manualUpdate() {
-        self.autoUpdateEnabled.toggle()
-        self.userInputPlainNote = self.plainNote
-        self.userInputRenderedNote = self.renderedNote
-        self.autoUpdateEnabled.toggle()
+        self._renderedNote = noteData._renderedNote
     }
     
     func saveToHistory() {
@@ -70,8 +48,8 @@ class NoteData: ObservableObject {
             "wordPhrase": wordPhrase,
             "notes": notes,
             "tags": tags,
-            "userInputPlainNote": userInputPlainNote,
-            "userInputRenderedNote": userInputRenderedNote
+            
+            "renderedNote": _renderedNote
         ]
         NoteData.histories.append(currentState)
         if NoteData.histories.count > NoteData.maxHistoryLimit {
@@ -91,104 +69,84 @@ class NoteData: ObservableObject {
     func loadFromHistory(index: Int) {
         guard NoteData.histories.indices.contains(index) else { return }
         let history = NoteData.histories[index]
+        
         source = history["source"] ?? ""
         originalText = history["originalText"] ?? ""
         wordPhrase = history["wordPhrase"] ?? ""
         notes = history["notes"] ?? ""
         tags = history["tags"] ?? ""
         
-        autoUpdateEnabled.toggle()
-        userInputPlainNote = history["userInputPlainNote"] ?? ""
-        userInputRenderedNote = history["userInputRenderedNote"] ?? ""
-        autoUpdateEnabled.toggle()
+        _renderedNote = history["renderedNote"] ?? ""
     }
     
-    private static let styleTemplates = [
-        "content": "<span style=\"font-family: Optima, Bookerly, 'Source Han Serif CN'; font-size: 16px;\">%@</span>",
-        "label": "<span style=\"font-family: Bookerly; color: #4F7DC0; font-weight: 500;\">[%@]</span>", // deep sky blue
-        "tags": "<span style=\"font-family: Bookerly; color: #0D85FF;\">%@</span>"
-    ]
-    
-    private static let patterns = [
-        "source": #"\[Source\]([\s\S]+?)(?=\[Original Text\])"#, // capturing with non-greedy plus
-        "originalText": #"\[Original Text\]([\s\S]+?)(?=(\[Notes\]|#|$))"#, // stop at "[Notes]" or tags or end of string
-        "notes": #"\[Notes\]([\s\S]+?)(?=(#|$))"#, // stop at tags or end of string
-        "tags": "(#[A-Za-z]+)" // capture tags
-    ]
-    
-    var plainNote: String {
-        """
-        [Source] \(wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
-        
-        [Original Text]
-        
-        \(wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))\(notes.isEmpty ? "" : "\n\n[Notes] \(notes)")\(tags.isEmpty ? "" : "\n\n\(tags)")
-        """
-    }
-    
+    // Public computed property to process and display the note in a specific HTML format
     var renderedNote: String {
-        String(format: NoteData.styleTemplates["content"]!, """
-        \(String(format: NoteData.styleTemplates["label"]!, "Source")) \(formatSource())
+        let htmlContent = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            \(NoteData.cssContent)
+        </head>
+        <body>
+            <div class="notes-container">
+                <div class="label" label-data="Source"> \(formatSource())</div><br>
+                <br>
+                <div class="label" label-data="Original Text"><br>
+                    <br>
+                    \(formatOriginalText())
+                </div>
+                \(formatNotes())\(formatTags())
+            </div>
+            \(NoteData.jsContent)
+        </body>
+        </html>
+        """
         
-        \(String(format: NoteData.styleTemplates["label"]!, "Original Text"))
+        let escapedHTMLContent = htmlContent
+            .replacingOccurrences(of: "\"", with: "&quot;")
         
-        \(formatOriginalText())\(formatNotes())\(formatTags())
-        """)
+        let iframe = #"<iframe class="notes-iframe" srcdoc="\#(escapedHTMLContent)" style="width: 100%; height: 0; border: none; padding: 0; margin: 0;"></iframe>"#
+        
+        return iframe
     }
     
     // Helper functions to format different parts of the note
     private func formatSource() -> String {
-        return (wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase)).replacePlusSign()
+        return (wordPhrase.isEmpty ? source : source.highlightWord(wordPhrase))
+            .replacePlusSign()
     }
     
     private func formatOriginalText() -> String {
-        return (wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase)).replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
+        return (wordPhrase.isEmpty ? originalText : originalText.highlightWord(wordPhrase))
+            .replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
+            .replacingOccurrences(of: "\n", with: "<br>")
     }
     
     private func formatNotes() -> String {
-        return notes.isEmpty ? "" : "\n\n" + String(format: NoteData.styleTemplates["label"]!, "Notes") + " " + notes.replaceAngleBrackets()
-            .replacePOS()
-            .replaceSlash()
-            .replaceAtSign()
-            .replaceAndSign()
-            .replacePlusSign()
-            .replaceAsterisk()
-            .replaceCaretSign()
-            .replaceExclamation()
-            .replaceSquareBrackets()
+        return notes.isEmpty ? "" : #"<br><br><div class="label" label-data="Notes"> "# + notes
+            .replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
+            .replacePOS().replaceSlash().replaceAsterisk().replaceExclamation().replaceAtSign().replaceAndSign()
+            .replacingOccurrences(of: "\n", with: "<br>") + #"</div>"#
     }
     
     private func formatTags() -> String {
-        return tags.isEmpty ? "" : "\n\n" + String(format: NoteData.styleTemplates["tags"]!, tags)
+        if (tags.isEmpty) { return "" }
+        
+        let tagList = tags.split(separator: " ")
+        let formattedTags = tagList.map { tag in
+            let trimmed = tag.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            return #"<span class="tag">\#(trimmed)</span>"#
+        }
+        
+        return "<br><br>" + formattedTags.joined(separator: " ")
     }
     
     func recognizeNote(plainNote: String) {
-        source = NoteData.matchAndTrim(plainNote, NoteData.patterns["source"]!)
-        originalText = NoteData.matchAndTrim(plainNote, NoteData.patterns["originalText"]!)
-        wordPhrase = ""
-        notes = NoteData.matchAndTrim(plainNote, NoteData.patterns["notes"]!)
-        tags = NoteData.matchAndTrim(plainNote, NoteData.patterns["tags"]!)
-    }
-    
-    // Helper function for regex matching and trimming the first and only capturing group using a regular expression pattern
-    private static func matchAndTrim(_ input: String, _ pattern: String) -> String {
-        // Since we assume the regex is always correct, directly create the regex
-        let regex = try! NSRegularExpression(pattern: pattern)
-        let range = NSRange(input.startIndex..., in: input)
         
-        // Access the first match
-        guard let match = regex.firstMatch(in: input, range: range),
-              let captureRange = Range(match.range(at: 1), in: input) else {
-            return "" // Return an empty string if no content is captured
-        }
-        
-        // Return the trimmed captured group, handle potentially empty capture gracefully
-        return String(input[captureRange]).trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     func clearFields() {
-        (source, originalText, wordPhrase, notes, tags) = ("", "", "", "", "")
-        (userInputPlainNote, userInputRenderedNote) = ("", "")
+        (source, originalText, wordPhrase, notes, tags, _renderedNote) = ("", "", "", "", "", "")
     }
     
     func clearLabels() {
@@ -208,6 +166,8 @@ struct SingleNotesView: View {
     @EnvironmentObject var sharedNoteData: NoteData
     @StateObject var noteData: NoteData
     private let mainNoteData: Bool
+    
+    @State private var webView: WKWebView? = nil
     
     @State private var showTextEditor = false
     
@@ -257,29 +217,27 @@ struct SingleNotesView: View {
                 }
             }
             
-            HStack {
-                CustomTextEditor(text: $noteData.userInputPlainNote)
+            ZStack {
+                // visible by default
+                if !showTextEditor {
+                    NLPView(htmlContent: noteData._renderedNote, initialJsToExecute: """
+                        const iframeElement = document.querySelector('.notes-iframe');
+                        const container = iframeElement.contentDocument.querySelector('.notes-container');
+
+                        container.style.zoom = '0.8';
+                        document.body.style.margin = '3px 8px';
+                        iframeElement.contentDocument.body.style.margin = '0';
+                        """, webView: $webView)
+                }
                 
-                ZStack {
-                    // visible by default
-                    if !showTextEditor {
-                        CustomWebView(htmlString: $noteData.userInputRenderedNote)
-                    }
-                    
-                    // hidden by default
-                    if showTextEditor {
-                        CustomTextEditor(text: $noteData.userInputRenderedNote)
-                    }
+                // hidden by default
+                if showTextEditor {
+                    CustomTextEditor(text: $noteData._renderedNote)
                 }
             }
             
             HStack {
-                Button(action: {
-                    if let text = ClipboardManager.pasteFromClipboard() {
-                        noteData.recognizeNote(plainNote: text)
-                        noteData.manualUpdate()
-                    }
-                }) {
+                Button(action: { if let text = ClipboardManager.pasteFromClipboard() { noteData.recognizeNote(plainNote: text) } }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
@@ -290,16 +248,11 @@ struct SingleNotesView: View {
                     }
                 }
                 if mainNoteData {
-                    Button(action: {
-                        noteData.loadFromHistory(index: historyIndex)
-                    }) {
+                    Button(action: { noteData.loadFromHistory(index: historyIndex) }) {
                         Image(systemName: "arrowshape.turn.up.backward.2")
                         Text("Load")
                     }
-                    Button(action: {
-                        noteData.saveToHistory()
-                        historyIndex = NoteData.latestHistoryIndex
-                    }) {
+                    Button(action: { noteData.saveToHistory(); historyIndex = NoteData.latestHistoryIndex }) {
                         Image(systemName: "externaldrive.badge.plus")
                         Text("Save")
                     }
@@ -365,15 +318,15 @@ struct CombineNotesView: View {
                         while noteComponents.count < 4 {
                             noteComponents.append("")
                         }
-                        (noteData1.userInputPlainNote, noteData2.userInputPlainNote, noteData3.userInputPlainNote, noteData4.userInputPlainNote) = (noteComponents[0], noteComponents[1], noteComponents[2], noteComponents[3])
+                        // (noteData1.userInputPlainNote, noteData2.userInputPlainNote, noteData3.userInputPlainNote, noteData4.userInputPlainNote) = (noteComponents[0], noteComponents[1], noteComponents[2], noteComponents[3])
                     }) {
                         Image(systemName: "list.clipboard").foregroundColor(.purple)
                         Text("Retrieve Clipboard").foregroundColor(.purple)
                     }
                     Button(action: {
                         let separator = "\n" + "<hr style=\"border: none; height: 2px; background-color: #949494; margin: 20px 0;\">"
-                        let notes = [noteData1.userInputRenderedNote, noteData2.userInputRenderedNote, noteData3.userInputRenderedNote, noteData4.userInputRenderedNote]
-                        combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
+                        // let notes = [noteData1.userInputRenderedNote, noteData2.userInputRenderedNote, noteData3.userInputRenderedNote, noteData4.userInputRenderedNote]
+                        // combinedNotes = notes.filter { !$0.isEmpty }.joined(separator: separator)
                         ClipboardManager.copyToClipboard(textToCopy: combinedNotes)
                     }) {
                         Image(systemName: "book").foregroundColor(.indigo)

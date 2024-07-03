@@ -82,6 +82,14 @@ extension Color {
     }
 }
 
+func loadResourceContent(fileName: String, withExtension: String) -> String? {
+    if let url = Bundle.main.url(forResource: fileName, withExtension: withExtension),
+       let content = try? String(contentsOf: url) {
+        return content
+    }
+    return nil
+}
+
 struct WebView: NSViewRepresentable {
     var htmlContent: String
     var initialJsToExecute: String?

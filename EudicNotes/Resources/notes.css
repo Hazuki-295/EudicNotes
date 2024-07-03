@@ -1,0 +1,214 @@
+:root {
+    /* Highlight colors */
+    --red: rgb(245, 18, 37);
+    --green: rgb(103, 167, 138);
+    --blue: rgb(53, 163, 255);
+
+    /* Note colors */
+    --color-label: rgb(79, 125, 192);
+    --color-tag: rgb(13, 133, 255);
+
+    /* LDOCE notes */
+    --font-size-lm5pp: 16px;
+    --color-pos: rgba(196, 21, 27, 0.8);
+    --color-activ: hotpink;
+
+    /* OALD notes */
+    --font-size-oald: 15px;
+    --color-oald-red: rgb(222, 0, 45);
+    --color-oald-green: rgb(0, 122, 108);
+    --color-oald-blue: rgb(0, 114, 207);
+}
+
+.notes-container {
+    font-family: Optima, Bookerly, 'Source Han Serif CN';
+    font-size: 16px;
+}
+
+.label {
+    display: inline;
+}
+
+.label::before {
+    content: "[" attr(label-data) "]";
+    display: inline-block;
+    font-family: Bookerly;
+    font-weight: 500;
+    color: var(--color-label);
+}
+
+.tag {
+    font-family: Bookerly;
+    color: var(--color-tag);
+}
+
+.tag::before {
+    content: "#";
+}
+
+/* Highlighted text */
+span.highlight {
+    font-weight: bold;
+}
+
+span.red {
+    color: var(--red);
+}
+
+span.green {
+    color: var(--green);
+}
+
+span.blue {
+    color: var(--blue);
+}
+
+/* LDOCE Style */
+[dict="lm5pp"] {
+    font-size: var(--font-size-lm5pp);
+}
+
+.lm5pp_POS {
+    color: var(--color-pos);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: calc(var(--font-size-lm5pp) * 0.85);
+    font-style: italic;
+    font-weight: bold;
+    margin: 0 2px;
+}
+
+.lm5pp_POS.phr {
+    font-family: Optima;
+    font-weight: normal;
+    font-style: normal;
+    font-size: calc(var(--font-size-lm5pp) * 0.74);
+    text-transform: capitalize;
+    border: 1px solid var(--color-pos);
+    padding: 0px 3px;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+
+.ACTIV {
+    /* display: inline; */
+    color: var(--color-activ);
+    font-size: calc(var(--font-size-lm5pp) * 0.8);
+    font-weight: bold;
+    padding: 0 2px;
+    margin: 0 2px;
+    /* Added by Hazuki */
+    font-family: Optima;
+    text-transform: uppercase;
+}
+
+/* OALD Style */
+[dict="oald"] {
+    font-size: var(--font-size-oald);
+    line-height: 1.4;
+    word-spacing: .1rem;
+}
+
+.shcut {
+    color: var(--color-oald-blue);
+    /* display: inline; */
+    padding-bottom: 1px;
+    padding-right: .25em;
+    /* line-height: 1; */
+    margin: .35em 0 .2em;
+    font-size: var(--font-size-oald);
+    font-weight: 600;
+    font-family: Optima;
+    background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%);
+}
+
+.shcut .OALECD_chn {
+    color: var(--color-oald-blue);
+    background: transparent;
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.def {
+    font-family: Bookerly;
+}
+
+.def .OALECD_chn {
+    /* display: inline; */
+    color: var(--color-oald-green);
+    background: rgba(0, 122, 108, .2);
+    border-radius: 3px;
+}
+
+.OALECD_chn {
+    font-weight: 400;
+    font-style: normal;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 2px;
+    /* Other properties */
+    font-family: 'Source Han Serif CN';
+    font-size: calc(var(--font-size-oald) * 0.9);
+}
+
+.def .ndv {
+    color: var(--color-oald-green);
+    font-style: italic;
+}
+
+.cf {
+    font-family: Bookerly;
+    color: var(--color-oald-blue);
+}
+
+.z, .pvarr, .sep {
+    color: var(--color-oald-red);
+}
+
+.reg {
+    font-size: calc(var(--font-size-oald) * 0.9);
+}
+
+.geo {
+    color: var(--color-oald-green);
+}
+
+.prefix {
+    display: inline-block;
+    height: 16px;
+    line-height: 15px;
+    padding: 0 2px 0 5px;
+    border-radius: 4px 0 0 4px;
+    color: white;
+    background: var(--color-oald-blue);
+    font-weight: 600;
+    font-family: Optima;
+    transform: translateY(-1px);
+    position: relative;
+    margin-right: 5px;
+    /* Other properties */
+    font-size: var(--font-size-oald);
+    font-variant: small-caps;
+}
+
+.prefix::after {
+    content: "";
+    width: 0;
+    height: 0;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    border: 0 solid var(--color-oald-blue);
+    border-width: 8px 0 8px 6px;
+    border-color: transparent transparent transparent var(--color-oald-blue);
+}
+
+.idiom {
+    font-family: Optima;
+    color: var(--color-oald-blue);
+    font-size: 15px;
+    font-weight: 600;
+    word-spacing: 0.1rem;
+    margin: 0 2px;
+}

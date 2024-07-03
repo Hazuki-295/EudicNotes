@@ -55,7 +55,7 @@ struct ContentView: View {
                 Text("Notes:")
                 CustomTextEditor(text: $sharedNoteData.notes)
             }
-            .frame(height: 60)
+            .frame(height: 120)
             
             // Tags
             HStack {
@@ -67,15 +67,15 @@ struct ContentView: View {
             // buttons
             HStack {
                 Button(action: {
-                    sharedNoteData.manualUpdate()
-                    ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.userInputRenderedNote)
+                    sharedNoteData._renderedNote = sharedNoteData.renderedNote
+                    ClipboardManager.copyToClipboard(textToCopy: sharedNoteData._renderedNote)
                 }) {
                     HStack {
                         Image(systemName: "paintbrush")
                         Text("Generate Notes")
                     }
                 }
-                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.userInputRenderedNote) }) {
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData._renderedNote) }) {
                     HStack {
                         Image(systemName: "list.clipboard")
                         Text("Copy Row HTML")
@@ -99,7 +99,6 @@ struct ContentView: View {
             }
             
             SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", noteData: sharedNoteData, mainNoteData: true)
-                .frame(height: 250)
         }
         .padding()
     }

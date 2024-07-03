@@ -10,30 +10,38 @@ import Foundation
 // Generalized function to replace patterns in a string
 func replacePattern(in input: String, withRegexPattern regexPattern: String,
                     usingTemplate replacementTemplate: String, options regexOptions: NSRegularExpression.Options = [],
+                    applyToFirstMatchOnly: Bool = false,
                     transform: ((String) -> String)? = nil) -> String {
     do {
-        // Compile the regular expression based on the provided pattern and options
+        // Compile the regular expression
         let regex = try NSRegularExpression(pattern: regexPattern, options: regexOptions)
-        let range = NSRange(input.startIndex..<input.endIndex, in: input)
-        let nsInput = input as NSString
-        let resultString = NSMutableString(string: nsInput)
+        let nsRange = NSRange(input.startIndex..<input.endIndex, in: input)
         
-        // Find all matches and process them in reverse order to preserve indices for replacements
-        let matches = regex.matches(in: input, options: [], range: range).reversed()
-        for match in matches {
-            // Process each capturing group within the match
+        // Find matches
+        let matches = regex.matches(in: input, options: [], range: nsRange)
+        if matches.isEmpty { return input }
+        
+        // If only applying to the first match, limit matches array
+        let matchesToProcess = applyToFirstMatchOnly ? Array(matches.prefix(1)) : matches.reversed()
+        
+        // Convert input to NSMutableString for in-place modifications
+        let resultString = NSMutableString(string: input)
+        
+        // Process each match
+        for match in matchesToProcess {
             var currentReplacement = replacementTemplate
+            
+            // Replace placeholders in the template with transformed substrings
             for groupIndex in 0..<match.numberOfRanges {
                 let groupRange = match.range(at: groupIndex)
-                if groupRange.location != NSNotFound, groupRange.length != 0 {
-                    let matchedSubstring = nsInput.substring(with: groupRange)
-                    // Apply any provided transformation to the matched substring
+                if groupRange.location != NSNotFound, groupRange.length > 0 {
+                    let matchedSubstring = (input as NSString).substring(with: groupRange)
                     let transformedSubstring = transform?(matchedSubstring) ?? matchedSubstring
-                    // Replace the placeholder corresponding to the current group index
-                    currentReplacement = currentReplacement.replacingOccurrences(of: "$\(groupIndex)", with: transformedSubstring, options: .literal, range: nil)
+                    currentReplacement = currentReplacement.replacingOccurrences(of: "$\(groupIndex)", with: transformedSubstring)
                 }
             }
-            // Apply the final replacement to the result string
+            
+            // Apply the replacement
             resultString.replaceCharacters(in: match.range, with: currentReplacement)
         }
         
@@ -42,11 +50,6 @@ func replacePattern(in input: String, withRegexPattern regexPattern: String,
         print("Regex error: \(error.localizedDescription)")
         return input
     }
-}
-
-private func invisibleTemplate(_ firstChar: Character, middleString: String, _ lastChar: Character) -> String {
-    let template = "<span style=\"opacity: 0; position: absolute;\">%@</span>"
-    return String(format: template, String(firstChar)) + "\(middleString)" + String(format: template, String(lastChar))
 }
 
 extension String {
@@ -59,87 +62,78 @@ extension String {
     
     func replacePlusSign(revert: Bool = false) -> String {
         let pattern = #"\+([^+]*)\+"#
-        let baseTemplate = "<span style=\"color: #35A3FF; font-weight: bold;\">$1</span>" // light blue
-        let template = revert ? "$1" : invisibleTemplate("+", middleString: baseTemplate, "+")
+        let template = revert ? "$1" : #"<span class="highlight blue">$1</span>"# // blue
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceSquareBrackets(revert: Bool = false) -> String {
         let pattern = #"\[([^]]*)\]"#
-        let baseTemplate = "<span style=\"color: #67A78A; font-weight: bold;\">$1</span>" // green
-        let template = revert ? "$1" : invisibleTemplate("[", middleString: baseTemplate, "]")
+        let template = revert ? "$1" : #"<span class="highlight green">$1</span>"# // green
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
     func replaceAngleBrackets(revert: Bool = false) -> String {
         let pattern = "<([^>]*)>"
-        let baseTemplate = "<span style=\"color: #F51225; font-weight: bold\">$1</span>" // red
-        let template = revert ? "$1" : invisibleTemplate("<", middleString: baseTemplate, ">")
+        let template = revert ? "$1" : #"<span class="highlight red">$1</span>"# // red
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
     // 2. LDOCE Style
-    func replacePOS() -> String { // special style, dark red
-        let replacements: [String: String] = [
-            #"\b(noun|verb|adjective|adverb|preposition|conjunction|pronoun)\b"#: "<span style=\"font-family: Georgia; color: rgba(196, 21, 27, 0.8); font-size: 85%; font-weight: bold; font-style: italic; margin: 0 2px;\">$1</span>",
-            #"\b(Phrasal Verb)\b"#: "<span style=\"font-family: Optima; color: rgba(196, 21, 27, 0.8); font-size: 74%; border: 1px solid rgba(196, 21, 27, 0.8); padding: 0px 3px; margin: 0 2px;\">$1</span>",
-            #"\b(Idioms)\b"#: "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; margin: 0 2px;\">$1</span>"
+    func replacePOS() -> String {
+        var modifiedText = self
+        
+        let replacements: [(pattern: String, template: String)] = [
+            (#"\b(noun|verb|adjective|adverb|preposition|conjunction|pronoun)\b"#, #"<span class="lm5pp_POS" dict="lm5pp">$1</span>"#),
+            (#"\b(Phrasal Verb)\b"#, #"<span class="lm5pp_POS phr" dict="lm5pp">$1</span>"#),
+            (#"\b(Idioms)\b"#, #"<span class="idiom" dict="oald">$1</span>"#)
         ]
         
-        var modifiedInput = self
-        for (pattern, template) in replacements {
-            modifiedInput = replacePattern(in: modifiedInput, withRegexPattern: pattern, usingTemplate: template)
+        replacements.forEach { pattern, template in
+            modifiedText = replacePattern(in: modifiedText, withRegexPattern: pattern, usingTemplate: template, applyToFirstMatchOnly: true)
         }
-        return modifiedInput
+        
+        return modifiedText
     }
     
-    func replaceSlash() -> String { // special style, hotpink
+    func replaceSlash() -> String {
         let pattern = #"(?<![<A-Za-z.])/[A-Za-z.-]+(\s+[A-Za-z.-]+)*"# // not inside </span>, not words that separated by '/'
-        let template = "<span style=\"font-family: Optima; color: hotpink; font-size: 80%; font-weight: bold; text-transform: uppercase; margin: 0px 2px;\">$0</span>"
+        let template = #"<span class="ACTIV" dict="lm5pp">$0</span>"#
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
     // 3. OALD Style
-    func replaceAsterisk() -> String { // special style, light blue with mark
+    func replaceAsterisk() -> String {
         let pattern = #"\*([^*]*)\*"#
-        let baseTemplate = "<span style=\"font-family: Optima; color: #0072CF; font-size: 15px; font-weight: 600; word-spacing: 0.1rem; background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%); margin: 0 2px; padding-right: 3.75px\">$1</span>"
-        let template = invisibleTemplate("*", middleString: baseTemplate, "*")
-        
+        let template = #"<span class="shcut" dict="oald">$1</span>"#
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             var modifiedMatch = match
-                .replacingOccurrences(of: ",", with: "<span style=\"color: #DE002D;\">,</span>")
-                .replacingOccurrences(of: "⇿", with: "<span style=\"color: #DE002D;\">⇿</span>")
             
             if let index = modifiedMatch.firstIndex(where: { $0.isCJK }) {
                 let englishPart = modifiedMatch[match.startIndex..<index]
                 let chinesePart = modifiedMatch[index...]
-                modifiedMatch = "\(englishPart)<span style=\"font-family: 'Source Han Serif CN'; font-size: 13.5px; font-weight: 400; margin-left: 2px;\">\(chinesePart)</span>"
+                modifiedMatch = #"\#(englishPart)<span class="OALECD_chn" dict="oald">\#(chinesePart)</span>"#
             }
             
             return modifiedMatch
         })
     }
     
-    func replaceExclamation() -> String { // special style, tag
+    func replaceExclamation() -> String {
         let pattern = #"\!([^!]*)\!"#
-        let baseTemplate = "<span style=\"font-family: Optima; color: white; font-size: 15px; font-weight: 600; font-variant: small-caps; background: #0072CF; border-radius: 4px 0 0 4px; display: inline-block; height: 16px; line-height: 15px; margin-right: 5px; padding: 0 2px 0 5px; position: relative; transform: translateY(-1px);\">$1<span style=\"width: 0; height: 0; position: absolute; top: 0; left: 100%; border-style: solid; border-width: 8px 0 8px 6px; border-color: transparent transparent transparent #0072CF;\"></span></span>"
-        let template = invisibleTemplate("!", middleString: baseTemplate, "!")
+        let template = #"<span class="prefix" dict="oald">$1</span>"#
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    func replaceAtSign() -> String { // light blue without mark
+    func replaceAtSign() -> String {
         let pattern = "@([^@]*)@"
-        let baseTemplate = "<span style=\"font-family: Bookerly; color: #0072CF; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
-        let template = invisibleTemplate("@", middleString: baseTemplate, "@")
+        let template = #"<span class="cf" dict="oald">$1</span>"#
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             var modifiedMatch = match
-                .replacingOccurrences(of: "{,}", with: "<span style=\"color: #DE002D;\">,</span>")
-                .replacingOccurrences(of: "|", with: "<span style=\"color: #DE002D;\">|</span>")
+                .replacingOccurrences(of: "$sep$", with: #"<span class="sep" dict="oald">,</span>"#)
             
             let replacements: [String: String] = [
-                "⟨([^⟩]*)⟩": "<span style=\"font-size: 13.5px;\">$0</span>", // smaller
-                #"\{([^}]*)\}"#: invisibleTemplate("{", middleString: "<span style=\"font-style: italic;\">$1</span>", "}"), // italic
-                "_([^_]*)_": invisibleTemplate("_", middleString: "<span style=\"font-family: Bookerly, 'Source Han Serif CN'; color: #007A6C;\">$1</span>", "_") // light green
+                "⟨([^⟩]*)⟩": #"<span class="reg" dict="oald">$0</span>"#, // smaller
+                "_([^_]*)_": #"<span class="geo" dict="oald">$1</span>"# // green
             ]
             
             for (pattern, template) in replacements {
@@ -150,22 +144,31 @@ extension String {
         })
     }
     
-    func replaceAndSign() -> String { // black Bookerly
+    func replaceAndSign() -> String {
         let pattern = "&([^&]*)&"
-        let baseTemplate = "<span style=\"font-family: Bookerly; font-size: 15px; word-spacing: 0.1rem;\">$1</span>"
-        let template = invisibleTemplate("&", middleString: baseTemplate, "&")
+        let template = #"<span class="def" dict="oald">$1</span>"#
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template, transform: { match in
-            let pattern = #"\{([^}]*)\}"#
-            let baseTemplate = "<span style=\"color: #007A6C; font-style: italic;\">$1</span>" // light green, italic
-            let template = invisibleTemplate("{", middleString: baseTemplate, "}")
-            return replacePattern(in: match, withRegexPattern: pattern, usingTemplate: template)
+            var modifiedMatch = match
+            
+            let replacements: [String: String] = [
+                #"\{([^}]*)\}"#: #"<span class="ndv" dict="oald">$1</span>"# // green, italic
+            ]
+            
+            for (pattern, template) in replacements {
+                modifiedMatch = replacePattern(in: modifiedMatch, withRegexPattern: pattern, usingTemplate: template)
+            }
+            
+            if let index = modifiedMatch.firstIndex(where: { $0.isCJK }) {
+                let englishPart = modifiedMatch[match.startIndex..<index]
+                let chinesePart = modifiedMatch[index...]
+                modifiedMatch = #"\#(englishPart)<span class="OALECD_chn" dict="oald">\#(chinesePart)</span>"#
+            }
+            
+            return modifiedMatch
         })
     }
     
-    func replaceCaretSign() -> String { // light green, chinese
-        let pattern = #"\^([^^]*)\^"#
-        let baseTemplate = "<span style=\"font-family: 'Source Han Serif CN'; color: #007A6C; font-size: 13.5px; word-spacing: 0.1rem; padding: 0 2px; margin-left: 2px; background: rgba(0, 122, 108, 0.2); border-radius: 3px;\">$1</span>"
-        let template = invisibleTemplate("^", middleString: baseTemplate, "^")
-        return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
+    func collapseWhitespace() -> String {
+        return self.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
     }
 }

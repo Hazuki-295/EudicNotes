@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B311B06E2BE87C740076E40D /* CustomWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B311B06D2BE87C740076E40D /* CustomWebView.swift */; };
+		B32C722B2C3678B400DD296A /* notes.css in Resources */ = {isa = PBXBuildFile; fileRef = B32C722A2C3678B400DD296A /* notes.css */; };
+		B32C722D2C3678B900DD296A /* notes.js in Resources */ = {isa = PBXBuildFile; fileRef = B32C722C2C3678B900DD296A /* notes.js */; };
 		B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */; };
 		B37B26522B99DCD90072477F /* ComboBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26512B99DCD90072477F /* ComboBox.swift */; };
 		B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26532B99DF380072477F /* InputHistoryViewModel.swift */; };
@@ -45,7 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B311B06D2BE87C740076E40D /* CustomWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomWebView.swift; sourceTree = "<group>"; };
+		B32C722A2C3678B400DD296A /* notes.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = notes.css; sourceTree = "<group>"; };
+		B32C722C2C3678B900DD296A /* notes.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = notes.js; sourceTree = "<group>"; };
 		B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
 		B37B26512B99DCD90072477F /* ComboBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboBox.swift; sourceTree = "<group>"; };
 		B37B26532B99DF380072477F /* InputHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHistoryViewModel.swift; sourceTree = "<group>"; };
@@ -94,6 +96,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B32C72232C366C3300DD296A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B32C722C2C3678B900DD296A /* notes.js */,
+				B32C722A2C3678B400DD296A /* notes.css */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		B37B26612B9A55C80072477F /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -136,7 +147,6 @@
 			children = (
 				B37B26512B99DCD90072477F /* ComboBox.swift */,
 				B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */,
-				B311B06D2BE87C740076E40D /* CustomWebView.swift */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -171,6 +181,7 @@
 		B3EDC4292B98370B006894D1 /* EudicNotes */ = {
 			isa = PBXGroup;
 			children = (
+				B32C72232C366C3300DD296A /* Resources */,
 				B3DE6E672C19788400BA601C /* Scripts */,
 				B3EDC42E2B98370C006894D1 /* Assets.xcassets */,
 				B3EDC4332B98370C006894D1 /* EudicNotes.entitlements */,
@@ -274,7 +285,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					B3EDC4262B98370B006894D1 = {
 						CreatedOnToolsVersion = 15.2;
@@ -314,6 +325,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B32C722D2C3678B900DD296A /* notes.js in Resources */,
+				B32C722B2C3678B400DD296A /* notes.css in Resources */,
 				B3EDC4322B98370C006894D1 /* Preview Assets.xcassets in Resources */,
 				B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */,
 			);
@@ -350,7 +363,6 @@
 				B37B26562B9A05390072477F /* OptionsView.swift in Sources */,
 				B37B26522B99DCD90072477F /* ComboBox.swift in Sources */,
 				B3FC8A712C182457002DBB49 /* NlpAnnotatorsView.swift in Sources */,
-				B311B06E2BE87C740076E40D /* CustomWebView.swift in Sources */,
 				B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */,
 				B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */,
 			);
@@ -423,6 +435,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -486,6 +499,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -517,6 +531,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = v2.0.1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"EudicNotes/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -544,6 +559,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = v2.0.1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"EudicNotes/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -568,6 +584,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
@@ -586,6 +603,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
@@ -603,6 +621,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hazuki.EudicNotesUITests;
@@ -619,6 +638,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hazuki.EudicNotesUITests;
