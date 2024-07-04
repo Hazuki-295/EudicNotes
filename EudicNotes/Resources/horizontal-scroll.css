@@ -1,0 +1,77 @@
+.horizontal-scroll-album {
+    position: relative;
+}
+
+.horizontal-scroll-album__content {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; /* Enables snapping on the x-axis */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    margin-bottom: 12px;
+}
+
+.horizontal-scroll-album__content::-webkit-scrollbar {
+    display: none;
+}
+
+.v-swipe__wrap {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.v-swipe__item {
+    flex: 0 0 100%; /* Each item takes up the full width of the container */
+    scroll-snap-align: start; /* Aligns the snap point at the start edge of the element */
+    transition: transform 500ms ease-out;
+    width: 100%;
+}
+
+.horizontal-scroll-album__pic img {
+    width: 100%;
+    display: block;
+}
+
+.horizontal-scroll-album__nav {
+    display: inline-block;
+}
+
+.horizontal-scroll-album__nav__prev, .horizontal-scroll-album__nav__next {
+    display: inline-block;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAEaSURBVHgB7dkxqsJQFEXRl/D5vSOUFBYiFo7AOAYRCwtxhvaCkQ1GRCwUzz23easxKZSz5TUhpVRVVWVqisDucFoP16Fv2qZfzKabYtQWAcaPn8QUI1XA5unaGiE5Qtjujxyhx3DXcZIFICNCGgB3hDwAzoiQALgiwgLgiAgNQHREeAAiIywBiIqwBSAiwhoAdYQ9AMqIlACoItICoIhIDcBrxOV/mKy67vzp9yXPA79o/9qh/CA1YHwUHe95MPrm30faEXo3fjnv+i9/JidANR72AOV4WAPU42ELiBgPS0DUeIQHRI5HaED0eIQFOMYjJMA1HvIA53hIA9zjIQvIGA/pC47x3jUe0hcc92vbeEhfcLjHV1VV5bsBp2wfn0kASaUAAAAASUVORK5CYII=) 50%/15px no-repeat;
+    border: 1px solid rgb(227, 229, 231);
+    border-radius: 50%;
+    box-shadow: 0 0 2px rgba(0, 0, 0, .02), 0 4px 10px rgba(0, 0, 0, .06);
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    margin: 0 4px;
+}
+
+.horizontal-scroll-album__nav__prev.disabled, .horizontal-scroll-album__nav__next.disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.horizontal-scroll-album__nav__prev {
+    transform: rotate(180deg)
+}
+
+.horizontal-scroll-album__indicator {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+}
+
+.horizontal-scroll-album__indicator__dot {
+    background: black;
+    border-radius: 100%;
+    display: inline-block;
+    height: 8px;
+    opacity: .2;
+    width: 8px;
+    margin: 0 2px;
+}
+
+.horizontal-scroll-album__indicator__dot.is-active {
+    opacity: 0.8;
+}

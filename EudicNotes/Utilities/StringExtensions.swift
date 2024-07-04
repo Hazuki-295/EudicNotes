@@ -7,7 +7,7 @@
 
 import Foundation
 
-// Generalized function to replace patterns in a string
+/// Generalized function to replace patterns in a string
 func replacePattern(in input: String, withRegexPattern regexPattern: String,
                     usingTemplate replacementTemplate: String, options regexOptions: NSRegularExpression.Options = [],
                     applyToFirstMatchOnly: Bool = false,
@@ -53,7 +53,7 @@ func replacePattern(in input: String, withRegexPattern regexPattern: String,
 }
 
 extension String {
-    // 1. Colorful fonts
+    /// 1. Colorful fonts
     func highlightWord(_ wordPhrase: String) -> String {
         let pattern = "\\b\(wordPhrase)\\b"
         let template = "+$0+"
@@ -78,14 +78,14 @@ extension String {
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    // 2. LDOCE Style
+    /// 2. LDOCE Style
     func replacePOS() -> String {
         var modifiedText = self
         
         let replacements: [(pattern: String, template: String)] = [
-            (#"\b(noun|verb|adjective|adverb|preposition|conjunction|pronoun)\b"#, #"<span class="lm5pp_POS" dict="lm5pp">$1</span>"#),
-            (#"\b(Phrasal Verb)\b"#, #"<span class="lm5pp_POS phr" dict="lm5pp">$1</span>"#),
-            (#"\b(Idioms)\b"#, #"<span class="idiom" dict="oald">$1</span>"#)
+            (#"\b(noun|verb|adjective|adverb|preposition|conjunction|pronoun)\b"#, #"<span class="lm5pp_POS" dict="lm5pp">$0</span>"#),
+            (#"\b(Phrasal Verb)\b"#, #"<span class="lm5pp_POS phr" dict="lm5pp">$0</span>"#),
+            (#"\b(Idioms)\b"#, #"<span class="idiom" dict="oald">$0</span>"#)
         ]
         
         replacements.forEach { pattern, template in
@@ -101,7 +101,7 @@ extension String {
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
     }
     
-    // 3. OALD Style
+    /// 3. OALD Style
     func replaceAsterisk() -> String {
         let pattern = #"\*([^*]*)\*"#
         let template = #"<span class="shcut" dict="oald">$1</span>"#
@@ -150,13 +150,10 @@ extension String {
         return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template, transform: { match in
             var modifiedMatch = match
             
-            let replacements: [String: String] = [
-                #"\{([^}]*)\}"#: #"<span class="ndv" dict="oald">$1</span>"# // green, italic
-            ]
+            let pattern = #"\{([^}]*)\}"#
+            let template = #"<span class="ndv" dict="oald">$1</span>"# // green, italic
             
-            for (pattern, template) in replacements {
-                modifiedMatch = replacePattern(in: modifiedMatch, withRegexPattern: pattern, usingTemplate: template)
-            }
+            modifiedMatch = replacePattern(in: modifiedMatch, withRegexPattern: pattern, usingTemplate: template)
             
             if let index = modifiedMatch.firstIndex(where: { $0.isCJK }) {
                 let englishPart = modifiedMatch[match.startIndex..<index]

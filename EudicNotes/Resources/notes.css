@@ -25,11 +25,11 @@
     font-size: 16px;
 }
 
-.label {
+.notes-label {
     display: inline;
 }
 
-.label::before {
+.notes-label::before {
     content: "[" attr(label-data) "]";
     display: inline-block;
     font-family: Bookerly;
@@ -37,12 +37,12 @@
     color: var(--color-label);
 }
 
-.tag {
+.notes-tag {
     font-family: Bookerly;
     color: var(--color-tag);
 }
 
-.tag::before {
+.notes-tag::before {
     content: "#";
 }
 
@@ -68,7 +68,7 @@ span.blue {
     font-size: var(--font-size-lm5pp);
 }
 
-.lm5pp_POS {
+[dict="lm5pp"].lm5pp_POS {
     color: var(--color-pos);
     font-family: Georgia, 'Times New Roman', serif;
     font-size: calc(var(--font-size-lm5pp) * 0.85);
@@ -77,7 +77,7 @@ span.blue {
     margin: 0 2px;
 }
 
-.lm5pp_POS.phr {
+[dict="lm5pp"].lm5pp_POS.phr {
     font-family: Optima;
     font-weight: normal;
     font-style: normal;
@@ -89,7 +89,7 @@ span.blue {
     margin-right: 1px;
 }
 
-.ACTIV {
+[dict="lm5pp"].ACTIV {
     /* display: inline; */
     color: var(--color-activ);
     font-size: calc(var(--font-size-lm5pp) * 0.8);
@@ -108,7 +108,7 @@ span.blue {
     word-spacing: .1rem;
 }
 
-.shcut {
+[dict="oald"].shcut {
     color: var(--color-oald-blue);
     /* display: inline; */
     padding-bottom: 1px;
@@ -121,7 +121,7 @@ span.blue {
     background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%);
 }
 
-.shcut .OALECD_chn {
+[dict="oald"].shcut .OALECD_chn {
     color: var(--color-oald-blue);
     background: transparent;
     border-radius: 0;
@@ -129,18 +129,18 @@ span.blue {
     padding-right: 0;
 }
 
-.def {
+[dict="oald"].def {
     font-family: Bookerly;
 }
 
-.def .OALECD_chn {
+[dict="oald"].def .OALECD_chn {
     /* display: inline; */
     color: var(--color-oald-green);
     background: rgba(0, 122, 108, .2);
     border-radius: 3px;
 }
 
-.OALECD_chn {
+[dict="oald"].OALECD_chn {
     font-weight: 400;
     font-style: normal;
     padding-left: 2px;
@@ -151,29 +151,31 @@ span.blue {
     font-size: calc(var(--font-size-oald) * 0.9);
 }
 
-.def .ndv {
+[dict="oald"].def .ndv {
     color: var(--color-oald-green);
     font-style: italic;
 }
 
-.cf {
+[dict="oald"].cf {
     font-family: Bookerly;
     color: var(--color-oald-blue);
 }
 
-.z, .pvarr, .sep {
+[dict="oald"].z,
+[dict="oald"].pvarr,
+[dict="oald"].sep {
     color: var(--color-oald-red);
 }
 
-.reg {
+[dict="oald"].reg {
     font-size: calc(var(--font-size-oald) * 0.9);
 }
 
-.geo {
+[dict="oald"].geo {
     color: var(--color-oald-green);
 }
 
-.prefix {
+[dict="oald"].prefix {
     display: inline-block;
     height: 16px;
     line-height: 15px;
@@ -191,7 +193,7 @@ span.blue {
     font-variant: small-caps;
 }
 
-.prefix::after {
+[dict="oald"].prefix::after {
     content: "";
     width: 0;
     height: 0;
@@ -204,7 +206,7 @@ span.blue {
     border-color: transparent transparent transparent var(--color-oald-blue);
 }
 
-.idiom {
+[dict="oald"].idiom {
     font-family: Optima;
     color: var(--color-oald-blue);
     font-size: 15px;

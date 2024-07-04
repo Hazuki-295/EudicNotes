@@ -22,9 +22,9 @@ class NoteData: ObservableObject {
     // Resources for rendering the note
     static private let useLocalResources = false
     static private var cssContent = useLocalResources ? "<style>\n" + (loadResourceContent(fileName: "notes", withExtension: "css") ?? "") + "\n</style>" :
-    #"<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/notes.css">"#
+    #"<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@main/EudicNotes/Resources/notes.css">"#
     static private var jsContent = useLocalResources ? "<script>\n" + (loadResourceContent(fileName: "notes", withExtension: "js") ?? "") + "\n</script>" :
-    #"<script src="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/notes.js"></script>"#
+    #"<script src="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@main/EudicNotes/Resources/notes.js"></script>"#
     
     // History management
     static private let maxHistoryLimit = 5
@@ -89,9 +89,9 @@ class NoteData: ObservableObject {
         </head>
         <body>
             <div class="notes-container">
-                <div class="label" label-data="Source"> \(formatSource())</div><br>
+                <div class="notes-label" label-data="Source"> \(formatSource())</div><br>
                 <br>
-                <div class="label" label-data="Original Text"><br>
+                <div class="notes-label" label-data="Original Text"><br>
                     <br>
                     \(formatOriginalText())
                 </div>
@@ -102,8 +102,7 @@ class NoteData: ObservableObject {
         </html>
         """
         
-        let escapedHTMLContent = htmlContent
-            .replacingOccurrences(of: "\"", with: "&quot;")
+        let escapedHTMLContent = htmlContent.replacingOccurrences(of: "\"", with: "&quot;")
         
         let iframe = #"<iframe class="notes-iframe" srcdoc="\#(escapedHTMLContent)" style="width: 100%; height: 0; border: none; padding: 0; margin: 0;"></iframe>"#
         
@@ -123,7 +122,7 @@ class NoteData: ObservableObject {
     }
     
     private func formatNotes() -> String {
-        return notes.isEmpty ? "" : #"<br><br><div class="label" label-data="Notes"> "# + notes
+        return notes.isEmpty ? "" : #"<br><br><div class="notes-label" label-data="Notes"> "# + notes
             .replaceAngleBrackets().replacePlusSign().replaceSquareBrackets()
             .replacePOS().replaceSlash().replaceAsterisk().replaceExclamation().replaceAtSign().replaceAndSign()
             .replacingOccurrences(of: "\n", with: "<br>") + #"</div>"#
@@ -135,7 +134,7 @@ class NoteData: ObservableObject {
         let tagList = tags.split(separator: " ")
         let formattedTags = tagList.map { tag in
             let trimmed = tag.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-            return #"<span class="tag">\#(trimmed)</span>"#
+            return #"<span class="notes-tag">\#(trimmed)</span>"#
         }
         
         return "<br><br>" + formattedTags.joined(separator: " ")
@@ -221,12 +220,9 @@ struct SingleNotesView: View {
                 // visible by default
                 if !showTextEditor {
                     NLPView(htmlContent: noteData._renderedNote, initialJsToExecute: """
-                        const iframeElement = document.querySelector('.notes-iframe');
-                        const container = iframeElement.contentDocument.querySelector('.notes-container');
-
-                        container.style.zoom = '0.8';
                         document.body.style.margin = '3px 8px';
-                        iframeElement.contentDocument.body.style.margin = '0';
+                        const container = document.querySelector('.notes-container');
+                        if (container) container.style.zoom = '0.8';
                         """, webView: $webView)
                 }
                 
