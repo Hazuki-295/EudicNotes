@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    // Create a shared NoteData object to be used by all SingleNoteView
+    @StateObject private var sharedNoteData = NoteData()
+    
+    // History management
     @StateObject private var sourceHistory = InputHistoryViewModel(variableName: "source")
     @StateObject private var tagsHistory = InputHistoryViewModel(variableName: "tags")
     
-    @StateObject private var sharedNoteData = NoteData() // shared MainView NoteData
+    // Options window controller
     private let optionsWindowController = OptionsWindowController()
     
     var body: some View {
@@ -20,7 +24,7 @@ struct ContentView: View {
             HStack {
                 Image(systemName: "text.book.closed")
                 ComboBox(text: $sharedNoteData.source, options: sourceHistory.history.sorted(), label: "Source")
-                    .onSubmit {sourceHistory.addToHistory(newEntry: sharedNoteData.source)}
+                    .onSubmit { sourceHistory.addToHistory(newEntry: sharedNoteData.source) }
             }
             
             // Original Text
@@ -61,24 +65,21 @@ struct ContentView: View {
             HStack {
                 Image(systemName: "tag")
                 ComboBox(text: $sharedNoteData.tags, options: tagsHistory.history.sorted(), label: "Tags")
-                    .onSubmit {tagsHistory.addToHistory(newEntry: sharedNoteData.tags)}
+                    .onSubmit { tagsHistory.addToHistory(newEntry: sharedNoteData.tags) }
             }
             
             // buttons
             HStack {
-                Button(action: {
-                    sharedNoteData._renderedNote = sharedNoteData.renderedNote
-                    ClipboardManager.copyToClipboard(textToCopy: sharedNoteData._renderedNote)
-                }) {
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.updataHTMLContentWithTemplate()) }) {
                     HStack {
                         Image(systemName: "paintbrush")
                         Text("Generate Notes")
                     }
                 }
-                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData._renderedNote) }) {
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.noteTemplateHTML) }) {
                     HStack {
                         Image(systemName: "list.clipboard")
-                        Text("Copy Row HTML")
+                        Text("Copy Template HTML")
                     }
                 }
                 
@@ -98,18 +99,10 @@ struct ContentView: View {
                 }
             }
             
-            SingleNotesView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", noteData: sharedNoteData, mainNoteData: true)
+            SingleNoteView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", mainNoteData: true, noteData: sharedNoteData)
         }
         .padding()
-    }
-}
-
-extension Character {
-    // Check if the character is a CJK character
-    var isCJK: Bool {
-        return "\u{4E00}" <= self && self <= "\u{9FFF}" || // CJK Unified Ideographs
-        "\u{3000}" <= self && self <= "\u{303F}" || // CJK Symbols and Punctuation
-        "\u{FF00}" <= self && self <= "\u{FFEF}"    // Full-width ASCII + Half-width Katakana + Full-width symbols and punctuation
+        .frame(width: 680, height: 780)
     }
 }
 

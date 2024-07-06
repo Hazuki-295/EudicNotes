@@ -9,15 +9,19 @@
 /* Begin PBXBuildFile section */
 		B32C722B2C3678B400DD296A /* notes.css in Resources */ = {isa = PBXBuildFile; fileRef = B32C722A2C3678B400DD296A /* notes.css */; };
 		B32C722D2C3678B900DD296A /* notes.js in Resources */ = {isa = PBXBuildFile; fileRef = B32C722C2C3678B900DD296A /* notes.js */; };
-		B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */; };
+		B35BB2BC2BE6203B000EC9AA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* Extensions.swift */; };
 		B37B26522B99DCD90072477F /* ComboBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26512B99DCD90072477F /* ComboBox.swift */; };
 		B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26532B99DF380072477F /* InputHistoryViewModel.swift */; };
 		B37B26562B9A05390072477F /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26552B9A05390072477F /* OptionsView.swift */; };
 		B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */; };
 		B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26592B9A263F0072477F /* ClipboardManager.swift */; };
+		B38E0E3B2C3AFBFC00A59F4C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E0E3A2C3AFBFC00A59F4C /* Logger.swift */; };
 		B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A860592B9B021800542E8D /* TrimPassageView.swift */; };
 		B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605B2B9B022700542E8D /* CombineNotesView.swift */; };
 		B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */; };
+		B3E659472C39779E00B9B26A /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659462C39779E00B9B26A /* WebView.swift */; };
+		B3E659492C3977D900B9B26A /* ServerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659482C3977D900B9B26A /* ServerStatusView.swift */; };
+		B3E6594B2C39CCD500B9B26A /* SingleNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E6594A2C39CCD500B9B26A /* SingleNoteView.swift */; };
 		B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */; };
 		B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42C2B98370B006894D1 /* ContentView.swift */; };
 		B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3EDC42E2B98370C006894D1 /* Assets.xcassets */; };
@@ -48,15 +52,19 @@
 /* Begin PBXFileReference section */
 		B32C722A2C3678B400DD296A /* notes.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = notes.css; sourceTree = "<group>"; };
 		B32C722C2C3678B900DD296A /* notes.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = notes.js; sourceTree = "<group>"; };
-		B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		B35BB2BB2BE6203B000EC9AA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		B37B26512B99DCD90072477F /* ComboBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboBox.swift; sourceTree = "<group>"; };
 		B37B26532B99DF380072477F /* InputHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHistoryViewModel.swift; sourceTree = "<group>"; };
 		B37B26552B9A05390072477F /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
 		B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsWindowController.swift; sourceTree = "<group>"; };
 		B37B26592B9A263F0072477F /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
+		B38E0E3A2C3AFBFC00A59F4C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		B3A860592B9B021800542E8D /* TrimPassageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrimPassageView.swift; sourceTree = "<group>"; };
 		B3A8605B2B9B022700542E8D /* CombineNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineNotesView.swift; sourceTree = "<group>"; };
 		B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
+		B3E659462C39779E00B9B26A /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		B3E659482C3977D900B9B26A /* ServerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStatusView.swift; sourceTree = "<group>"; };
+		B3E6594A2C39CCD500B9B26A /* SingleNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNoteView.swift; sourceTree = "<group>"; };
 		B3EDC4272B98370B006894D1 /* EudicNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EudicNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesApp.swift; sourceTree = "<group>"; };
 		B3EDC42C2B98370B006894D1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -110,9 +118,8 @@
 			children = (
 				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
 				B37B26552B9A05390072477F /* OptionsView.swift */,
-				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
-				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
-				B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */,
+				B3E659442C39143000B9B26A /* OptionsView */,
+				B3E659452C39778800B9B26A /* WebView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -121,7 +128,8 @@
 			isa = PBXGroup;
 			children = (
 				B37B26592B9A263F0072477F /* ClipboardManager.swift */,
-				B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */,
+				B35BB2BB2BE6203B000EC9AA /* Extensions.swift */,
+				B38E0E3A2C3AFBFC00A59F4C /* Logger.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -147,6 +155,7 @@
 			children = (
 				B37B26512B99DCD90072477F /* ComboBox.swift */,
 				B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */,
+				B3E6594A2C39CCD500B9B26A /* SingleNoteView.swift */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -156,6 +165,25 @@
 			children = (
 			);
 			path = Scripts;
+			sourceTree = "<group>";
+		};
+		B3E659442C39143000B9B26A /* OptionsView */ = {
+			isa = PBXGroup;
+			children = (
+				B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */,
+				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
+				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
+			);
+			path = OptionsView;
+			sourceTree = "<group>";
+		};
+		B3E659452C39778800B9B26A /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				B3E659462C39779E00B9B26A /* WebView.swift */,
+				B3E659482C3977D900B9B26A /* ServerStatusView.swift */,
+			);
+			path = WebView;
 			sourceTree = "<group>";
 		};
 		B3EDC41E2B98370B006894D1 = {
@@ -353,16 +381,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */,
+				B35BB2BC2BE6203B000EC9AA /* Extensions.swift in Sources */,
 				B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */,
+				B3E659472C39779E00B9B26A /* WebView.swift in Sources */,
 				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
+				B3E6594B2C39CCD500B9B26A /* SingleNoteView.swift in Sources */,
 				B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */,
+				B38E0E3B2C3AFBFC00A59F4C /* Logger.swift in Sources */,
 				B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */,
 				B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */,
 				B37B26562B9A05390072477F /* OptionsView.swift in Sources */,
 				B37B26522B99DCD90072477F /* ComboBox.swift in Sources */,
 				B3FC8A712C182457002DBB49 /* NlpAnnotatorsView.swift in Sources */,
+				B3E659492C3977D900B9B26A /* ServerStatusView.swift in Sources */,
 				B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */,
 				B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */,
 			);

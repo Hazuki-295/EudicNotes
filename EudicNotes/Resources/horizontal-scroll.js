@@ -1,59 +1,66 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const images = [];
+function constructScrollContainer() {
+    const scrollContainer = document.createElement('div');
+    container.className = 'horizontal-scroll-notes';
 
-    // Define the base HTML structure with comments for guidance
-    const baseHtml = `
-        <div class="horizontal-scroll-album">
-            <div class="horizontal-scroll-album__content">
-                <div class="v-swipe">
-                    <div class="v-swipe__wrap">
-                        <!-- Repeat this block for each image -->
-                    </div>
-                </div>
-            </div>
-            <div class="horizontal-scroll-album__nav">
-                <div class="horizontal-scroll-album__nav__prev"></div>
-                <div class="horizontal-scroll-album__nav__next"></div>
-            </div>
-            <div class="horizontal-scroll-album__indicator">
-                <!-- Repeat this block for each image -->
-            </div>
-        </div>
-    `;
+    /* Create the content div */
+    const content = document.createElement('div');
+    content.className = 'horizontal-scroll-notes__content';
 
-    // Use DOMParser to convert the string to a DOM node
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(baseHtml, 'text/html');
-    const album = doc.querySelector('.horizontal-scroll-album');
-    const swipeWrap = album.querySelector('.v-swipe__wrap');
-    const indicator = album.querySelector('.horizontal-scroll-album__indicator');
+    const swipe = document.createElement('div');
+    swipe.className = 'v-swipe';
 
-    // Populate the swipe and indicators
-    images.forEach(src => {
-        const swipeItem = document.createElement('div');
-        swipeItem.className = 'v-swipe__item';
-        swipeItem.innerHTML = `
-            <div class="horizontal-scroll-album__pic">
-                <img src="${src}">
-            </div>
-        `;
-        swipeWrap.appendChild(swipeItem);
+    const swipeWrap = document.createElement('div');
+    swipeWrap.className = 'v-swipe__wrap';
 
-        const dot = document.createElement('div');
-        dot.className = 'horizontal-scroll-album__indicator__dot';
-        indicator.appendChild(dot);
-    });
+    swipe.appendChild(swipeWrap);
+    content.appendChild(swipe);
+    container.appendChild(content);
 
-    // Append the album to the document body
-    document.body.appendChild(album);
-});
+    /* Create the navigation div */
+    const nav = document.createElement('div');
+    nav.className = 'horizontal-scroll-notes__nav';
 
-document.addEventListener('DOMContentLoaded', function () {
+    const prev = document.createElement('div');
+    prev.className = 'horizontal-scroll-notes__nav__prev';
+
+    const next = document.createElement('div');
+    next.className = 'horizontal-scroll-notes__nav__next';
+
+    nav.appendChild(prev);
+    nav.appendChild(next);
+    container.appendChild(nav);
+
+    /* Create the indicator div */
+    const indicator = document.createElement('div');
+    indicator.className = 'horizontal-scroll-notes__indicator';
+
+    container.appendChild(indicator);
+
+    /* Return the scroll container */
+    return scrollContainer;
+}
+
+function attendItem(itemContent) {
+    // Append the item to the swipe wrap
+    const swipeWrap = document.querySelector('.v-swipe__wrap');
+    const item = document.createElement('div');
+    item.className = 'v-swipe__item';
+    item.appendChild(itemContent);
+    swipeWrap.appendChild(item);
+
+    // Create a new dot in the indicator
+    const indicator = document.querySelector('.horizontal-scroll-notes__indicator');
+    const dot = document.createElement('div');
+    dot.className = 'horizontal-scroll-notes__indicator__dot';
+    indicator.appendChild(dot);
+}
+
+function addSwipeListeners() {
     const wrap = document.querySelector('.v-swipe__wrap');
     const items = document.querySelectorAll('.v-swipe__item');
-    const prevButton = document.querySelector('.horizontal-scroll-album__nav__prev');
-    const nextButton = document.querySelector('.horizontal-scroll-album__nav__next');
-    const bullets = document.querySelectorAll('.horizontal-scroll-album__indicator__dot');
+    const prevButton = document.querySelector('.horizontal-scroll-notes__nav__prev');
+    const nextButton = document.querySelector('.horizontal-scroll-notes__nav__next');
+    const bullets = document.querySelectorAll('.horizontal-scroll-notes__indicator__dot');
 
     let currentIndex = 0;
 
@@ -87,4 +94,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     updateNavigation(); // Initialize navigation state
-});
+}

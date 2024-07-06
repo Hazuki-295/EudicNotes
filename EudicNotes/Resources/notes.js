@@ -1,14 +1,6 @@
 function extractNotesIframe() {
-    // Get the iframe element
-    const iframe = window.frameElement;
-
-    if (!iframe) {
-        console.error('No iframe element found');
-        return;
-    }
-
     const parentDocument = window.parent.document;
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+    const iframeDocument = document;
 
     // Insert stylesheets
     const stylesheets = iframeDocument.querySelectorAll('link[rel="stylesheet"]');
@@ -39,26 +31,155 @@ function extractNotesIframe() {
         parentDocument.body.appendChild(newScript);
     });
 
-    // Extract the content from the div.notes-container inside the iframe
-    const notesContainer = iframeDocument.querySelector('.notes-container');
-    if (!notesContainer) {
-        console.error('No .notes-container element found inside the iframe');
+    // Get the note container
+    const noteContainer = iframeDocument.querySelector('.Hazuki-note');
+    if (!noteContainer) {
+        console.error('No Hazuki-note element found inside the iframe');
         return;
     }
-    const notesContent = notesContainer.innerHTML;
+    const noteContent = noteContainer.innerHTML;
 
     // Create a new div element to replace the iframe
-    const newDiv = parentDocument.createElement('div');
-    newDiv.className = 'notes-container';
-    newDiv.innerHTML = notesContent;
+    const newNoteContainer = parentDocument.createElement('div');
+    newNoteContainer.className = 'Hazuki-note';
+    newNoteContainer.innerHTML = noteContent;
 
     // Replace the iframe with the new div element
-    iframe.parentNode.replaceChild(newDiv, iframe);
+    iframe.parentNode.replaceChild(newNoteContainer, iframe);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    extractNotesIframe();
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if the script is running inside an iframe
+    if (window.frameElement) {
+        extractNotesIframe();
+    }
 });
+
+const replacementMap = {
+    highlightText: {
+        'highlight blue': ['+', '+'],
+        'highlight green': ['[', ']'],
+        'highlight red': ['<', '>'],
+    },
+    oaldStyle: {
+        'shcut': ['*', '*'],
+        'prefix': ['!', '!'],
+        'cf': ['@', '@'], 'geo': ['_', '_'],
+        'def': ['&', '&'], 'ndv': ['{', '}']
+    }
+};
+
+// Use a regular expression to globally replace the markers
+function transformText(text, map) {
+    for (const [className, [open, close]] of Object.entries(map)) {
+        const regex = new RegExp(`\\${open}(.*?)\\${close}`, 'g');
+        text = text.replace(regex, (match, content) => {
+            if (className === 'shcut' || className === 'def') {
+                // Find the index where English ends and Chinese begins
+                const transitionIndex = content.search(/[\u4e00-\u9fff]/);
+                if (transitionIndex !== -1) {
+                    let englishPart = content.substring(0, transitionIndex);
+                    let chinesePart = content.substring(transitionIndex);
+                    return `<span class="${className}">${englishPart}<span class="OALECD-chn">${chinesePart}</span></span>`;
+                } else {
+                    // No Chinese characters found, treat all as English
+                    return `<span class="${className}">${content}</span>`;
+                }
+            } else {
+                // General case for all other classes
+                return `<span class="${className}">${content}</span>`;
+            }
+        });
+    }
+    return text;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const noteContainer = document.querySelector('.Hazuki-note');
+    if (!noteContainer.hasChildNodes()) {
+        generateNotes();
+    }
+});
+
+function generateNotes() {
+    if (!noteDataArray) {
+        console.error('No NodeDataArray found');
+        return;
+    }
+
+    const notesContainer = document.querySelector('.Hazuki-note');
+    if (!notesContainer) {
+        console.error('No Hazuki-note element found');
+        return;
+    }
+
+    if (noteDataArray.length === 1) {
+        console.log('Single NoteData found');
+        notesContainer.appendChild(generateSingleNote(noteDataArray[0]));
+    } else {
+        console.log('Multiple NoteData found');
+
+        const stylesheet = document.createElement('link');
+        stylesheet.rel = 'stylesheet';
+        stylesheet.href = 'horizontal-scroll.css';
+        document.head.appendChild(stylesheet);
+
+        const script = document.createElement('script');
+        script.src = 'horizontal-scroll.js';
+        document.body.appendChild(script);
+
+        script.onload = () => {
+            notesContainer.appendChild(constructScrollContainer());
+            noteDataArray.forEach(noteData => {
+                attendItem(generateSingleNote(noteData));
+            });
+            addSwipeListeners();
+        }
+    }
+}
+
+function generateSingleNote(noteData) {
+    const noteContainer = document.createElement('div');
+    noteContainer.className = 'note-container';
+
+    const source = document.createElement('div');
+    source.className = 'note-block';
+    source.setAttribute('data-label', 'source');
+    source.textContent = noteData.source;
+    noteContainer.appendChild(source);
+
+    const originalText = document.createElement('div');
+    originalText.className = 'note-block';
+    originalText.setAttribute('data-label', 'original text');
+    var formattedOriginalText = noteData.originalText;
+    formattedOriginalText = transformText(formattedOriginalText, replacementMap.highlightText);
+    originalText.innerHTML = formattedOriginalText.replace(/\n/g, "<br>");;
+    noteContainer.appendChild(originalText);
+
+    const noteText = document.createElement('div');
+    noteText.className = 'note-block';
+    noteText.setAttribute('data-label', 'notes');
+    var formattedNote = noteData.notes;
+    Object.values(replacementMap).forEach((map) => {
+        formattedNote = transformText(formattedNote, map);
+    });
+    noteText.innerHTML = formattedNote.replace(/\n/g, "<br>");;
+    noteContainer.appendChild(noteText);
+
+    const tagContainer = document.createElement('div');
+    tagContainer.className = 'note-tags';
+    noteData.tags.split(' ').forEach(tagString => {
+        if (tagString.trim().length > 0) { // Ensures that the string isn't just spaces
+            const tag = document.createElement('div');
+            tag.className = 'note-tag';
+            tag.textContent = tagString.slice(1); // Remove leading '#' and set text
+            tagContainer.appendChild(tag);
+        }
+    });
+    noteContainer.appendChild(tagContainer);
+
+    return noteContainer;
+}
 
 function revertFormatting(selector) {
     // Define the mapping for class names to their respective replacement patterns
