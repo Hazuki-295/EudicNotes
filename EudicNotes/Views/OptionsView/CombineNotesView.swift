@@ -9,10 +9,8 @@ import SwiftUI
 import WebKit
 
 struct CombineNotesView: View {
-    @StateObject private var noteData1 = NoteData()
-    @StateObject private var noteData2 = NoteData()
-    
-    @State private var combinedNotes: String = ""
+    @StateObject private var sharedNoteData = NoteData()
+    @StateObject private var CombinedNoteData = NoteData()
     
     var body: some View {
         VStack(alignment: .center) {
@@ -25,14 +23,11 @@ struct CombineNotesView: View {
                     Image(systemName: "book").foregroundColor(.indigo)
                     Text("Combine Notes").foregroundColor(.indigo)
                 }
-                Button(action: { noteData1.clearFields(); noteData2.clearFields() }) {
-                    Image(systemName: "eraser.line.dashed")
-                    Text("Clear All")
-                }
             }
             
-            SingleNoteView(label: "First Notes", labelColor: .brown, systemImage: "note.text", noteData: noteData1)
-            SingleNoteView(label: "Second Notes", labelColor: .purple, systemImage: "2.square", noteData: noteData2)
+            SingleNoteView(noteData: CombinedNoteData, label: "Combined Notes", labelColor: .corenlp)
+            SingleNoteView(noteData: sharedNoteData, enableHistory: true, label: "Single NoteData Preview", labelColor: .oaldBlue)
+                .frame(height: 350)
             
         }
         .padding(.top, 5)
@@ -42,6 +37,8 @@ struct CombineNotesView: View {
     }
 }
 
-#Preview {
-    OptionsView()
+struct CombineNotesView_Previews: PreviewProvider {
+    static var previews: some View {
+        previewOptionsView()
+    }
 }

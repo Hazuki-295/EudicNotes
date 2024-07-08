@@ -99,7 +99,7 @@ struct ContentView: View {
                 }
             }
             
-            SingleNoteView(label: "Combined Notes", labelColor: .purple, systemImage: "note.text", mainNoteData: true, noteData: sharedNoteData)
+            SingleNoteView(noteData: sharedNoteData, mainNoteData: true, enableHistory: true, label: "Shared NoteData Preview", labelColor: .purple)
         }
         .padding()
         .frame(width: 680, height: 780)

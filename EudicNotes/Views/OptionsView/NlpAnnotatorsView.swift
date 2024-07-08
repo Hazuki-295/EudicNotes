@@ -69,7 +69,7 @@ struct NlpAnnotatorsView: View {
             
             VStack(alignment: .leading) {
                 HStack {
-                    Label("Stanford CoreNLP", systemImage: "note.text").foregroundColor(Color(hexString: "#aa1d36"))
+                    Label("Stanford CoreNLP", systemImage: "note.text").foregroundColor(.corenlp)
                     Spacer()
                     Toggle("Custom Annotators", isOn: $selectAnnotators).onChange(of: selectAnnotators) {
                         corenlpNLPView.executeJavaScript(js: "toggleAnnotatorSelector();")
@@ -83,7 +83,7 @@ struct NlpAnnotatorsView: View {
             
             VStack(alignment: .leading) {
                 HStack {
-                    Label("spaCy Dependency", systemImage: "note.text.badge.plus").foregroundColor(Color(hexString: "#0072cf"))
+                    Label("spaCy Dependency", systemImage: "note.text.badge.plus").foregroundColor(.oaldBlue)
                     Spacer()
                     Image("spacy").resizable().scaledToFit()
                 }

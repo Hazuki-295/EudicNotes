@@ -68,4 +68,12 @@ extension Color {
         
         self.init(.sRGB, red: red, green: green, blue: blue, opacity: opacity)
     }
+    
+    // CoreNLP annotator color
+    static let corenlp = Color(hexString: "#AA1D36")
+    
+    // OALD style colors
+    static let oaldRed = Color(hexString: "#DE002D")
+    static let oaldGreen = Color(hexString: "#007A6C")
+    static let oaldBlue = Color(hexString: "#0072CF")
 }

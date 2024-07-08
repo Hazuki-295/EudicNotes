@@ -7,6 +7,44 @@
 
 import SwiftUI
 import WebKit
+import Combine
+
+class NoteDataHistoryManager: ObservableObject {
+    static let historyManager = NoteDataHistoryManager()
+    private let maxHistoryLimit = 10
+    
+    private var histories: [[String: String]]
+    @Published var latestHistoryIndex: Int
+    
+    private init() {
+        let storedHistories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
+        self.histories = storedHistories
+        self.latestHistoryIndex = storedHistories.count - 1
+    }
+    
+    func saveToHistory(entry: [String: String]) {
+        histories.append(entry)
+        if histories.count > maxHistoryLimit {
+            histories.removeFirst()
+        } else {
+            latestHistoryIndex += 1
+        }
+        UserDefaults.standard.set(histories, forKey: "NoteDataHistory")
+    }
+    
+    func deleteHistory(at index: Int) -> Bool {
+        guard histories.indices.contains(index) else { return false }
+        histories.remove(at: index)
+        latestHistoryIndex -= 1
+        UserDefaults.standard.set(histories, forKey: "NoteDataHistory")
+        return true
+    }
+    
+    func loadFromHistory(at index: Int) -> [String: String] {
+        guard histories.indices.contains(index) else { return [:] }
+        return histories[index]
+    }
+}
 
 class NoteData: ObservableObject {
     // Properties to hold note data
@@ -48,29 +86,49 @@ class NoteData: ObservableObject {
     }
     
     // History management
-    static private let maxHistoryLimit = 5
-    static private var histories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
-    static var latestHistoryIndex = histories.count - 1
+    var historyManager: NoteDataHistoryManager
+    @Published var historyIndex: Int
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        self.historyManager = NoteDataHistoryManager.historyManager
+        self.historyIndex = historyManager.latestHistoryIndex
+        
+        historyManager.$latestHistoryIndex
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] latestHistoryIndex in
+                guard let self = self else { return }
+                self.historyIndex = min(self.historyIndex, latestHistoryIndex)
+            }
+            .store(in: &cancellables)
+    }
     
     func saveToHistory() {
-        NoteData.histories.append(self.toDictionary())
-        if NoteData.histories.count > NoteData.maxHistoryLimit {
-            NoteData.histories.removeFirst()
-        }
-        NoteData.latestHistoryIndex = NoteData.histories.count - 1
-        UserDefaults.standard.set(NoteData.histories, forKey: "NoteDataHistory")
+        historyManager.saveToHistory(entry: self.toDictionary())
+        historyIndex = historyManager.latestHistoryIndex
     }
     
-    static func deleteHistory(at index: Int) {
-        guard NoteData.histories.indices.contains(index) else { return }
-        NoteData.histories.remove(at: index)
-        NoteData.latestHistoryIndex = NoteData.histories.count - 1
-        UserDefaults.standard.set(NoteData.histories, forKey: "NoteDataHistory")
+    func deleteHistory() {
+        guard historyManager.deleteHistory(at: historyIndex) else { return }
+        historyIndex = min(historyIndex, historyManager.latestHistoryIndex)
+        loadFromHistory()
     }
     
-    func loadFromHistory(index: Int) {
-        guard NoteData.histories.indices.contains(index) else { return }
-        self.updateWithDictionary(NoteData.histories[index])
+    func loadFromHistory() {
+        let result = historyManager.loadFromHistory(at: historyIndex)
+        self.updateWithDictionary(result)
+    }
+    
+    func loadPreviousHistory() {
+        if historyIndex <= 0 { return }
+        historyIndex -= 1
+        loadFromHistory()
+    }
+    
+    func loadNextHistory() {
+        if historyIndex >= historyManager.latestHistoryIndex { return }
+        historyIndex += 1
+        loadFromHistory()
     }
     
     // Resources for rendering the note
@@ -144,23 +202,26 @@ struct SingleNoteView: View {
     private let label: String
     private let labelColor: Color
     private let systemImage: String
-    private let mainNoteData: Bool
     
-    @EnvironmentObject var sharedNoteData: NoteData // Shared NoteData object
-    @ObservedObject var noteData: NoteData // NoteData object for this view
+    // Shared NoteData object
+    @EnvironmentObject var sharedNoteData: NoteData
+    
+    // NoteData object for this view
+    @ObservedObject var noteData: NoteData
+    private let mainNoteData: Bool
+    private let enableHistory: Bool
     
     // Properties to manage the WebView and TextEditor
     @State private var showTextEditor = false
     
-    // History management
-    @State private var historyIndex = NoteData.latestHistoryIndex
-    
-    init (label: String, labelColor: Color, systemImage: String, mainNoteData: Bool = false, noteData: NoteData) {
+    init (noteData: NoteData, mainNoteData: Bool = false, enableHistory: Bool = false, label: String, labelColor: Color = .black, systemImage: String = "note.text") {
+        self.noteData = noteData
+        self.mainNoteData = mainNoteData
+        self.enableHistory = enableHistory
+        
         self.label = label
         self.labelColor = labelColor
         self.systemImage = systemImage
-        self.mainNoteData = mainNoteData
-        self.noteData = noteData
     }
     
     var body: some View {
@@ -168,15 +229,15 @@ struct SingleNoteView: View {
             HStack {
                 Label(label, systemImage: systemImage).foregroundColor(labelColor)
                 
-                if mainNoteData {
+                if enableHistory {
                     Spacer()
-                    Button(action: { historyIndex -= 1; noteData.loadFromHistory(index: historyIndex) }) {
+                    Button(action: { noteData.loadPreviousHistory() }) {
                         Image(systemName: "arrowshape.turn.up.left")
                         Text("Previous")
                     }
-                    .disabled(historyIndex <= 0)
+                    .disabled(noteData.historyIndex <= 0)
                     
-                    Text("\(historyIndex + 1)/\(NoteData.latestHistoryIndex + 1)")
+                    Text("\(noteData.historyIndex + 1)/\(noteData.historyManager.latestHistoryIndex + 1)")
                         .frame(minWidth: 40)
                         .background(Color.blue.opacity(0.1))
                         .cornerRadius(8)
@@ -185,11 +246,11 @@ struct SingleNoteView: View {
                                 .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                         )
                     
-                    Button(action: { historyIndex += 1; noteData.loadFromHistory(index: historyIndex) }) {
+                    Button(action: { noteData.loadNextHistory() }) {
                         Image(systemName: "arrowshape.turn.up.right")
                         Text("Next")
                     }
-                    .disabled(historyIndex == NoteData.latestHistoryIndex)
+                    .disabled(noteData.historyIndex >= noteData.historyManager.latestHistoryIndex)
                 }
             }
             
@@ -216,22 +277,16 @@ struct SingleNoteView: View {
                         Text("Paste From Main")
                     }
                 }
-                if mainNoteData {
-                    Button(action: { noteData.loadFromHistory(index: historyIndex) }) {
+                if enableHistory {
+                    Button(action: { noteData.loadFromHistory() }) {
                         Image(systemName: "arrowshape.turn.up.backward.2")
                         Text("Load")
                     }
-                    Button(action: { noteData.saveToHistory(); historyIndex = NoteData.latestHistoryIndex }) {
+                    Button(action: { noteData.saveToHistory() }) {
                         Image(systemName: "externaldrive.badge.plus")
                         Text("Save")
                     }
-                    Button(action: {
-                        NoteData.deleteHistory(at: historyIndex)
-                        if historyIndex > NoteData.latestHistoryIndex {
-                            historyIndex = NoteData.latestHistoryIndex
-                        }
-                        noteData.loadFromHistory(index: historyIndex)
-                    }) {
+                    Button(action: { noteData.deleteHistory() }) {
                         Image(systemName: "trash")
                         Text("Delete")
                     }

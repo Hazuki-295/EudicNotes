@@ -12,7 +12,7 @@ struct OptionsView: View {
         case combineNotes, trimPassage, nlpAnnotators
     }
     
-    @State private var selectedTab: Tabs = .nlpAnnotators
+    @State private var selectedTab: Tabs = .combineNotes
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -34,6 +34,15 @@ struct OptionsView: View {
     }
 }
 
-#Preview {
-    OptionsView()
+extension PreviewProvider {
+    static func previewOptionsView() -> some View {
+        OptionsView()
+            .environmentObject(NoteData())
+    }
+}
+
+struct OptionsView_Previews: PreviewProvider {
+    static var previews: some View {
+        previewOptionsView()
+    }
 }
