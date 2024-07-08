@@ -1,5 +1,5 @@
 //
-//  SingleNotesView.swift
+//  NotesView.swift
 //  EudicNotes
 //
 //  Created by 叶月 on 2024/7/7.
@@ -133,9 +133,9 @@ class NoteData: ObservableObject {
     func clearLabels() {
         wordPhrase = ""
         originalText = originalText
-            .replacePlusSign(revert: true)
-            .replaceAngleBrackets(revert: true)
-            .replaceSquareBrackets(revert: true)
+            .removePlusSign()
+            .removeAngleBrackets()
+            .removeSquareBrackets()
     }
 }
 
@@ -198,7 +198,7 @@ struct SingleNoteView: View {
                     NLPView(htmlContent: $noteData.noteHTMLContent, webView: noteData.webView, initialJsToExecute: """
                         document.body.style.margin = '3px 6px';
                         const container = document.querySelector('.Hazuki-note');
-                        if (container) container.style.zoom = '0.9';
+                        if (container) container.style.zoom = '0.85';
                         """)
                 } else {
                     CustomTextEditor(text: $noteData.noteHTMLContent)

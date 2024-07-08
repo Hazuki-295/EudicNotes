@@ -57,39 +57,75 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const replacementMap = {
     highlightText: {
-        'highlight blue': ['+', '+'],
-        'highlight green': ['[', ']'],
-        'highlight red': ['<', '>'],
+        name: 'highlightText',
+        map: {
+            'highlight red': ['<', '>'],
+            'highlight green': ['[', ']'],
+            'highlight blue': ['+', '+']
+        }
     },
-    oaldStyle: {
-        'shcut': ['*', '*'],
-        'prefix': ['!', '!'],
-        'cf': ['@', '@'], 'geo': ['_', '_'],
-        'def': ['&', '&'], 'ndv': ['{', '}']
+    oald: {
+        name: 'oald',
+        map: {
+            'shcut': ['*', '*'],
+            'prefix': ['!', '!'],
+            'pv': ['^', '^'],
+            'def': ['&', '&'], 'cf': ['@', '@'],
+            'geo': ['_', '_'], 'ndv': ['{', '}']
+        }
+    },
+    lm5pp: {
+        name: 'lm5pp',
+        map: {
+            'ACTIV': null,
+            'lm5pp_POS': null,
+            'lm5pp_POS phr': null
+        }
     }
 };
 
 // Use a regular expression to globally replace the markers
-function transformText(text, map) {
-    for (const [className, [open, close]] of Object.entries(map)) {
-        const regex = new RegExp(`\\${open}(.*?)\\${close}`, 'g');
-        text = text.replace(regex, (match, content) => {
-            if (className === 'shcut' || className === 'def') {
-                // Find the index where English ends and Chinese begins
-                const transitionIndex = content.search(/[\u4e00-\u9fff]/);
-                if (transitionIndex !== -1) {
-                    let englishPart = content.substring(0, transitionIndex);
-                    let chinesePart = content.substring(transitionIndex);
-                    return `<span class="${className}">${englishPart}<span class="OALECD-chn">${chinesePart}</span></span>`;
-                } else {
-                    // No Chinese characters found, treat all as English
-                    return `<span class="${className}">${content}</span>`;
+function transformText(text, dict) {
+    if (dict.name === 'lm5pp') {
+        /* LDOCE Style */
+        const posRegex = /\b(verb|noun|adjective|adverb|preposition|conjunction|pronoun)\b/;
+        text = text.replace(posRegex, '<span class="lm5pp_POS">$1</span>');
+
+        const phrRegex = /\b(Phrasal Verb)\b/;
+        text = text.replace(phrRegex, '<span class="lm5pp_POS phr">$1</span>');
+
+        const idiomRegex = /\b(Idioms)\b/;
+        text = text.replace(idiomRegex, '<span class="idiom">$1</span>');
+
+        const slashRegex = /(?<![<A-Za-z.])\/[A-Za-z.-]+(\s+[A-Za-z.-]+)*/g; // not inside </span>, not words that separated by '/'
+        text = text.replace(slashRegex, '<span class="ACTIV">$&</span>');
+    } else {
+        /* Other Styles */
+        for (const [className, [open, close]] of Object.entries(dict.map)) {
+            const regex = new RegExp(`\\${open}(.*?)\\${close}`, 'g');
+            text = text.replace(regex, (match, content) => {
+                if (dict.name === 'oald' && (className === 'shcut' || className === 'def')) {
+                    // Find the index where English ends and Chinese begins
+                    const transitionIndex = content.search(/[⟨\u4e00-\u9fff]/);
+                    if (transitionIndex !== -1) {
+                        let englishPart = content.substring(0, transitionIndex);
+                        let chinesePart = content.substring(transitionIndex);
+                        content = `${englishPart}<span class="OALECD-chn">${chinesePart}</span>`;
+                    }
+                } else if (dict.name === 'oald' && className === 'cf') {
+                    content = content.replace(/\$(z|pvarr|sep)/g, function (match) {
+                        switch (match) {
+                            case '$z': return '<span class="z">|</span>';
+                            case '$pvarr': return '<span class="pvarr">⇿</span>';
+                            case '$sep': return '<span class="sep">,</span>';
+                            default:
+                                return match; // Just in case there's a no-match scenario
+                        }
+                    });
                 }
-            } else {
-                // General case for all other classes
                 return `<span class="${className}">${content}</span>`;
-            }
-        });
+            });
+        }
     }
     return text;
 }
@@ -152,16 +188,20 @@ function generateSingleNote(noteData) {
     originalText.className = 'note-block';
     originalText.setAttribute('data-label', 'original text');
     var formattedOriginalText = noteData.originalText;
+    if (noteData.wordPhrase !== '') {
+        const regex = new RegExp(`\\b${noteData.wordPhrase}\\b`, 'gi');
+        formattedOriginalText = formattedOriginalText.replace(regex, '+$&+');
+    }
     formattedOriginalText = transformText(formattedOriginalText, replacementMap.highlightText);
-    originalText.innerHTML = formattedOriginalText.replace(/\n/g, "<br>");;
+    originalText.innerHTML = formattedOriginalText.replace(/\n/g, "<br>");
     noteContainer.appendChild(originalText);
 
     const noteText = document.createElement('div');
     noteText.className = 'note-block';
     noteText.setAttribute('data-label', 'notes');
     var formattedNote = noteData.notes;
-    Object.values(replacementMap).forEach((map) => {
-        formattedNote = transformText(formattedNote, map);
+    Object.entries(replacementMap).forEach(([key, dict]) => {
+        formattedNote = transformText(formattedNote, dict);
     });
     noteText.innerHTML = formattedNote.replace(/\n/g, "<br>");;
     noteContainer.appendChild(noteText);
@@ -179,60 +219,4 @@ function generateSingleNote(noteData) {
     noteContainer.appendChild(tagContainer);
 
     return noteContainer;
-}
-
-function revertFormatting(selector) {
-    // Define the mapping for class names to their respective replacement patterns
-    const replacementMap = {
-        /* Colorful fonts */
-        'highlight blue': ['+', '+'],
-        'highlight green': ['[', ']'],
-        'highlight red': ['<', '>'],
-        /* OALD Style */
-        'shcut': ['*', '*'],
-        'prefix': ['!', '!'],
-        'cf': ['@', '@'], 'geo': ['_', '_'],
-        'def': ['&', '&'], 'ndv': ['{', '}']
-    };
-
-    // Select the element based on the provided selector
-    const originalElement = document.querySelector(selector);
-    if (!originalElement) {
-        console.error('Element not found for the given selector:', selector);
-        return;
-    }
-
-    // Clone the original element to avoid altering it
-    const clonedElement = originalElement.cloneNode(true);
-
-    // Execute the replacement function on the cloned element
-    replaceElements(clonedElement);
-
-    // Function to replace the child elements with their original text format recursively
-    function replaceElements(element) {
-        // Iterate through the element's children first to handle nested elements
-        element.childNodes.forEach(child => {
-            if (child.nodeType === Node.ELEMENT_NODE) {
-                replaceElements(child);
-            }
-        });
-
-        // Root of the cloned element
-        if (!element.parentNode) return;
-
-        // Iterate through each class name in the replacement map
-        for (const [classNames, symbols] of Object.entries(replacementMap)) {
-            const classes = classNames.split(' ');
-            if (classes.every(cls => element.classList.contains(cls))) {
-                const textContent = element.textContent;
-                const replacementText = `${symbols[0]}${textContent}${symbols[1]}`;
-                const replacementNode = document.createTextNode(replacementText);
-                element.parentNode.replaceChild(replacementNode, element);
-                return;
-            }
-        }
-    }
-
-    // Return the text content of the cloned element
-    return clonedElement.textContent.trim();
 }

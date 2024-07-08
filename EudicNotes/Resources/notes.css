@@ -22,7 +22,7 @@
 
 .note-container {
     font-family: Optima, Bookerly, 'Source Han Serif CN';
-    font-size: var(--font-size-oald);
+    font-size: var(--font-size-lm5pp);
     word-spacing: .1rem;
 }
 
@@ -98,10 +98,10 @@ span.blue {
 .note-block[data-label="notes"] .ACTIV {
     /* display: inline; */
     color: var(--color-activ);
-    font-size: calc(var(--font-size-lm5pp) * 0.8);
+    font-size: calc(var(--font-size-lm5pp) * 0.85);
     font-weight: bold;
     padding: 0 2px;
-    margin: 0 2px;
+    margin: 0;
     /* Added by Hazuki */
     font-family: Optima;
     text-transform: uppercase;
@@ -118,7 +118,6 @@ span.blue {
     font-size: var(--font-size-oald);
     font-weight: 600;
     font-family: Optima;
-    background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%);
 }
 
 .note-block[data-label="notes"] .shcut .OALECD-chn {
@@ -127,6 +126,11 @@ span.blue {
     border-radius: 0;
     padding-left: 0;
     padding-right: 0;
+}
+
+.note-block[data-label="notes"] .shcut,
+.note-block[data-label="notes"] .pv {
+    background: linear-gradient(to bottom, rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%);
 }
 
 .note-block[data-label="notes"] .def {
@@ -138,6 +142,9 @@ span.blue {
     color: var(--color-oald-green);
     background: rgba(0, 122, 108, .2);
     border-radius: 3px;
+    /* Added by Hazuki */
+    margin-left: 0;
+    white-space: nowrap;
 }
 
 .note-block[data-label="notes"] .OALECD-chn {
@@ -161,14 +168,15 @@ span.blue {
     color: var(--color-oald-blue);
 }
 
+.note-block[data-label="notes"] .cf .ndv {
+    font-size: calc(var(--font-size-oald) * 0.9);
+    white-space: nowrap;
+}
+
 .note-block[data-label="notes"] .z,
 .note-block[data-label="notes"] .pvarr,
 .note-block[data-label="notes"] .sep {
     color: var(--color-oald-red);
-}
-
-.note-block[data-label="notes"] .reg {
-    font-size: calc(var(--font-size-oald) * 0.9);
 }
 
 .note-block[data-label="notes"] .geo {

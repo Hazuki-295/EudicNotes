@@ -21,7 +21,7 @@
 		B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */; };
 		B3E659472C39779E00B9B26A /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659462C39779E00B9B26A /* WebView.swift */; };
 		B3E659492C3977D900B9B26A /* ServerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659482C3977D900B9B26A /* ServerStatusView.swift */; };
-		B3E6594B2C39CCD500B9B26A /* SingleNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E6594A2C39CCD500B9B26A /* SingleNoteView.swift */; };
+		B3E6594B2C39CCD500B9B26A /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E6594A2C39CCD500B9B26A /* NoteView.swift */; };
 		B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */; };
 		B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42C2B98370B006894D1 /* ContentView.swift */; };
 		B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3EDC42E2B98370C006894D1 /* Assets.xcassets */; };
@@ -64,7 +64,7 @@
 		B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		B3E659462C39779E00B9B26A /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		B3E659482C3977D900B9B26A /* ServerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStatusView.swift; sourceTree = "<group>"; };
-		B3E6594A2C39CCD500B9B26A /* SingleNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleNoteView.swift; sourceTree = "<group>"; };
+		B3E6594A2C39CCD500B9B26A /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
 		B3EDC4272B98370B006894D1 /* EudicNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EudicNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesApp.swift; sourceTree = "<group>"; };
 		B3EDC42C2B98370B006894D1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -155,7 +155,7 @@
 			children = (
 				B37B26512B99DCD90072477F /* ComboBox.swift */,
 				B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */,
-				B3E6594A2C39CCD500B9B26A /* SingleNoteView.swift */,
+				B3E6594A2C39CCD500B9B26A /* NoteView.swift */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -386,7 +386,7 @@
 				B3E659472C39779E00B9B26A /* WebView.swift in Sources */,
 				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
-				B3E6594B2C39CCD500B9B26A /* SingleNoteView.swift in Sources */,
+				B3E6594B2C39CCD500B9B26A /* NoteView.swift in Sources */,
 				B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */,
 				B38E0E3B2C3AFBFC00A59F4C /* Logger.swift in Sources */,
 				B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */,
