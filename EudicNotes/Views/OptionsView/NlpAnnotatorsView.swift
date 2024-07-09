@@ -13,9 +13,10 @@ struct NLPView: View {
     @Binding var htmlContent: String
     var webView: WKWebView
     var initialJsToExecute: String?
+    var baseURL: URL?
     
     var body: some View {
-        WebView(htmlContent: $htmlContent, webView: webView, initialJsToExecute: initialJsToExecute)
+        WebView(htmlContent: $htmlContent, webView: webView, initialJsToExecute: initialJsToExecute, baseURL: baseURL)
             .lineSpacing(2)
             .background(Color.white)
             .cornerRadius(5)
@@ -23,16 +24,6 @@ struct NLPView: View {
                 RoundedRectangle(cornerRadius: 5)
                     .stroke(Color.gray, lineWidth: 1)
             )
-    }
-    
-    func executeJavaScript(js: String, completion: ((Result<Any?, Error>) -> Void)? = nil) {
-        webView.evaluateJavaScript(js) { result, error in
-            if let error = error {
-                completion?(.failure(error))
-            } else {
-                completion?(.success(result))
-            }
-        }
     }
 }
 
@@ -42,10 +33,10 @@ struct NlpAnnotatorsView: View {
     @State private var input: String = defaultInput
     
     @State private var spacyHTML: String = ""
-    @State private var spacyNLPView: NLPView!
+    @State private var spacyWebView = WKWebView()
     
     @State private var corenlpHTML: String = ""
-    @State private var corenlpNLPView: NLPView!
+    @State private var corenlpWebView = WKWebView()
     @State private var selectAnnotators = false
     
     @State private var serverAvailableActionPerformed: Bool = false
@@ -72,13 +63,13 @@ struct NlpAnnotatorsView: View {
                     Label("Stanford CoreNLP", systemImage: "note.text").foregroundColor(.corenlp)
                     Spacer()
                     Toggle("Custom Annotators", isOn: $selectAnnotators).onChange(of: selectAnnotators) {
-                        corenlpNLPView.executeJavaScript(js: "toggleAnnotatorSelector();")
+                        corenlpWebView.executeJavaScript(js: "toggleAnnotatorSelector();")
                     }
                     Image("corenlp").resizable().scaledToFit().background().border(Color.gray)
                 }
                 .frame(height: 30)
                 
-                NLPView(htmlContent: $corenlpHTML, webView: WKWebView(), initialJsToExecute: "initCorenlp('\(NlpAnnotatorsView.defaultInput)')")
+                NLPView(htmlContent: $corenlpHTML, webView: corenlpWebView, initialJsToExecute: "initCorenlp('\(NlpAnnotatorsView.defaultInput)')")
             }
             
             VStack(alignment: .leading) {
@@ -89,7 +80,7 @@ struct NlpAnnotatorsView: View {
                 }
                 .frame(height: 30)
                 
-                NLPView(htmlContent: $spacyHTML, webView: WKWebView())
+                NLPView(htmlContent: $spacyHTML, webView: spacyWebView)
             }
         }
         .padding(.top, 5)
@@ -142,7 +133,7 @@ struct NlpAnnotatorsView: View {
     }
     
     func submitCorenlpData() {
-        corenlpNLPView.executeJavaScript(js: "setInputAndSubmit('\(input)');")
+        corenlpWebView.executeJavaScript(js: "setInputAndSubmit('\(input)');")
     }
 }
 

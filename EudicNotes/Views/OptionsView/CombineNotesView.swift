@@ -9,8 +9,8 @@ import SwiftUI
 import WebKit
 
 struct CombineNotesView: View {
-    @StateObject private var sharedNoteData = NoteData()
-    @StateObject private var CombinedNoteData = NoteData()
+    @StateObject private var combinedNoteData = NoteData(useUserDefaults: false)
+    @StateObject private var singleNoteData = NoteData(useUserDefaults: false, histories: [])
     
     var body: some View {
         VStack(alignment: .center) {
@@ -25,8 +25,22 @@ struct CombineNotesView: View {
                 }
             }
             
-            SingleNoteView(noteData: CombinedNoteData, label: "Combined Notes", labelColor: .corenlp)
-            SingleNoteView(noteData: sharedNoteData, enableHistory: true, label: "Single NoteData Preview", labelColor: .oaldBlue)
+            SingleNoteView(noteData: combinedNoteData, combinedNoteData: true, label: "Combined Notes", labelColor: .corenlp)
+                .onReceive(combinedNoteData.historyManager.$histories) { histories in
+                    if singleNoteData.historyManager.histories != histories {
+                        singleNoteData.historyManager.histories = histories
+                        singleNoteData.historyManager.latestHistoryIndex = histories.count - 1
+                        singleNoteData.historyIndex = 0
+                        singleNoteData.loadFromHistory()
+                    }
+                    combinedNoteData.noteHTMLContent = NoteData.constructNoteTemplateHTML(dictionaries: histories)
+                }
+            SingleNoteView(noteData: singleNoteData, enableHistory: true, label: "Single NoteData Preview", labelColor: .oaldBlue)
+                .onReceive(singleNoteData.historyManager.$histories) { histories in
+                    if combinedNoteData.historyManager.histories != histories {
+                        combinedNoteData.historyManager.histories = histories
+                    }
+                }
                 .frame(height: 350)
             
         }

@@ -10,16 +10,22 @@ import WebKit
 import Combine
 
 class NoteDataHistoryManager: ObservableObject {
-    static let historyManager = NoteDataHistoryManager()
     private let maxHistoryLimit = 10
+    private var useUserDefaults: Bool
     
-    private var histories: [[String: String]]
+    @Published var histories: [[String: String]]
     @Published var latestHistoryIndex: Int
     
-    private init() {
-        let storedHistories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
-        self.histories = storedHistories
-        self.latestHistoryIndex = storedHistories.count - 1
+    init(useUserDefaults: Bool = true, histories: [[String: String]] = []) {
+        self.useUserDefaults = useUserDefaults
+        
+        var initialHistories = histories
+        if useUserDefaults {
+            initialHistories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
+        }
+        
+        self.histories = initialHistories
+        self.latestHistoryIndex = initialHistories.count - 1
     }
     
     func saveToHistory(entry: [String: String]) {
@@ -29,20 +35,36 @@ class NoteDataHistoryManager: ObservableObject {
         } else {
             latestHistoryIndex += 1
         }
-        UserDefaults.standard.set(histories, forKey: "NoteDataHistory")
+        
+        if useUserDefaults {
+            UserDefaults.standard.set(histories, forKey: "NoteDataHistory")
+        }
     }
     
     func deleteHistory(at index: Int) -> Bool {
         guard histories.indices.contains(index) else { return false }
         histories.remove(at: index)
         latestHistoryIndex -= 1
-        UserDefaults.standard.set(histories, forKey: "NoteDataHistory")
+        
+        if useUserDefaults {
+            UserDefaults.standard.set(histories, forKey: "NoteDataHistory")
+        }
         return true
     }
     
-    func loadFromHistory(at index: Int) -> [String: String] {
-        guard histories.indices.contains(index) else { return [:] }
+    func loadFromHistory(at index: Int) -> [String: String]? {
+        guard histories.indices.contains(index) else { return nil }
         return histories[index]
+    }
+    
+    func switchHistorySource(useUserDefaults: Bool, newHistories: [[String: String]] = []) {
+        self.useUserDefaults = useUserDefaults
+        if useUserDefaults {
+            self.histories = UserDefaults.standard.array(forKey: "NoteDataHistory") as? [[String: String]] ?? []
+        } else {
+            self.histories = newHistories
+        }
+        self.latestHistoryIndex = self.histories.count - 1
     }
 }
 
@@ -88,19 +110,11 @@ class NoteData: ObservableObject {
     // History management
     var historyManager: NoteDataHistoryManager
     @Published var historyIndex: Int
-    private var cancellables = Set<AnyCancellable>()
     
-    init() {
-        self.historyManager = NoteDataHistoryManager.historyManager
+    init(useUserDefaults: Bool = true, histories: [[String: String]] = []) {
+        self.historyManager = NoteDataHistoryManager(useUserDefaults: useUserDefaults, histories: histories)
         self.historyIndex = historyManager.latestHistoryIndex
-        
-        historyManager.$latestHistoryIndex
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] latestHistoryIndex in
-                guard let self = self else { return }
-                self.historyIndex = min(self.historyIndex, latestHistoryIndex)
-            }
-            .store(in: &cancellables)
+        self.webView.loadHTMLString(noteTemplateHTML, baseURL: URL(string: NoteData.prefix))
     }
     
     func saveToHistory() {
@@ -115,8 +129,9 @@ class NoteData: ObservableObject {
     }
     
     func loadFromHistory() {
-        let result = historyManager.loadFromHistory(at: historyIndex)
-        self.updateWithDictionary(result)
+        if let result = historyManager.loadFromHistory(at: historyIndex) {
+            self.updateWithDictionary(result)
+        }
     }
     
     func loadPreviousHistory() {
@@ -132,7 +147,8 @@ class NoteData: ObservableObject {
     }
     
     // Resources for rendering the note
-    static private let useLocalResources = true
+    static private let useLocalResources = false
+    static let prefix = "https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@v3.0.0/EudicNotes/Resources/"
     static private let cssContent = "<style>\n" + (loadResourceContent(fileName: "notes", withExtension: "css") ?? "") + "\n</style>"
     static private let jsContent = "<script>\n" + (loadResourceContent(fileName: "notes", withExtension: "js") ?? "") + "\n</script>"
     
@@ -142,10 +158,7 @@ class NoteData: ObservableObject {
     }
     
     // Generate HTML based on a list of NoteData
-    static func constructNoteTemplateHTML(noteDataArray: [NoteData]) -> String {
-        // Convert each NoteData to a dictionary and collect them into an array
-        let dictionaries = noteDataArray.map { $0.toDictionary() }
-        
+    static func constructNoteTemplateHTML(dictionaries: [[String: String]]) -> String {
         // Serialize the array of dictionaries to JSON for embedding in the HTML
         let jsonData = try! JSONSerialization.data(withJSONObject: dictionaries)
         let jsonString = String(data: jsonData, encoding: .utf8)!
@@ -155,11 +168,12 @@ class NoteData: ObservableObject {
         <!DOCTYPE html>
         <html>
         <head>
-            \(NoteData.useLocalResources ? NoteData.cssContent : #"<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@main/EudicNotes/Resources/notes.css">"#)
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            \(NoteData.useLocalResources ? NoteData.cssContent : #"<link rel="stylesheet" href="\#(NoteData.prefix)notes.css">"#)
             <script>
                 const noteDataArray = \(jsonString);
             </script>
-            \(NoteData.useLocalResources ? NoteData.jsContent : #"<script src="https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@main/EudicNotes/Resources/notes.js"></script>"#)
+            \(NoteData.useLocalResources ? NoteData.jsContent : #"<script src="\#(NoteData.prefix)notes.js"></script>"#)
         </head>
         <body>
             <!-- Notes will be inserted here -->
@@ -181,7 +195,13 @@ class NoteData: ObservableObject {
     
     // Computed property to get the template HTML using fields of current NoteData
     var noteTemplateHTML: String {
-        NoteData.constructNoteTemplateHTML(noteDataArray: [self])
+        NoteData.constructNoteTemplateHTML(dictionaries: [self.toDictionary()])
+    }
+    
+    func noteTemplateHTMLIframe(useHistories: Bool = false) -> String {
+        var srcdoc = useHistories ? NoteData.constructNoteTemplateHTML(dictionaries: self.historyManager.histories) : noteTemplateHTML
+        srcdoc = srcdoc.collapseWhitespace().replacingOccurrences(of: "\"", with: "&quot;")
+        return #"<iframe class="Hazuki-note-iframe" srcdoc="\#(srcdoc)"></iframe>"#
     }
     
     func clearFields() {
@@ -210,14 +230,17 @@ struct SingleNoteView: View {
     @ObservedObject var noteData: NoteData
     private let mainNoteData: Bool
     private let enableHistory: Bool
+    private let combinedNoteData: Bool
     
     // Properties to manage the WebView and TextEditor
     @State private var showTextEditor = false
     
-    init (noteData: NoteData, mainNoteData: Bool = false, enableHistory: Bool = false, label: String, labelColor: Color = .black, systemImage: String = "note.text") {
+    init (noteData: NoteData, mainNoteData: Bool = false, enableHistory: Bool = false, combinedNoteData: Bool = false,
+          label: String, labelColor: Color = .black, systemImage: String = "note.text") {
         self.noteData = noteData
         self.mainNoteData = mainNoteData
         self.enableHistory = enableHistory
+        self.combinedNoteData = combinedNoteData
         
         self.label = label
         self.labelColor = labelColor
@@ -260,21 +283,39 @@ struct SingleNoteView: View {
                         document.body.style.margin = '3px 6px';
                         const container = document.querySelector('.Hazuki-note');
                         if (container) container.style.zoom = '0.85';
-                        """)
+                        """, baseURL: URL(string: NoteData.prefix))
                 } else {
                     CustomTextEditor(text: $noteData.noteHTMLContent)
                 }
             }
             
             HStack {
-                Button(action: { /* if let text = ClipboardManager.pasteFromClipboard() { noteData.recognizeNote(plainNote: text) } */ }) {
+                Button(action: {
+                    if let jsonString = ClipboardManager.pasteFromClipboard(),
+                       let jsonData = jsonString.data(using: .utf8),
+                       let noteDataArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: String]] {
+                        if !combinedNoteData {
+                            noteData.updateWithDictionary(noteDataArray[0])
+                        } else {
+                            noteData.historyManager.histories = noteDataArray
+                        }
+                    }
+                }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
-                if !mainNoteData {
+                if !mainNoteData && !combinedNoteData {
                     Button(action: { noteData.updateWith(noteData: sharedNoteData) }) {
                         Image(systemName: "doc.on.clipboard")
                         Text("Paste From Main")
+                    }
+                }
+                if combinedNoteData {
+                    Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.noteTemplateHTMLIframe(useHistories: true)) }) {
+                        HStack {
+                            Image(systemName: "list.clipboard")
+                            Text("Copy Template HTML")
+                        }
                     }
                 }
                 if enableHistory {

@@ -1,60 +1,3 @@
-function extractNotesIframe() {
-    const parentDocument = window.parent.document;
-    const iframeDocument = document;
-
-    // Insert stylesheets
-    const stylesheets = iframeDocument.querySelectorAll('link[rel="stylesheet"]');
-    stylesheets.forEach(sheet => {
-        const newSheet = parentDocument.createElement('link');
-        newSheet.rel = 'stylesheet';
-        newSheet.href = sheet.href;
-        parentDocument.head.appendChild(newSheet);
-    });
-
-    // Insert inline styles
-    const inlineStyles = iframeDocument.querySelectorAll('style');
-    inlineStyles.forEach(style => {
-        const newStyle = document.createElement('style');
-        newStyle.textContent = style.textContent;
-        parentDocument.head.appendChild(newStyle);
-    });
-
-    // Insert scripts
-    const scripts = iframeDocument.querySelectorAll('script');
-    scripts.forEach(script => {
-        const newScript = parentDocument.createElement('script');
-        if (script.src) {
-            newScript.src = script.src;
-        } else {
-            newScript.textContent = script.textContent;
-        }
-        parentDocument.body.appendChild(newScript);
-    });
-
-    // Get the note container
-    const noteContainer = iframeDocument.querySelector('.Hazuki-note');
-    if (!noteContainer) {
-        console.error('No Hazuki-note element found inside the iframe');
-        return;
-    }
-    const noteContent = noteContainer.innerHTML;
-
-    // Create a new div element to replace the iframe
-    const newNoteContainer = parentDocument.createElement('div');
-    newNoteContainer.className = 'Hazuki-note';
-    newNoteContainer.innerHTML = noteContent;
-
-    // Replace the iframe with the new div element
-    iframe.parentNode.replaceChild(newNoteContainer, iframe);
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if the script is running inside an iframe
-    if (window.frameElement) {
-        extractNotesIframe();
-    }
-});
-
 const replacementMap = {
     highlightText: {
         name: 'highlightText',
@@ -135,6 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!noteContainer.hasChildNodes()) {
         generateNotes();
     }
+
+    // Check if the script is running inside an iframe
+    if (window.frameElement) {
+        extractNotesIframe();
+    }
 });
 
 function generateNotes() {
@@ -162,7 +110,7 @@ function generateNotes() {
 
         const script = document.createElement('script');
         script.src = 'horizontal-scroll.js';
-        document.body.appendChild(script);
+        document.head.appendChild(script);
 
         script.onload = () => {
             notesContainer.appendChild(constructScrollContainer());
@@ -178,12 +126,14 @@ function generateSingleNote(noteData) {
     const noteContainer = document.createElement('div');
     noteContainer.className = 'note-container';
 
+    // Source
     const source = document.createElement('div');
     source.className = 'note-block';
     source.setAttribute('data-label', 'source');
     source.textContent = noteData.source;
     noteContainer.appendChild(source);
 
+    // Original Text
     const originalText = document.createElement('div');
     originalText.className = 'note-block';
     originalText.setAttribute('data-label', 'original text');
@@ -196,6 +146,7 @@ function generateSingleNote(noteData) {
     originalText.innerHTML = formattedOriginalText.replace(/\n/g, "<br>");
     noteContainer.appendChild(originalText);
 
+    // Notes
     const noteText = document.createElement('div');
     noteText.className = 'note-block';
     noteText.setAttribute('data-label', 'notes');
@@ -206,6 +157,7 @@ function generateSingleNote(noteData) {
     noteText.innerHTML = formattedNote.replace(/\n/g, "<br>");;
     noteContainer.appendChild(noteText);
 
+    // Tags
     const tagContainer = document.createElement('div');
     tagContainer.className = 'note-tags';
     noteData.tags.split(' ').forEach(tagString => {
@@ -219,4 +171,44 @@ function generateSingleNote(noteData) {
     noteContainer.appendChild(tagContainer);
 
     return noteContainer;
+}
+
+function extractNotesIframe() {
+    const iframe = window.frameElement;
+
+    const parentDocument = window.parent.document;
+    const iframeDocument = document;
+
+    // Insert stylesheets
+    const stylesheets = iframeDocument.querySelectorAll('link[rel="stylesheet"]');
+    stylesheets.forEach(sheet => {
+        const newSheet = parentDocument.createElement('link');
+        newSheet.rel = 'stylesheet';
+        newSheet.href = sheet.href;
+        parentDocument.head.appendChild(newSheet);
+    });
+
+    // Insert inline styles
+    const inlineStyles = iframeDocument.querySelectorAll('style');
+    inlineStyles.forEach(style => {
+        const newStyle = document.createElement('style');
+        newStyle.textContent = style.textContent;
+        parentDocument.head.appendChild(newStyle);
+    });
+
+    // Get the note container
+    const noteContainer = iframeDocument.querySelector('.Hazuki-note');
+    if (!noteContainer) {
+        console.error('No Hazuki-note element found inside the iframe');
+        return;
+    }
+    const noteContent = noteContainer.innerHTML;
+
+    // Create a new div element to replace the iframe
+    const newNoteContainer = parentDocument.createElement('div');
+    newNoteContainer.className = 'Hazuki-note';
+    newNoteContainer.innerHTML = noteContent;
+
+    // Replace the iframe with the new div element
+    iframe.parentNode.replaceChild(newNoteContainer, iframe);
 }
