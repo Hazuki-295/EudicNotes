@@ -12,6 +12,7 @@ struct WebView: NSViewRepresentable {
     @Binding var htmlContent: String
     var webView: WKWebView // Maintains session state across updates
     var initialJsToExecute: String? // Optional property for JavaScript to execute once
+    var baseURL: URL?
     
     private static let logger = Logger(subsystem: "EudicNote.WebView")
     
@@ -21,14 +22,10 @@ struct WebView: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: WKWebView, context: Context) {
-        if !context.coordinator.didInitialLoad {
-            // Load HTML content initially
-            nsView.loadHTMLString(htmlContent, baseURL: nil)
-        } else {
-            // Only update HTML content if it has changed
+        if context.coordinator.didInitialLoad && !nsView.isLoading {
             nsView.evaluateJavaScript("document.documentElement.outerHTML") { result, error in
                 if let currentHTML = result as? String, currentHTML != self.htmlContent {
-                    nsView.loadHTMLString(self.htmlContent, baseURL: nil)
+                    nsView.loadHTMLString(self.htmlContent, baseURL: self.baseURL)
                 }
             }
         }
@@ -36,22 +33,6 @@ struct WebView: NSViewRepresentable {
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
-    }
-    
-    // Public method to allow JavaScript execution from parent view
-    func executeJavaScript(js: String, verbose: Bool = true, completion: ((Result<Any?, Error>) -> Void)? = nil) {
-        webView.evaluateJavaScript(js) { result, error in
-            if let error = error {
-                verbose ? WebView.logger.error("JavaScript execution error: \(error.localizedDescription)") : nil
-                completion?(.failure(error))
-            } else {
-                if verbose {
-                    let resultDescription = result.map { String(describing: $0) } ?? "nil"
-                    WebView.logger.info("JavaScript execution result: \(resultDescription)")
-                }
-                completion?(.success(result))
-            }
-        }
     }
     
     class Coordinator: NSObject, WKNavigationDelegate {
@@ -63,8 +44,10 @@ struct WebView: NSViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            didInitialLoad = true
+            
             if let js = parent.initialJsToExecute {
-                parent.executeJavaScript(js: js, verbose: false)
+                parent.webView.executeJavaScript(js: js, verbose: false)
             }
             
             // Fetch and update the HTML content
@@ -73,8 +56,23 @@ struct WebView: NSViewRepresentable {
                     self.parent.htmlContent = html
                 }
             }
-            
-            didInitialLoad = true
+        }
+    }
+}
+
+extension WKWebView {
+    private static let logger = Logger(subsystem: "EudicNote.WebView")
+    
+    func executeJavaScript(js: String, verbose: Bool = true, completion: ((Any?, Error?) -> Void)? = nil) {
+        self.evaluateJavaScript(js) { result, error in
+            if verbose {
+                if let error = error {
+                    WKWebView.logger.error("JavaScript execution error: \(error.localizedDescription)")
+                }
+                let resultDescription = result.map { String(describing: $0) } ?? "nil"
+                WKWebView.logger.info("JavaScript execution result: \(resultDescription)")
+            }
+            completion?(result, error)
         }
     }
 }

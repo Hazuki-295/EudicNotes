@@ -1,6 +1,7 @@
 function constructScrollContainer() {
+    /* Create the scroll container */
     const scrollContainer = document.createElement('div');
-    container.className = 'horizontal-scroll-notes';
+    scrollContainer.className = 'horizontal-scroll-notes';
 
     /* Create the content div */
     const content = document.createElement('div');
@@ -14,7 +15,7 @@ function constructScrollContainer() {
 
     swipe.appendChild(swipeWrap);
     content.appendChild(swipe);
-    container.appendChild(content);
+    scrollContainer.appendChild(content);
 
     /* Create the navigation div */
     const nav = document.createElement('div');
@@ -28,13 +29,13 @@ function constructScrollContainer() {
 
     nav.appendChild(prev);
     nav.appendChild(next);
-    container.appendChild(nav);
+    scrollContainer.appendChild(nav);
 
     /* Create the indicator div */
     const indicator = document.createElement('div');
     indicator.className = 'horizontal-scroll-notes__indicator';
 
-    container.appendChild(indicator);
+    scrollContainer.appendChild(indicator);
 
     /* Return the scroll container */
     return scrollContainer;
@@ -56,7 +57,7 @@ function attendItem(itemContent) {
 }
 
 function addSwipeListeners() {
-    const wrap = document.querySelector('.v-swipe__wrap');
+    const content = document.querySelector('.horizontal-scroll-notes__content');
     const items = document.querySelectorAll('.v-swipe__item');
     const prevButton = document.querySelector('.horizontal-scroll-notes__nav__prev');
     const nextButton = document.querySelector('.horizontal-scroll-notes__nav__next');
@@ -66,21 +67,21 @@ function addSwipeListeners() {
 
     function updateNavigation() {
         bullets.forEach((bullet, index) => {
-            if (index === currentIndex) {
-                bullet.classList.add('is-active');
-            } else {
-                bullet.classList.remove('is-active');
-            }
+            bullet.classList.toggle('is-active', index === currentIndex);
         });
 
         prevButton.classList.toggle('disabled', currentIndex === 0);
         nextButton.classList.toggle('disabled', currentIndex === items.length - 1);
     }
 
+    function scrollToIndex(index) {
+        content.scrollLeft = index * content.offsetWidth;
+    }
+
     prevButton.addEventListener('click', () => {
         if (currentIndex > 0) {
             currentIndex--;
-            wrap.style.transform = `translateX(-${currentIndex * 100}%)`;
+            scrollToIndex(currentIndex);
             updateNavigation();
         }
     });
@@ -88,7 +89,18 @@ function addSwipeListeners() {
     nextButton.addEventListener('click', () => {
         if (currentIndex < items.length - 1) {
             currentIndex++;
-            wrap.style.transform = `translateX(-${currentIndex * 100}%)`;
+            scrollToIndex(currentIndex);
+            updateNavigation();
+        }
+    });
+
+    content.addEventListener('scroll', () => {
+        const scrollLeft = content.scrollLeft;
+        const itemWidth = content.offsetWidth;
+        const newIndex = Math.round(scrollLeft / itemWidth);
+
+        if (newIndex !== currentIndex) {
+            currentIndex = newIndex;
             updateNavigation();
         }
     });

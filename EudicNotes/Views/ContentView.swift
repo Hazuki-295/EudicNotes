@@ -76,7 +76,7 @@ struct ContentView: View {
                         Text("Generate Notes")
                     }
                 }
-                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.noteTemplateHTML) }) {
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.noteTemplateHTMLIframe()) }) {
                     HStack {
                         Image(systemName: "list.clipboard")
                         Text("Copy Template HTML")
