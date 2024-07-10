@@ -148,9 +148,11 @@ class NoteData: ObservableObject {
     
     // Resources for rendering the note
     static private let useLocalResources = false
-    static let prefix = "https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@v3.0.0/EudicNotes/Resources/"
-    static private let cssContent = "<style>\n" + (loadResourceContent(fileName: "notes", withExtension: "css") ?? "") + "\n</style>"
-    static private let jsContent = "<script>\n" + (loadResourceContent(fileName: "notes", withExtension: "js") ?? "") + "\n</script>"
+    static let prefix = "https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/"
+    static private let cssScroll = "<style>\n" + loadResourceContent(fileName: "horizontal-scroll", withExtension: "css")! + "\n</style>"
+    static private let jsScroll = "<script>\n" + loadResourceContent(fileName: "horizontal-scroll", withExtension: "js")! + "\n</script>"
+    static private let cssNotes = "<style>\n" + loadResourceContent(fileName: "notes", withExtension: "css")! + "\n</style>"
+    static private let jsNotes = "<script>\n" + loadResourceContent(fileName: "notes", withExtension: "js")! + "\n</script>"
     
     static private func loadResourceContent(fileName: String, withExtension: String) -> String? {
         guard let url = Bundle.main.url(forResource: fileName, withExtension: withExtension) else { return nil }
@@ -169,14 +171,15 @@ class NoteData: ObservableObject {
         <html>
         <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            \(NoteData.useLocalResources ? NoteData.cssContent : #"<link rel="stylesheet" href="\#(NoteData.prefix)notes.css">"#)
+            \(NoteData.useLocalResources ? NoteData.cssScroll : #"<link rel="stylesheet" href="\#(NoteData.prefix)horizontal-scroll.css">"#)
+            \(NoteData.useLocalResources ? NoteData.cssNotes : #"<link rel="stylesheet" href="\#(NoteData.prefix)notes.css">"#)
             <script>
                 const noteDataArray = \(jsonString);
             </script>
-            \(NoteData.useLocalResources ? NoteData.jsContent : #"<script src="\#(NoteData.prefix)notes.js"></script>"#)
+            \(NoteData.useLocalResources ? NoteData.jsScroll : #"<script src="\#(NoteData.prefix)horizontal-scroll.js"></script>"#)
+            \(NoteData.useLocalResources ? NoteData.jsNotes : #"<script src="\#(NoteData.prefix)notes.js"></script>"#)
         </head>
         <body>
-            <!-- Notes will be inserted here -->
             <div class="Hazuki-note"></div>
         </body>
         </html>

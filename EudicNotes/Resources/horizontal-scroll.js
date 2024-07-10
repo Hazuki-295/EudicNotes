@@ -56,12 +56,12 @@ function attendItem(itemContent) {
     indicator.appendChild(dot);
 }
 
-function addSwipeListeners() {
-    const content = document.querySelector('.horizontal-scroll-notes__content');
-    const items = document.querySelectorAll('.v-swipe__item');
-    const prevButton = document.querySelector('.horizontal-scroll-notes__nav__prev');
-    const nextButton = document.querySelector('.horizontal-scroll-notes__nav__next');
-    const bullets = document.querySelectorAll('.horizontal-scroll-notes__indicator__dot');
+function addSwipeListeners(noteContainer) {
+    const content = noteContainer.querySelector('.horizontal-scroll-notes__content');
+    const items = noteContainer.querySelectorAll('.v-swipe__item');
+    const prevButton = noteContainer.querySelector('.horizontal-scroll-notes__nav__prev');
+    const nextButton = noteContainer.querySelector('.horizontal-scroll-notes__nav__next');
+    const bullets = noteContainer.querySelectorAll('.horizontal-scroll-notes__indicator__dot');
 
     let currentIndex = 0;
 

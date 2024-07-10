@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B31D9B0B2C3E9B6C00060CED /* horizontal-scroll.js in Resources */ = {isa = PBXBuildFile; fileRef = B31D9B0A2C3E9B6C00060CED /* horizontal-scroll.js */; };
+		B31D9B0D2C3E9B7000060CED /* horizontal-scroll.css in Resources */ = {isa = PBXBuildFile; fileRef = B31D9B0C2C3E9B7000060CED /* horizontal-scroll.css */; };
 		B32C722B2C3678B400DD296A /* notes.css in Resources */ = {isa = PBXBuildFile; fileRef = B32C722A2C3678B400DD296A /* notes.css */; };
 		B32C722D2C3678B900DD296A /* notes.js in Resources */ = {isa = PBXBuildFile; fileRef = B32C722C2C3678B900DD296A /* notes.js */; };
 		B35BB2BC2BE6203B000EC9AA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* Extensions.swift */; };
@@ -50,6 +52,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B31D9B0A2C3E9B6C00060CED /* horizontal-scroll.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "horizontal-scroll.js"; sourceTree = "<group>"; };
+		B31D9B0C2C3E9B7000060CED /* horizontal-scroll.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = "horizontal-scroll.css"; sourceTree = "<group>"; };
 		B32C722A2C3678B400DD296A /* notes.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = notes.css; sourceTree = "<group>"; };
 		B32C722C2C3678B900DD296A /* notes.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = notes.js; sourceTree = "<group>"; };
 		B35BB2BB2BE6203B000EC9AA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -107,6 +111,8 @@
 		B32C72232C366C3300DD296A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B31D9B0C2C3E9B7000060CED /* horizontal-scroll.css */,
+				B31D9B0A2C3E9B6C00060CED /* horizontal-scroll.js */,
 				B32C722C2C3678B900DD296A /* notes.js */,
 				B32C722A2C3678B400DD296A /* notes.css */,
 			);
@@ -353,7 +359,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B31D9B0B2C3E9B6C00060CED /* horizontal-scroll.js in Resources */,
 				B32C722D2C3678B900DD296A /* notes.js in Resources */,
+				B31D9B0D2C3E9B7000060CED /* horizontal-scroll.css in Resources */,
 				B32C722B2C3678B400DD296A /* notes.css in Resources */,
 				B3EDC4322B98370C006894D1 /* Preview Assets.xcassets in Resources */,
 				B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */,

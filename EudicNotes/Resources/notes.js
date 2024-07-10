@@ -91,34 +91,23 @@ function generateNotes() {
         return;
     }
 
-    const notesContainer = document.querySelector('.Hazuki-note');
-    if (!notesContainer) {
+    const noteContainer = document.querySelector('.Hazuki-note');
+    if (!noteContainer) {
         console.error('No Hazuki-note element found');
         return;
     }
 
     if (noteDataArray.length === 1) {
         console.log('Single NoteData found');
-        notesContainer.appendChild(generateSingleNote(noteDataArray[0]));
+        noteContainer.appendChild(generateSingleNote(noteDataArray[0]));
     } else {
         console.log('Multiple NoteData found');
 
-        const stylesheet = document.createElement('link');
-        stylesheet.rel = 'stylesheet';
-        stylesheet.href = 'horizontal-scroll.css';
-        document.head.appendChild(stylesheet);
-
-        const script = document.createElement('script');
-        script.src = 'horizontal-scroll.js';
-        document.head.appendChild(script);
-
-        script.onload = () => {
-            notesContainer.appendChild(constructScrollContainer());
-            noteDataArray.forEach(noteData => {
-                attendItem(generateSingleNote(noteData));
-            });
-            addSwipeListeners();
-        }
+        noteContainer.appendChild(constructScrollContainer());
+        noteDataArray.forEach(noteData => {
+            attendItem(generateSingleNote(noteData));
+        });
+        addSwipeListeners(noteContainer);
     }
 }
 
@@ -202,13 +191,18 @@ function extractNotesIframe() {
         console.error('No Hazuki-note element found inside the iframe');
         return;
     }
-    const noteContent = noteContainer.innerHTML;
 
-    // Create a new div element to replace the iframe
+    // Create a new note container and insert it into the parent document
     const newNoteContainer = parentDocument.createElement('div');
     newNoteContainer.className = 'Hazuki-note';
-    newNoteContainer.innerHTML = noteContent;
+    newNoteContainer.innerHTML = noteContainer.innerHTML;
+    iframe.parentNode.appendChild(newNoteContainer);
 
-    // Replace the iframe with the new div element
-    iframe.parentNode.replaceChild(newNoteContainer, iframe);
+    // Reattach swipe listeners
+    if (newNoteContainer.querySelector('.v-swipe')) {
+        addSwipeListeners(newNoteContainer);
+    }
+
+    // Hide the iframe
+    iframe.style.display = 'none';
 }
