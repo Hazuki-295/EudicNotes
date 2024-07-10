@@ -36,6 +36,32 @@ extension String {
     func collapseWhitespace() -> String {
         return self.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
     }
+    
+    func removeInlineComments() -> String {
+        self.split(separator: "\n")
+            .map { line in
+                line.replacingOccurrences(of: #"(^//.*)|(\s+//.*)"#, with: "", options: .regularExpression)
+            }
+            .joined(separator: "\n")
+    }
+    
+    func replaceHashesInTags() -> String {
+        let pattern = #"(?<=tags":")[^"]*(?=")"#
+        let tagsRange = NSRange(self.startIndex..<self.endIndex, in: self)
+        let regex = try! NSRegularExpression(pattern: pattern, options: [])
+        
+        let matches = regex.matches(in: self, options: [], range: tagsRange)
+        var modifiedString = self
+        
+        for match in matches.reversed() {
+            let range = Range(match.range, in: self)!
+            let tagsString = String(self[range])
+            let modifiedTagsString = tagsString.replacingOccurrences(of: "#", with: "-")
+            modifiedString = modifiedString.replacingCharacters(in: range, with: modifiedTagsString)
+        }
+        
+        return modifiedString
+    }
 }
 
 extension Character {

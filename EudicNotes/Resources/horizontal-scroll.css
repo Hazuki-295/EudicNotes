@@ -3,7 +3,7 @@
 }
 
 .horizontal-scroll-notes__content {
-    overflow-x: auto;
+    overflow-x: hidden;
     scroll-snap-type: x mandatory; /* Enables snapping on the x-axis */
     scrollbar-width: none;
     -ms-overflow-style: none;

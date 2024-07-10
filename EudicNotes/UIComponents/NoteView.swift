@@ -203,7 +203,11 @@ class NoteData: ObservableObject {
     
     func noteTemplateHTMLIframe(useHistories: Bool = false) -> String {
         var srcdoc = useHistories ? NoteData.constructNoteTemplateHTML(dictionaries: self.historyManager.histories) : noteTemplateHTML
-        srcdoc = srcdoc.collapseWhitespace().replacingOccurrences(of: "\"", with: "&quot;")
+        srcdoc = srcdoc
+            .removeInlineComments()
+            .collapseWhitespace()
+            .replaceHashesInTags() // Eudic BUG workaround
+            .replacingOccurrences(of: "\"", with: "&quot;")
         return #"<iframe class="Hazuki-note-iframe" srcdoc="\#(srcdoc)"></iframe>"#
     }
     

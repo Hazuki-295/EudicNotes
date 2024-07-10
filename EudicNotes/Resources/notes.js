@@ -185,6 +185,9 @@ function extractNotesIframe() {
         parentDocument.head.appendChild(newStyle);
     });
 
+    // Export the noteDataArray to the parent window
+    window.parent.noteDataArray = noteDataArray;
+
     // Get the note container
     const noteContainer = iframeDocument.querySelector('.Hazuki-note');
     if (!noteContainer) {

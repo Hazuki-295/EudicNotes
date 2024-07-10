@@ -20,10 +20,16 @@
     --color-oald-blue: rgb(0, 114, 207);
 }
 
+.Hazuki-note-iframe {
+    width: 100%;
+    border: none;
+}
+
 .note-container {
     font-family: Optima, Bookerly, 'Source Han Serif CN';
     font-size: var(--font-size-lm5pp);
     word-spacing: .1rem;
+    margin: 0 2px;
 }
 
 .note-block {
