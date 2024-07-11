@@ -104,8 +104,8 @@ function generateNotes() {
         console.log('Multiple NoteData found');
 
         noteContainer.appendChild(constructScrollContainer());
-        noteDataArray.forEach(noteData => {
-            attendItem(generateSingleNote(noteData));
+        noteDataArray.forEach((noteData, index) => {
+            attendItem(generateSingleNote(noteData), index);
         });
         addSwipeListeners(noteContainer);
     }
@@ -136,28 +136,38 @@ function generateSingleNote(noteData) {
     noteContainer.appendChild(originalText);
 
     // Notes
-    const noteText = document.createElement('div');
-    noteText.className = 'note-block';
-    noteText.setAttribute('data-label', 'notes');
-    var formattedNote = noteData.notes;
-    Object.entries(replacementMap).forEach(([key, dict]) => {
-        formattedNote = transformText(formattedNote, dict);
-    });
-    noteText.innerHTML = formattedNote.replace(/\n/g, "<br>");;
-    noteContainer.appendChild(noteText);
+    if (noteData.notes !== '') {
+        const noteText = document.createElement('div');
+        noteText.className = 'note-block';
+        noteText.setAttribute('data-label', 'notes');
+        var formattedNote = noteData.notes;
+        Object.entries(replacementMap).forEach(([key, dict]) => {
+            formattedNote = transformText(formattedNote, dict);
+        });
+        noteText.innerHTML = formattedNote.replace(/\n/g, "<br>");;
+        noteContainer.appendChild(noteText);
+    }
 
     // Tags
-    const tagContainer = document.createElement('div');
-    tagContainer.className = 'note-tags';
-    noteData.tags.split(' ').forEach(tagString => {
-        if (tagString.trim().length > 0) { // Ensures that the string isn't just spaces
-            const tag = document.createElement('div');
-            tag.className = 'note-tag';
-            tag.textContent = tagString.slice(1); // Remove leading '#' and set text
-            tagContainer.appendChild(tag);
-        }
-    });
-    noteContainer.appendChild(tagContainer);
+    if (noteData.tags !== '') {
+        const tagContainer = document.createElement('div');
+        tagContainer.className = 'note-block';
+        tagContainer.setAttribute('data-label', 'tags');
+
+        const colors = ['rgb(79, 125, 192)', 'rgb(94, 162, 94, 0.9)', 'rgb(245, 130, 32, 0.9)', 'rgba(196, 21, 27, 0.8)'];
+        let currentColorIndex = 0;
+        noteData.tags.split(',').forEach(tagString => {
+            if (tagString.trim().length > 0) { // Ensures that the string isn't just spaces
+                const tag = document.createElement('div');
+                tag.className = 'note-tag';
+                tag.textContent = tagString.trim().slice(1); // Remove leading '#' and set text
+                tag.style.setProperty('--color-tag', colors[currentColorIndex]);
+                currentColorIndex = (currentColorIndex + 1) % colors.length;
+                tagContainer.appendChild(tag);
+            }
+        });
+        noteContainer.appendChild(tagContainer);
+    }
 
     return noteContainer;
 }

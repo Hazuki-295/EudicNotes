@@ -15,7 +15,10 @@ function constructScrollContainer() {
 
     swipe.appendChild(swipeWrap);
     content.appendChild(swipe);
-    scrollContainer.appendChild(content);
+
+    /* Create the control div */
+    const control = document.createElement('div');
+    control.className = 'horizontal-scroll-notes__control';
 
     /* Create the navigation div */
     const nav = document.createElement('div');
@@ -29,23 +32,37 @@ function constructScrollContainer() {
 
     nav.appendChild(prev);
     nav.appendChild(next);
-    scrollContainer.appendChild(nav);
+    control.appendChild(nav);
 
     /* Create the indicator div */
     const indicator = document.createElement('div');
     indicator.className = 'horizontal-scroll-notes__indicator';
 
-    scrollContainer.appendChild(indicator);
+    control.appendChild(indicator);
+
+    /* Create the vertical div */
+    const vertical = document.createElement('div');
+    vertical.className = 'horizontal-scroll-notes__vertical';
+
+    const verticalToggle = document.createElement('div');
+    verticalToggle.className = 'horizontal-scroll-notes__vertical__toggle';
+
+    vertical.appendChild(verticalToggle);
+    control.appendChild(vertical);
 
     /* Return the scroll container */
+    scrollContainer.appendChild(content);
+    scrollContainer.appendChild(control);
     return scrollContainer;
 }
 
-function attendItem(itemContent) {
+function attendItem(itemContent, index) {
     // Append the item to the swipe wrap
     const swipeWrap = document.querySelector('.v-swipe__wrap');
     const item = document.createElement('div');
     item.className = 'v-swipe__item';
+    item.setAttribute('data-index', index);
+    item.style.setProperty('--data-label', `'Note ${index + 1}'`);
     item.appendChild(itemContent);
     swipeWrap.appendChild(item);
 
@@ -57,13 +74,15 @@ function attendItem(itemContent) {
 }
 
 function addSwipeListeners(noteContainer) {
-    const content = noteContainer.querySelector('.horizontal-scroll-notes__content');
-    const items = noteContainer.querySelectorAll('.v-swipe__item');
-    const prevButton = noteContainer.querySelector('.horizontal-scroll-notes__nav__prev');
-    const nextButton = noteContainer.querySelector('.horizontal-scroll-notes__nav__next');
-    const bullets = noteContainer.querySelectorAll('.horizontal-scroll-notes__indicator__dot');
+    const scrollContainer = noteContainer.querySelector('.horizontal-scroll-notes');
+    const content = scrollContainer.querySelector('.horizontal-scroll-notes__content');
+    const items = content.querySelectorAll('.v-swipe__item');
 
     let currentIndex = 0;
+
+    const prevButton = scrollContainer.querySelector('.horizontal-scroll-notes__nav__prev');
+    const nextButton = scrollContainer.querySelector('.horizontal-scroll-notes__nav__next');
+    const bullets = scrollContainer.querySelectorAll('.horizontal-scroll-notes__indicator__dot');
 
     function updateNavigation() {
         bullets.forEach((bullet, index) => {
@@ -77,6 +96,14 @@ function addSwipeListeners(noteContainer) {
     function scrollToIndex(index) {
         content.scrollLeft = index * content.offsetWidth;
     }
+
+    bullets.forEach((bullet, index) => {
+        bullet.addEventListener('click', () => {
+            currentIndex = index;
+            scrollToIndex(currentIndex);
+            updateNavigation();
+        });
+    });
 
     prevButton.addEventListener('click', () => {
         if (currentIndex > 0) {
@@ -106,4 +133,11 @@ function addSwipeListeners(noteContainer) {
     });
 
     updateNavigation(); // Initialize navigation state
+
+    // Vertical toggle
+    const verticalToggle = scrollContainer.querySelector('.horizontal-scroll-notes__vertical__toggle');
+    verticalToggle.addEventListener('click', () => {
+        verticalToggle.classList.toggle('is-active');
+        scrollContainer.classList.toggle('vertical-view');
+    });
 }
