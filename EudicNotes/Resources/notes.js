@@ -7,6 +7,12 @@ const replacementMap = {
             'highlight blue': ['+', '+']
         }
     },
+    custom: {
+        name: 'custom',
+        map: {
+            'comment': ['~', '~', '{data-label}']
+        }
+    },
     oald: {
         name: 'oald',
         map: {
@@ -29,7 +35,13 @@ const replacementMap = {
 
 // Use a regular expression to globally replace the markers
 function transformText(text, dict) {
-    if (dict.name === 'lm5pp') {
+    if (dict.name === 'custom') {
+        /* Custom Style */
+        const regex = /~([^~]+)~\{([^}]+)\}/gs;
+        text = text.replace(regex, '<span class="comment" data-label="$2">$1</span>')
+
+        /* More Custom Styles */
+    } else if (dict.name === 'lm5pp') {
         /* LDOCE Style */
         const posRegex = /\b(verb|noun|adjective|adverb|preposition|conjunction|pronoun)\b/;
         text = text.replace(posRegex, '<span class="lm5pp_POS">$1</span>');
@@ -48,13 +60,18 @@ function transformText(text, dict) {
             const regex = new RegExp(`\\${open}(.*?)\\${close}`, 'g');
             text = text.replace(regex, (match, content) => {
                 if (dict.name === 'oald' && (className === 'shcut' || className === 'def')) {
-                    // Find the index where English ends and Chinese begins
-                    const transitionIndex = content.search(/[⟨\u4e00-\u9fff]/);
-                    if (transitionIndex !== -1) {
-                        let englishPart = content.substring(0, transitionIndex);
-                        let chinesePart = content.substring(transitionIndex);
-                        content = `${englishPart}<span class="OALECD-chn">${chinesePart}</span>`;
+                    if (className === 'def') {
+                        const oxfordRegex = /\$(oxford3000|academic)/g;
+                        content = content.replace(oxfordRegex, '<span class="$1"></span>')
                     }
+
+                    // Regular expression to match all Chinese character sequences
+                    const chineseRegex = /([\u4e00-\u9fff⟨，；、…⟩]+(?:\s+[\u4e00-\u9fff⟨，；、…⟩]+)*)/g;
+
+                    // Replace each sequence of Chinese characters and special characters with the desired span
+                    content = content.replace(chineseRegex, (match) => {
+                        return `<span class="OALECD-chn">${match}</span>`;
+                    });
                 } else if (dict.name === 'oald' && className === 'cf') {
                     content = content.replace(/\$(z|pvarr|sep)/g, function (match) {
                         switch (match) {

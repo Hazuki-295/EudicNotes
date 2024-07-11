@@ -75,4 +75,12 @@ extension WKWebView {
             completion?(result, error)
         }
     }
+    
+    static func clearWebCache() {
+        WKWebsiteDataStore.default().removeData(
+            ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+            modifiedSince: Date(timeIntervalSince1970: 0),
+            completionHandler: { WKWebView.logger.info("Web cache cleared.") }
+        )
+    }
 }

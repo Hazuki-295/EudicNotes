@@ -239,9 +239,6 @@ struct SingleNoteView: View {
     private let enableHistory: Bool
     private let combinedNoteData: Bool
     
-    // Properties to manage the WebView and TextEditor
-    @State private var showTextEditor = false
-    
     init (noteData: NoteData, mainNoteData: Bool = false, enableHistory: Bool = false, combinedNoteData: Bool = false,
           label: String, labelColor: Color = .black, systemImage: String = "note.text") {
         self.noteData = noteData
@@ -284,17 +281,8 @@ struct SingleNoteView: View {
                 }
             }
             
-            ZStack {
-                if !showTextEditor {
-                    NLPView(htmlContent: $noteData.noteHTMLContent, webView: noteData.webView, initialJsToExecute: """
-                        document.body.style.margin = '3px 6px';
-                        const container = document.querySelector('.Hazuki-note');
-                        if (container) container.style.zoom = '0.85';
-                        """, baseURL: URL(string: NoteData.prefix))
-                } else {
-                    CustomTextEditor(text: $noteData.noteHTMLContent)
-                }
-            }
+            NLPView(htmlContent: $noteData.noteHTMLContent, webView: noteData.webView,
+                    initialJsToExecute: #"document.head.appendChild(document.createElement("style")).innerHTML = ".note-container { margin: 1rem 0.5rem; zoom: 0.85; }";"#)
             
             HStack {
                 Button(action: {
@@ -310,12 +298,6 @@ struct SingleNoteView: View {
                 }) {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
-                }
-                if !mainNoteData && !combinedNoteData {
-                    Button(action: { noteData.updateWith(noteData: sharedNoteData) }) {
-                        Image(systemName: "doc.on.clipboard")
-                        Text("Paste From Main")
-                    }
                 }
                 if combinedNoteData {
                     Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.noteTemplateHTMLIframe(useHistories: true)) }) {
@@ -340,13 +322,25 @@ struct SingleNoteView: View {
                     }
                 }
                 Spacer()
-                Button(action: { showTextEditor.toggle() }) {
-                    Image(systemName: "switch.2")
-                    Text("Switch")
+                if !mainNoteData && !combinedNoteData {
+                    Button(action: { noteData.updateWith(noteData: sharedNoteData) }) {
+                        Image(systemName: "doc.on.clipboard")
+                        Text("Paste from Main")
+                    }
+                    Button(action: { sharedNoteData.updateWith(noteData: noteData) }) {
+                        Image(systemName: "list.clipboard")
+                        Text("Copy to Main")
+                    }
                 }
-                Button(action: { noteData.clearFields() }) {
-                    Image(systemName: "eraser.line.dashed")
-                    Text("Clear")
+                if mainNoteData {
+                    Button(action: { WKWebView.clearWebCache() }) {
+                        Image(systemName: "eraser.line.dashed")
+                        Text("Clear Web Cache")
+                    }
+                    Button(action: { noteData.clearFields() }) {
+                        Image(systemName: "eraser.line.dashed")
+                        Text("Clear")
+                    }
                 }
             }
         }
