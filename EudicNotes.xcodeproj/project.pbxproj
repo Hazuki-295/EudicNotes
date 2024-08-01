@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B32C722B2C3678B400DD296A /* notes.css in Resources */ = {isa = PBXBuildFile; fileRef = B32C722A2C3678B400DD296A /* notes.css */; };
-		B32C722D2C3678B900DD296A /* notes.js in Resources */ = {isa = PBXBuildFile; fileRef = B32C722C2C3678B900DD296A /* notes.js */; };
 		B35BB2BC2BE6203B000EC9AA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* Extensions.swift */; };
 		B37B26522B99DCD90072477F /* ComboBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26512B99DCD90072477F /* ComboBox.swift */; };
 		B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26532B99DF380072477F /* InputHistoryViewModel.swift */; };
@@ -19,6 +17,7 @@
 		B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A860592B9B021800542E8D /* TrimPassageView.swift */; };
 		B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605B2B9B022700542E8D /* CombineNotesView.swift */; };
 		B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */; };
+		B3B660B32C5DE79200C2C0E1 /* bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = B3B660B22C5DE79200C2C0E1 /* bundle.js */; };
 		B3E659472C39779E00B9B26A /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659462C39779E00B9B26A /* WebView.swift */; };
 		B3E659492C3977D900B9B26A /* ServerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659482C3977D900B9B26A /* ServerStatusView.swift */; };
 		B3E6594B2C39CCD500B9B26A /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E6594A2C39CCD500B9B26A /* NoteView.swift */; };
@@ -50,8 +49,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B32C722A2C3678B400DD296A /* notes.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = notes.css; sourceTree = "<group>"; };
-		B32C722C2C3678B900DD296A /* notes.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = notes.js; sourceTree = "<group>"; };
 		B35BB2BB2BE6203B000EC9AA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		B37B26512B99DCD90072477F /* ComboBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboBox.swift; sourceTree = "<group>"; };
 		B37B26532B99DF380072477F /* InputHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHistoryViewModel.swift; sourceTree = "<group>"; };
@@ -62,6 +59,7 @@
 		B3A860592B9B021800542E8D /* TrimPassageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrimPassageView.swift; sourceTree = "<group>"; };
 		B3A8605B2B9B022700542E8D /* CombineNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineNotesView.swift; sourceTree = "<group>"; };
 		B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
+		B3B660B22C5DE79200C2C0E1 /* bundle.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bundle.js; path = dist/bundle.js; sourceTree = "<group>"; };
 		B3E659462C39779E00B9B26A /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		B3E659482C3977D900B9B26A /* ServerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStatusView.swift; sourceTree = "<group>"; };
 		B3E6594A2C39CCD500B9B26A /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
@@ -107,8 +105,7 @@
 		B32C72232C366C3300DD296A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B32C722C2C3678B900DD296A /* notes.js */,
-				B32C722A2C3678B400DD296A /* notes.css */,
+				B3B660B22C5DE79200C2C0E1 /* bundle.js */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -353,10 +350,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B32C722D2C3678B900DD296A /* notes.js in Resources */,
-				B32C722B2C3678B400DD296A /* notes.css in Resources */,
 				B3EDC4322B98370C006894D1 /* Preview Assets.xcassets in Resources */,
 				B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */,
+				B3B660B32C5DE79200C2C0E1 /* bundle.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

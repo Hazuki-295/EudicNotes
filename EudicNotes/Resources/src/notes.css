@@ -1,0 +1,560 @@
+@import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
+
+@font-face {
+    font-family: 'ic';
+    src: url("fonts/ic.woff2") format('woff2');
+}
+
+.Hazuki-note {
+    --grey-0: #fff;
+    --grey-1: #fdfdfd;
+    --grey-2: #f7f7f7;
+    --grey-3: #eff2f3;
+    --grey-4: #ccc;
+    --grey-5: #999;
+    --grey-6: #666;
+    --grey-7: #333;
+    --grey-8: #222;
+    --grey-9: #000;
+    --color-red: #e9546b;
+    --color-pink: #ed6ea0;
+    --color-orange: #ec8c69;
+    --color-yellow: #eab700;
+    --color-green: #67a78a;
+    --color-aqua: #3e999f;
+    --color-blue: #35a3ff;
+    --color-purple: #9d5b8b;
+    --color-grey: #869194;
+    --color-oald-red: #de002d;
+    --color-oald-green: #007a6c;
+    --color-oald-blue: #0072cf;
+    --text-color: var(--grey-7);
+    --font-size-oald: 15px;
+    --line-height-oald: 1.4;
+}
+
+.Hazuki-note {
+    font-family: 'Mulish', Bookerly, Optima, 'PingFang SC', 'Source Han Serif CN', 'Source Sans Pro', sans-serif;
+    font-size: var(--font-size-oald);
+    line-height: var(--line-height-oald);
+    word-spacing: 0.1rem;
+    color: var(--text-color);
+}
+
+.Hazuki-note {
+    background: white;
+    position: relative;
+    margin: 0.5em;
+}
+
+.Hazuki-note::after {
+    content: "";
+    position: absolute;
+    top: -0.5em;
+    left: -0.5em;
+    right: -0.5em;
+    bottom: -0.5em;
+    background-image: linear-gradient(45deg, transparent 49%, rgb(170, 170, 255) 50%, transparent 51%);
+    background-size: 5px 5px;
+    border-radius: 10px;
+    z-index: -1;
+}
+
+.swiper-wrapper, .swiper-slide {
+    height: auto;
+}
+
+.swiper-button-prev, .swiper-button-next {
+    opacity: 0.5;
+}
+
+.swiper-button-disabled {
+    pointer-events: auto !important;
+}
+
+.swiper-button-prev::after, .swiper-button-next::after, .vertical-view-button::after {
+    display: none;
+    font-size: 1rem;
+    color: var(--grey-4);
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 50%;
+    border: 1px solid #e3e5e7;
+    box-shadow: 0 0 2px rgba(0, 0, 0, .02), 0 4px 10px rgba(0, 0, 0, .06);
+}
+
+.swiper-button-prev:hover::after, .swiper-button-next:hover::after, .vertical-view-button::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vertical-view-button {
+    position: absolute;
+    right: 1em;
+    bottom: 1em;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.vertical-view-button::after {
+    font-family: swiper-icons;
+    content: 'next';
+    transform: rotate(90deg);
+    zoom: 0.8;
+}
+
+.vertical-view .vertical-view-button::after {
+    content: 'prev';
+}
+
+.vertical-view .swiper-wrapper {
+    display: block;
+}
+
+.vertical-view .swiper-slide:not(:last-child) .single-note {
+    border-bottom: 1px dashed rgb(170, 170, 255);
+}
+
+.vertical-view .swiper-slide::after {
+    content: attr(aria-label);
+    font-size: calc(var(--font-size-oald) * 0.8);
+    color: rgb(170, 170, 255);
+    position: absolute;
+    bottom: 1.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid rgb(170, 170, 255);
+    padding: 0.2em 1em;
+    border-radius: 1em;
+}
+
+.single-note-mode .vertical-view-button {
+    display: none;
+}
+
+.primary {
+    --note-border: #cda0c7;
+    --note-bg: #fdf8ff;
+    --note-text: #8a51c0;
+    --note-hover: #935aca;
+}
+
+.info {
+    --note-border: #8fa4dc;
+    --note-bg: #f1f9ff;
+    --note-text: #1d4974;
+    --note-hover: #1d5fa0;
+}
+
+.success {
+    --note-border: #a3c293;
+    --note-bg: #fcfff5;
+    --note-text: #2c662d;
+    --note-hover: #3b883c;
+}
+
+.warning {
+    --note-border: #c9ba9b;
+    --note-bg: #fffbeb;
+    --note-text: #947600;
+    --note-hover: #ccb045;
+}
+
+.danger {
+    --note-border: #f4b3c1;
+    --note-bg: #fff2f5;
+    --note-text: #cc0f35;
+    --note-hover: #f14668;
+}
+
+.Hazuki-note .single-note {
+    padding: 1.2em 1em;
+}
+
+.Hazuki-note .single-note > .note-block > .label {
+    display: inline-block;
+    font-size: 0.9em;
+    font-weight: normal;
+    color: var(--note-text);
+    text-transform: capitalize;
+    padding: 7.5px 0 7.5px 0.5em;
+    background: var(--note-bg);
+    border-left: .25em solid var(--note-border);
+    padding-right: 0.8em;
+    margin-right: 0.5em;
+}
+
+.Hazuki-note .single-note > .note-block > .label .ic::before {
+    color: var(--note-text);
+}
+
+.Hazuki-note .note-block:not(:last-child) {
+    margin-bottom: 1em;
+}
+
+.Hazuki-note .red {
+    color: var(--color-red)
+}
+
+.Hazuki-note .pink {
+    color: var(--color-pink)
+}
+
+.Hazuki-note .orange {
+    color: var(--color-orange)
+}
+
+.Hazuki-note .yellow {
+    color: var(--color-yellow)
+}
+
+.Hazuki-note .green {
+    color: var(--color-green)
+}
+
+.Hazuki-note .aqua {
+    color: var(--color-aqua)
+}
+
+.Hazuki-note .blue {
+    color: var(--color-blue)
+}
+
+.Hazuki-note .purple {
+    color: var(--color-purple)
+}
+
+.Hazuki-note .grey {
+    color: var(--color-grey)
+}
+
+.Hazuki-note h4 {
+    font-size: var(--font-size-oald);
+    font-style: normal;
+    line-height: var(--line-height-oald);
+    margin: 1.33em 0;
+}
+
+/* source */
+.Hazuki-note .note-block[label="source"] p {
+    display: inline;
+    font-size: 0.9em;
+    line-height: 2rem;
+}
+
+/* original text */
+.Hazuki-note .note-block[label="original text"] .content {
+    font-family: Optima;
+    padding: 1em;
+    margin-top: 1em;
+    min-height: 1.5em;
+    border-left: 4px solid #d91b3e;
+    border-radius: 10px;
+    position: relative;
+}
+
+.Hazuki-note .note-block[label="original text"] .content::before {
+    position: absolute;
+    content: "";
+    border: 15px solid transparent;
+    border-right: 8px solid #d91b3e;
+    top: 16px;
+    left: -23px;
+}
+
+.Hazuki-note .note-block[label="original text"] .content p {
+    margin: unset;
+}
+
+.Hazuki-note .note-block[label="original text"] .content p:not(:last-of-type) {
+    margin-bottom: 1em;
+}
+
+/* notes */
+.ox3ksym_a1, .ox5ksym_a1, .ox3ksym_a2, .ox5ksym_a2,
+.ox3ksym_b1, .ox5ksym_b1, .ox3ksym_b2, .ox5ksym_b2,
+.ox3ksym_c1, .ox5ksym_c1, .ox3ksym_c2, .ox5ksym_c2 {
+    display: inline-block;
+    min-width: 2.5em;
+    white-space: pre;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 2.3em;
+}
+
+.ox3ksym_a1 { background-image: url(images/ox3000_a1.svg); }
+.ox5ksym_a1 { background-image: url(images/ox5000_a1.svg); }
+.ox3ksym_a2 { background-image: url(images/ox3000_a2.svg); }
+.ox5ksym_a2 { background-image: url(images/ox5000_a2.svg); }
+
+.ox3ksym_b1 { background-image: url(images/ox3000_b1.svg); }
+.ox5ksym_b1 { background-image: url(images/ox5000_b1.svg); }
+.ox3ksym_b2 { background-image: url(images/ox3000_b2.svg); }
+.ox5ksym_b2 { background-image: url(images/ox5000_b2.svg); }
+
+.ox3ksym_c1 { background-image: url(images/ox3000_c1.svg); }
+.ox5ksym_c1 { background-image: url(images/ox5000_c1.svg); }
+.ox3ksym_c2 { background-image: url(images/ox3000_c2.svg); }
+.ox5ksym_c2 { background-image: url(images/ox5000_c2.svg); }
+
+.Hazuki-note .headword {
+    font-family: Bookerly;
+    font-size: 1.1em;
+    color: var(--color-oald-blue);
+}
+
+.Hazuki-note .pos {
+    font-family: Bookerly;
+    font-style: italic;
+    font-size: 0.9em;
+    color: #db8c39;
+    margin-left: 2px;
+}
+
+.Hazuki-note .shcut, .Hazuki-note .pv, .Hazuki-note .idm {
+    display: inline-block;
+    margin-left: 0.8rem;
+    position: relative;
+}
+
+.Hazuki-note .shcut::before, .Hazuki-note .pv::before, .Hazuki-note .idm::before {
+    display: inline-block;
+    position: absolute;
+    left: -0.8rem;
+    font-family: Bookerly;
+    font-size: var(--font-size-oald);
+    font-weight: normal;
+    content: "▪";
+    color: var(--grey-4);
+    width: 1rem;
+}
+
+.Hazuki-note .shcut {
+    font-family: Optima;
+    font-weight: 600;
+    color: var(--color-oald-blue);
+    background: linear-gradient(rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%);
+}
+
+.Hazuki-note .pv {
+    font-family: Bookerly;
+    color: var(--color-oald-blue);
+    background: linear-gradient(rgba(0, 114, 207, 0) 55%, rgba(0, 114, 207, 0.15) 55%, rgba(0, 114, 207, 0.15) 100%);
+}
+
+.Hazuki-note .pvarr::before {
+    content: "⇿";
+    color: var(--color-oald-red);
+    text-align: center;
+}
+
+.Hazuki-note .idm {
+    font-family: Bookerly;
+    color: #004d99;
+}
+
+.Hazuki-note .idmsep {
+    color: var(--color-oald-red);
+}
+
+.Hazuki-note .sense {
+    font-family: Bookerly;
+}
+
+.Hazuki-note .sense, .Hazuki-note .comment {
+    display: block;
+}
+
+.Hazuki-note .sense::before, .Hazuki-note .comment::before {
+    display: inline-block;
+    content: var(--content-text);
+    font-size: 0.8em;
+    line-height: calc(1em / 0.8 * var(--line-height-oald));
+    text-transform: capitalize;
+    padding: 0 6px 0 7px;
+    color: var(--note-text);
+    border: 1px solid var(--note-text);
+    border-radius: 9px;
+    margin-right: 6px;
+}
+
+.Hazuki-note .sense::before {
+    --note-text: #ff6699;
+    --content-text: "definition";
+}
+
+.Hazuki-note .sense:first-child {
+    display: inline;
+}
+
+.Hazuki-note .subj {
+    font-family: Bookerly, 'Source Han Serif CN';
+    font-size: 0.8em;
+    color: var(--color-oald-green);
+}
+
+.Hazuki-note .subj::before {
+    content: "⟨";
+}
+
+.Hazuki-note .subj::after {
+    content: "⟩";
+}
+
+.Hazuki-note .shcut .chn, .Hazuki-note .subj .chn {
+    font-weight: normal;
+    color: inherit;
+    background: none;
+    padding: unset;
+    margin-left: 4px;
+}
+
+.Hazuki-note .activ {
+    font-family: Optima;
+    font-weight: bold;
+    font-size: 0.8em;
+    color: hotpink;
+    text-transform: uppercase;
+}
+
+.Hazuki-note .activ::before {
+    content: "/";
+}
+
+.Hazuki-note .activ::after, .Hazuki-note .cf::after {
+    display: inline-block;
+    font-family: Bookerly;
+    font-size: var(--font-size-oald);
+    font-weight: normal;
+    content: "•";
+    color: var(--grey-4);
+    margin-left: 0.3em;
+}
+
+.Hazuki-note .activ + .activ {
+    padding-left: 0;
+}
+
+.Hazuki-note .cf {
+    display: inline-block;
+    color: var(--color-oald-blue);
+}
+
+.Hazuki-note .dis_g .chn {
+    margin-left: 4px;
+}
+
+.Hazuki-note .ndv {
+    font-style: italic;
+    color: var(--color-oald-green);
+}
+
+.Hazuki-note .ei {
+    font-style: italic;
+    color: var(--color-oald-blue);
+}
+
+.Hazuki-note .eb {
+    color: var(--color-oald-blue);
+}
+
+.Hazuki-note .xrefs {
+    font-size: 0.85em;
+    line-height: calc(1em / 0.85 * var(--line-height-oald));
+}
+
+.Hazuki-note .prefix {
+    display: inline-block;
+    font-family: Optima;
+    font-weight: 600;
+    font-size: 15px;
+    font-variant: small-caps;
+    color: white;
+    height: 16px;
+    line-height: 15px;
+    border-radius: 4px 0 0 4px;
+    background-color: var(--color-oald-blue);
+    padding: 0 2px 0 5px;
+    margin-right: 5px;
+    position: relative;
+}
+
+.Hazuki-note .prefix::after {
+    position: absolute;
+    content: "";
+    left: 100%;
+    border-style: solid;
+    border-width: 8px 0 8px 6px;
+    border-color: transparent transparent transparent var(--color-oald-blue);
+}
+
+.Hazuki-note .Ref {
+    font-family: Bookerly;
+    color: var(--color-oald-blue);
+}
+
+.Hazuki-note .Ref:not(:last-of-type)::after {
+    content: '•';
+    color: var(--grey-4);
+    display: inline-block;
+    margin-left: .25em;
+}
+
+.Hazuki-note .chn {
+    font-family: Bookerly, Optima, 'Source Han Serif CN';
+    font-size: 0.9em;
+    display: inline-block;
+    color: var(--color-oald-green);
+    background: rgba(0, 122, 108, .2);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
+.Hazuki-note .tags {
+    line-height: 2;
+    font-size: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.Hazuki-note .tags .note-tag {
+    font-family: 'Mulish';
+    display: inline-block;
+    color: var(--note-text);
+    background: var(--note-bg);
+    padding: 0 0.5rem 0 0.3125rem;
+    border-radius: 0.3125rem;
+    cursor: default;
+}
+
+.Hazuki-note .tags .note-tag:not(:last-child) {
+    margin-right: 0.625rem;
+}
+
+.Hazuki-note .ic::before {
+    font-family: "ic";
+    font-style: normal;
+    text-align: center;
+    display: inline-block;
+    width: 1.25em;
+    margin: 0 0.2em;
+}
+
+.i-home:before {
+    content: "\e8ed";
+}
+
+.i-feather:before {
+    content: "\efbd";
+}
+
+.i-sakura:before {
+    content: "\e695";
+}
+
+.i-tag:before {
+    text-align: left;
+    content: "\e759";
+}

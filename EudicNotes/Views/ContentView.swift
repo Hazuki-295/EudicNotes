@@ -70,7 +70,7 @@ struct ContentView: View {
             
             // buttons
             HStack {
-                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.updataHTMLContentWithTemplate()) }) {
+                Button(action: { sharedNoteData.updataHTMLContentWithTemplate() }) {
                     HStack {
                         Image(systemName: "paintbrush")
                         Text("Generate Notes")
@@ -102,7 +102,7 @@ struct ContentView: View {
             SingleNoteView(noteData: sharedNoteData, mainNoteData: true, enableHistory: true, label: "Shared NoteData Preview", labelColor: .purple)
         }
         .padding()
-        .frame(width: 680, height: 780)
+        .frame(width: 750, height: 850)
     }
 }
 

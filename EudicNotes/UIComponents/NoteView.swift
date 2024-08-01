@@ -147,15 +147,7 @@ class NoteData: ObservableObject {
     }
     
     // Resources for rendering the note
-    static private let useLocalResources = false
-    static let prefix = "https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/"
-    static private let css = "<style>\n" + loadResourceContent(fileName: "notes", withExtension: "css")! + "\n</style>"
-    static private let js = "<script>\n" + loadResourceContent(fileName: "notes", withExtension: "js")! + "\n</script>"
-    
-    static private func loadResourceContent(fileName: String, withExtension: String) -> String? {
-        guard let url = Bundle.main.url(forResource: fileName, withExtension: withExtension) else { return nil }
-        return try? String(contentsOf: url)
-    }
+    static let prefix = "https://cdn.jsdelivr.net/gh/Hazuki-295/EudicNotes@latest/EudicNotes/Resources/dist/"
     
     // Generate HTML based on a list of NoteData
     static func constructNoteTemplateHTML(dictionaries: [[String: String]]) -> String {
@@ -163,22 +155,14 @@ class NoteData: ObservableObject {
         let jsonData = try! JSONSerialization.data(withJSONObject: dictionaries)
         let jsonString = String(data: jsonData, encoding: .utf8)!
         
-        // Construct the HTML content, embedding CSS and JS resources and serialized data
-        return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            \(NoteData.useLocalResources ? NoteData.css : #"<link rel="stylesheet" href="\#(NoteData.prefix)notes.css">"#)
-            <script>
-                const noteDataArray = \(jsonString);
-            </script>
-            \(NoteData.useLocalResources ? NoteData.js : #"<script src="\#(NoteData.prefix)notes.js"></script>"#)
-        </head>
-        <body>
-            <div class="Hazuki-note"></div>
-        </body>
-        </html>
-        """
+        // Construct the HTML content
+        return "<!DOCTYPE html>" +
+        "<html><head>" +
+        "<script>const noteDataArray=\(jsonString);</script>" +
+        "<script src=\"\(NoteData.prefix)bundle.js\"></script>" +
+        "</head><body>" +
+        "<div class=\"Hazuki-note\"></div>" +
+        "</body></html>"
     }
     
     // Published property to hold the dynamically generated HTML content
@@ -199,9 +183,6 @@ class NoteData: ObservableObject {
     func noteTemplateHTMLIframe(useHistories: Bool = false) -> String {
         var srcdoc = useHistories ? NoteData.constructNoteTemplateHTML(dictionaries: self.historyManager.histories) : noteTemplateHTML
         srcdoc = srcdoc
-            .removeInlineComments()
-            .collapseWhitespace()
-            .replaceHashesInTags() // Eudic BUG workaround
             .replacingOccurrences(of: "\"", with: "&quot;")
         return #"<iframe class="Hazuki-note-iframe" srcdoc="\#(srcdoc)"></iframe>"#
     }
@@ -277,7 +258,7 @@ struct SingleNoteView: View {
             }
             
             NLPView(htmlContent: $noteData.noteHTMLContent, webView: noteData.webView,
-                    initialJsToExecute: #"document.head.appendChild(document.createElement("style")).innerHTML = ".note-container { margin: 1rem 0.5rem; zoom: 0.85; }";"#)
+                    initialJsToExecute: #"document.head.appendChild(document.createElement("style")).innerHTML = ".Hazuki-note { margin: 1rem 0.5rem; zoom: 0.85; }";"#)
             
             HStack {
                 Button(action: {
