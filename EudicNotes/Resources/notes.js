@@ -1,238 +1,135 @@
-const replacementMap = {
-    highlightText: {
-        name: 'highlightText',
-        map: {
-            'highlight red': ['<', '>'],
-            'highlight green': ['[', ']'],
-            'highlight blue': ['+', '+']
-        }
-    },
-    custom: {
-        name: 'custom',
-        map: {
-            'comment': ['~', '~', '{data-label}']
-        }
-    },
-    oald: {
-        name: 'oald',
-        map: {
-            'shcut': ['*', '*'],
-            'prefix': ['!', '!'],
-            'pv': ['^', '^'],
-            'def': ['&', '&'], 'cf': ['@', '@'],
-            'geo': ['_', '_'], 'ndv': ['{', '}']
-        }
-    },
-    lm5pp: {
-        name: 'lm5pp',
-        map: {
-            'ACTIV': null,
-            'lm5pp_POS': null,
-            'lm5pp_POS phr': null
-        }
-    }
+// Create and load jQuery script
+const loadJQuery = () => {
+    const script = document.createElement('script');
+    script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
+    script.onload = loadSwiperCSS;
+    document.head.appendChild(script);
 };
 
-// Use a regular expression to globally replace the markers
-function transformText(text, dict) {
-    if (dict.name === 'custom') {
-        /* Custom Style */
-        const regex = /~([^~]+)~\{([^}]+)\}/gs;
-        text = text.replace(regex, '<span class="comment" data-label="$2">$1</span>')
+// Create and load Swiper CSS files
+const loadSwiperCSS = () => {
+    const swiperCSS = document.createElement('link');
+    swiperCSS.rel = 'stylesheet';
+    swiperCSS.href = 'https://unpkg.com/swiper/swiper-bundle.min.css';
+    swiperCSS.onload = loadSwiper;
+    document.head.appendChild(swiperCSS);
+};
 
-        /* More Custom Styles */
-    } else if (dict.name === 'lm5pp') {
-        /* LDOCE Style */
-        const posRegex = /\b(verb|noun|adjective|adverb|preposition|conjunction|pronoun)\b/;
-        text = text.replace(posRegex, '<span class="lm5pp_POS">$1</span>');
+// Create and load Swiper script
+const loadSwiper = () => {
+    const swiperScript = document.createElement('script');
+    swiperScript.src = 'https://unpkg.com/swiper/swiper-bundle.min.js';
+    swiperScript.onload = initializeSwiper;
+    document.head.appendChild(swiperScript);
+};
 
-        const phrRegex = /\b(Phrasal Verb)\b/;
-        text = text.replace(phrRegex, '<span class="lm5pp_POS phr">$1</span>');
-
-        const idiomRegex = /\b(Idioms)\b/;
-        text = text.replace(idiomRegex, '<span class="idiom">$1</span>');
-
-        const slashRegex = /(?<![<A-Za-z.])\/[A-Za-z.-]+(\s+[A-Za-z.-]+)*/g; // not inside </span>, not words that separated by '/'
-        text = text.replace(slashRegex, '<span class="ACTIV">$&</span>');
-    } else {
-        /* Other Styles */
-        for (const [className, [open, close]] of Object.entries(dict.map)) {
-            const regex = new RegExp(`\\${open}(.*?)\\${close}`, 'g');
-            text = text.replace(regex, (match, content) => {
-                if (dict.name === 'oald' && (className === 'shcut' || className === 'def')) {
-                    if (className === 'def') {
-                        const oxfordRegex = /\$(oxford3000|academic)/g;
-                        content = content.replace(oxfordRegex, '<span class="$1"></span>')
-                    }
-
-                    // Regular expression to match all Chinese character sequences
-                    const chineseRegex = /([\u4e00-\u9fff⟨，；、…⟩]+(?:\s+[\u4e00-\u9fff⟨，；、…⟩]+)*)/g;
-
-                    // Replace each sequence of Chinese characters and special characters with the desired span
-                    content = content.replace(chineseRegex, (match) => {
-                        return `<span class="OALECD-chn">${match}</span>`;
-                    });
-                } else if (dict.name === 'oald' && className === 'cf') {
-                    content = content.replace(/\$(z|pvarr|sep)/g, function (match) {
-                        switch (match) {
-                            case '$z': return '<span class="z">|</span>';
-                            case '$pvarr': return '<span class="pvarr">⇿</span>';
-                            case '$sep': return '<span class="sep">,</span>';
-                            default:
-                                return match; // Just in case there's a no-match scenario
-                        }
-                    });
-                }
-                return `<span class="${className}">${content}</span>`;
-            });
+// Initialize Swiper
+const initializeSwiper = () => {
+    $(document).ready(function () {
+        if (typeof noteDataArray === 'undefined') {
+            console.error(`'noteDataArray' is not defined`);
+            return;
         }
-    }
-    return text;
-}
+        window.parent.noteDataArray = noteDataArray;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const noteContainer = document.querySelector('.Hazuki-note');
-    if (!noteContainer.hasChildNodes()) {
-        generateNotes();
-    }
+        const $noteContainer = $('.Hazuki-note');
+        if (!$noteContainer.length) return;
 
-    // Check if the script is running inside an iframe
-    if (window.frameElement) {
-        extractNotesIframe();
-    }
-});
+        if (noteDataArray.length === 1) {
+            $noteContainer.addClass('single-note-mode');
+        }
 
-function generateNotes() {
-    if (!noteDataArray) {
-        console.error('No NodeDataArray found');
-        return;
-    }
+        // Construct Swiper container
+        const $swiper = $('<div>', { class: 'swiper' });
+        $('<div>', { class: 'swiper-wrapper' }).appendTo($swiper);
+        $('<div>', { class: 'swiper-pagination' }).appendTo($swiper);
+        $('<div>', { class: 'swiper-button-prev' }).appendTo($swiper);
+        $('<div>', { class: 'swiper-button-next' }).appendTo($swiper);
+        $noteContainer.append($swiper);
 
-    const noteContainer = document.querySelector('.Hazuki-note');
-    if (!noteContainer) {
-        console.error('No Hazuki-note element found');
-        return;
-    }
-
-    if (noteDataArray.length === 1) {
-        console.log('Single NoteData found');
-        noteContainer.appendChild(generateSingleNote(noteDataArray[0]));
-    } else {
-        console.log('Multiple NoteData found');
-
-        noteContainer.appendChild(constructScrollContainer());
-        noteDataArray.forEach((noteData, index) => {
-            attendItem(generateSingleNote(noteData), index);
-        });
-        addSwipeListeners(noteContainer);
-    }
-}
-
-function generateSingleNote(noteData) {
-    const noteContainer = document.createElement('div');
-    noteContainer.className = 'note-container';
-
-    // Source
-    const source = document.createElement('div');
-    source.className = 'note-block';
-    source.setAttribute('data-label', 'source');
-    source.textContent = noteData.source;
-    noteContainer.appendChild(source);
-
-    // Original Text
-    const originalText = document.createElement('div');
-    originalText.className = 'note-block';
-    originalText.setAttribute('data-label', 'original text');
-    var formattedOriginalText = noteData.originalText;
-    if (noteData.wordPhrase !== '') {
-        const regex = new RegExp(`\\b${noteData.wordPhrase}\\b`, 'gi');
-        formattedOriginalText = formattedOriginalText.replace(regex, '+$&+');
-    }
-    formattedOriginalText = transformText(formattedOriginalText, replacementMap.highlightText);
-    originalText.innerHTML = formattedOriginalText.replace(/\n/g, "<br>");
-    noteContainer.appendChild(originalText);
-
-    // Notes
-    if (noteData.notes !== '') {
-        const noteText = document.createElement('div');
-        noteText.className = 'note-block';
-        noteText.setAttribute('data-label', 'notes');
-        var formattedNote = noteData.notes;
-        Object.entries(replacementMap).forEach(([key, dict]) => {
-            formattedNote = transformText(formattedNote, dict);
-        });
-        noteText.innerHTML = formattedNote.replace(/\n/g, "<br>");;
-        noteContainer.appendChild(noteText);
-    }
-
-    // Tags
-    if (noteData.tags !== '') {
-        const tagContainer = document.createElement('div');
-        tagContainer.className = 'note-block';
-        tagContainer.setAttribute('data-label', 'tags');
-
-        const colors = ['rgb(79, 125, 192)', 'rgb(94, 162, 94, 0.9)', 'rgb(245, 130, 32, 0.9)', 'rgba(196, 21, 27, 0.8)'];
-        let currentColorIndex = 0;
-        noteData.tags.split(',').forEach(tagString => {
-            if (tagString.trim().length > 0) { // Ensures that the string isn't just spaces
-                const tag = document.createElement('div');
-                tag.className = 'note-tag';
-                tag.textContent = tagString.trim().slice(1); // Remove leading '#' and set text
-                tag.style.setProperty('--color-tag', colors[currentColorIndex]);
-                currentColorIndex = (currentColorIndex + 1) % colors.length;
-                tagContainer.appendChild(tag);
+        // Initialize Swiper
+        const swiper = new Swiper('.swiper', {
+            direction: 'horizontal',
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+                enabled: false
             }
         });
-        noteContainer.appendChild(tagContainer);
-    }
 
-    return noteContainer;
-}
+        // Append items to Swiper
+        noteDataArray.forEach((noteData, index) => {
+            const swiperSlide = $('<div>', { class: 'swiper-slide' });
+            swiperSlide.append(constructSingleNoteContent(noteData));
+            swiper.appendSlide(swiperSlide);
+        });
 
-function extractNotesIframe() {
-    const iframe = window.frameElement;
+        // Function to construct single note content
+        function constructSingleNoteContent(noteData) {
+            const $container = $('<div>', { class: 'single-note' });
 
-    const parentDocument = window.parent.document;
-    const iframeDocument = document;
+            // Source
+            $('<div>', {
+                class: 'note-block',
+                'data-label': 'source',
+                text: noteData.source
+            }).appendTo($container);
 
-    // Insert stylesheets
-    const stylesheets = iframeDocument.querySelectorAll('link[rel="stylesheet"]');
-    stylesheets.forEach(sheet => {
-        const newSheet = parentDocument.createElement('link');
-        newSheet.rel = 'stylesheet';
-        newSheet.href = sheet.href;
-        parentDocument.head.appendChild(newSheet);
+            // Original Text
+            $('<div>', {
+                class: 'note-block',
+                'data-label': 'original text',
+                html: noteData.originalText
+            }).appendTo($container);
+
+            // Notes
+            if (noteData.notes !== '') {
+                $('<div>', {
+                    class: 'note-block',
+                    'data-label': 'notes',
+                    html: noteData.notes
+                }).appendTo($container);
+            }
+
+            // Tags
+            if (noteData.tags !== '') {
+                const $tagContainer = $('<div>', {
+                    class: 'note-block',
+                    'data-label': 'tags'
+                });
+
+                const colors = ['rgb(79, 125, 192)', 'rgb(94, 162, 94)', 'rgb(245, 130, 32)', 'rgba(196, 21, 27)'];
+                let currentColorIndex = 0;
+                noteData.tags.split(',').forEach(tagString => {
+                    if (tagString.trim().length > 0) {
+                        $('<div>', {
+                            class: 'note-tag',
+                            text: tagString.trim(),
+                            css: { '--color-tag': colors[currentColorIndex] }
+                        }).appendTo($tagContainer);
+                        currentColorIndex = (currentColorIndex + 1) % colors.length;
+                    }
+                });
+                $tagContainer.appendTo($container);
+            }
+
+            return $container;
+        }
+
+        // Auto resize iframe height
+        const $iframe = $(window.frameElement);
+        $iframe.css({ width: '100%', border: 'none' });
+        function adjustIframeHeight() {
+            $iframe.height(document.body.scrollHeight + 20);
+        }
+        adjustIframeHeight();  // Initial adjustment
+        $(window).on('resize', adjustIframeHeight);
     });
+};
 
-    // Insert inline styles
-    const inlineStyles = iframeDocument.querySelectorAll('style');
-    inlineStyles.forEach(style => {
-        const newStyle = document.createElement('style');
-        newStyle.textContent = style.textContent;
-        parentDocument.head.appendChild(newStyle);
-    });
-
-    // Export the noteDataArray to the parent window
-    window.parent.noteDataArray = noteDataArray;
-
-    // Get the note container
-    const noteContainer = iframeDocument.querySelector('.Hazuki-note');
-    if (!noteContainer) {
-        console.error('No Hazuki-note element found inside the iframe');
-        return;
-    }
-
-    // Create a new note container and insert it into the parent document
-    const newNoteContainer = parentDocument.createElement('div');
-    newNoteContainer.className = 'Hazuki-note';
-    newNoteContainer.innerHTML = noteContainer.innerHTML;
-    iframe.parentNode.appendChild(newNoteContainer);
-
-    // Reattach swipe listeners
-    if (newNoteContainer.querySelector('.v-swipe')) {
-        addSwipeListeners(newNoteContainer);
-    }
-
-    // Hide the iframe
-    iframe.style.display = 'none';
-}
+// Start loading scripts
+loadJQuery();
