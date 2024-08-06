@@ -20,53 +20,40 @@ struct ContentView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
-            // Source
+            // source
             HStack {
                 Image(systemName: "text.book.closed")
-                ComboBox(text: $sharedNoteData.source, options: sourceHistory.history.sorted(), label: "Source")
-                    .onSubmit { sourceHistory.addToHistory(newEntry: sharedNoteData.source) }
+                ComboBox(label: "Source", text: $sharedNoteData.source, options: sourceHistory.history.sorted())
             }
+            .onSubmit { sourceHistory.addToHistory(newEntry: sharedNoteData.source) }
             
-            // Original Text
+            // original text
             HStack {
-                VStack {
-                    HStack {
-                        Image(systemName: "book")
-                        Text("Original Text:")
-                    }
-                    Button(action: { sharedNoteData.clearLabels(); }){
-                        HStack {
-                            Image(systemName: "eraser.line.dashed")
-                            Text("Clear")
-                        }
-                    }
-                }
+                Label("Original Text:", systemImage: "book")
                 CustomTextEditor(text: $sharedNoteData.originalText)
             }
             .frame(height: 120)
             
-            // Word or Phrase
+            // word or phrase
             HStack {
-                Image(systemName: "highlighter")
-                Text("Word / Phrase:")
+                Label("Word / Phrase:", systemImage: "highlighter")
                 TextField("Enter Word or Phrase", text: $sharedNoteData.wordPhrase)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .textFieldStyle(.roundedBorder)
             }
             
-            // Notes
+            // notes
             HStack {
-                Image(systemName: "bookmark")
-                Text("Notes:")
+                Label("Notes:", systemImage: "bookmark")
                 CustomTextEditor(text: $sharedNoteData.notes)
             }
             .frame(height: 120)
             
-            // Tags
+            // tags
             HStack {
                 Image(systemName: "tag")
-                ComboBox(text: $sharedNoteData.tags, options: tagsHistory.history.sorted(), label: "Tags")
-                    .onSubmit { tagsHistory.addToHistory(newEntry: sharedNoteData.tags) }
+                ComboBox(label: "Tags", text: $sharedNoteData.tags, options: tagsHistory.history.sorted())
             }
+            .onSubmit { tagsHistory.addToHistory(newEntry: sharedNoteData.tags) }
             
             // buttons
             HStack {
@@ -76,15 +63,19 @@ struct ContentView: View {
                         Text("Generate Notes")
                     }
                 }
-                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.noteTemplateHTMLIframe()) }) {
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.noteTemplateHTML()) }) {
                     HStack {
                         Image(systemName: "list.clipboard")
                         Text("Copy Template HTML")
                     }
                 }
-                
+                Button(action: { ClipboardManager.copyToClipboard(textToCopy: sharedNoteData.noteJSON()) }) {
+                    HStack {
+                        Image(systemName: "list.clipboard")
+                        Text("Copy JSON")
+                    }
+                }
                 Spacer()
-                
                 Button(action: { sharedNoteData.clearFields() }){
                     HStack {
                         Image(systemName: "eraser.line.dashed")

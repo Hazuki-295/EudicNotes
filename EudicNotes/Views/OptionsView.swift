@@ -36,8 +36,7 @@ struct OptionsView: View {
 
 extension PreviewProvider {
     static func previewOptionsView() -> some View {
-        OptionsView()
-            .environmentObject(NoteData())
+        OptionsView().environmentObject(NoteData()).preferredColorScheme(.light) // Enforce light mode
     }
 }
 

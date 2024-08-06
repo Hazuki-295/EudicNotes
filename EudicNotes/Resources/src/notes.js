@@ -6,13 +6,12 @@ import './notes.css';
 
 const $ = require('jquery');
 
-const constructNotes = () => {
-    $(function () {
+(function () {
+    function constructNotes() {
         if (typeof noteDataArray === 'undefined') {
             console.error(`'noteDataArray' is not defined`);
             return;
         }
-        window.parent.noteDataArray = noteDataArray;
 
         const $noteContainer = $('.Hazuki-note');
         if (!$noteContainer.length) return;
@@ -21,7 +20,7 @@ const constructNotes = () => {
             $noteContainer.addClass('single-note-mode');
         }
 
-        // Construct Swiper container
+        // Construct Swiper
         const $swiper = $('<div>', { class: 'swiper' })
             .append($('<div>', { class: 'swiper-wrapper' }))
             .append($('<div>', { class: 'swiper-pagination' }))
@@ -29,7 +28,6 @@ const constructNotes = () => {
             .append($('<div>', { class: 'swiper-button-next' }));
         $noteContainer.append($swiper);
 
-        // Initialize Swiper
         const swiper = new Swiper('.swiper', {
             direction: 'horizontal',
             pagination: {
@@ -48,7 +46,7 @@ const constructNotes = () => {
             .use(require('markdown-it-bracketed-spans'));
 
         function replaceWithSpans(text) {
-            const pattern = /\[([^\[\]]+)]\{([^\}]+)\}/g;
+            const pattern = /\[([^\[\]]*)]\{([^\}]+)\}/g;
             let previousText;
             do {
                 previousText = text;
@@ -64,41 +62,68 @@ const constructNotes = () => {
             swiper.appendSlide(swiperSlide);
         });
 
+        function copyToClipboard(text) {
+            const $temp = $('<textarea>').val(text).appendTo('body').select();
+            document.execCommand('copy');
+            $temp.remove();
+        }
+
+        function addCopyEvent(labelElement, textToCopy) {
+            labelElement.css('cursor', 'pointer');
+            labelElement.on('click', () => {
+                copyToClipboard(textToCopy);
+                labelElement.css('cursor', 'default');
+                setTimeout(() => { labelElement.css('cursor', 'pointer'); }, 2000);
+            });
+        }
+
         function constructSingleNote(noteData) {
             const $container = $('<div>', { class: 'single-note' });
 
             let { source, originalText, wordPhrase, notes, tags } = noteData;
             let labelText;
 
-            // source
+            /* source */
             labelText = 'source';
             const $sourceBlock = $('<div>', { class: 'note-block', 'label': labelText }).appendTo($container);
-            const $sourceLabel = $(`<span class="label info"><i class="ic i-home"></i>${labelText}</span>`).appendTo($sourceBlock);
-            const $source = $(md.render(source)).appendTo($sourceBlock);
 
-            // original text
+            const $sourceLabel = $(`<span class="label info"><i class="ic i-home"></i>${labelText}</span>`).appendTo($sourceBlock);
+            addCopyEvent($sourceLabel, source);
+
+            const sourceParts = source.split('>').map(part => `<span>${part.trim()}</span>`);
+            const formattedSource = sourceParts.join('<i class="ic i-angle-right"></i>');
+            const $source = $(md.render(formattedSource)).appendTo($sourceBlock);
+            $source.find('span').last().addClass('current');
+
+            /* original text */
+            labelText = 'original text';
+            const $originalTextBlock = $('<div>', { class: 'note-block', 'label': labelText }).appendTo($container);
+
+            const $originalTextLabel = $(`<span class="label danger"><i class="ic i-feather"></i>${labelText}</span>`).appendTo($originalTextBlock);
+            addCopyEvent($originalTextLabel, originalText);
+
             if (wordPhrase) {
                 const regex = new RegExp(`\\b${wordPhrase}\\b`, 'gi');
                 originalText = originalText.replace(regex, match => `**${match}**{.blue}`);
             }
-            labelText = 'original text';
-            const $originalTextBlock = $('<div>', { class: 'note-block', 'label': labelText }).appendTo($container);
-            const $originalTextLabel = $(`<span class="label danger"><i class="ic i-feather"></i>${labelText}</span>`).appendTo($originalTextBlock);
-            const $content = $('<div>', { class: 'content', html: md.render(originalText) }).appendTo($originalTextBlock);
+            const $content = $('<div>', { class: 'md content', html: md.render(replaceWithSpans(originalText)) }).appendTo($originalTextBlock);
 
-            // notes
+            /* notes */
             if (notes) {
                 labelText = 'notes';
                 const $notesBlock = $('<div>', { class: 'note-block', 'label': labelText }).appendTo($container);
+
                 const $notesLabel = $(`<span class="label primary"><i class="ic i-sakura"></i>${labelText}</span>`).appendTo($notesBlock);
-                const $notes = $(md.render(replaceWithSpans(notes))).appendTo($notesBlock);
-                const $firstP = $notesBlock.find('p').first();
-                if ($firstP.find('.webtop, .shcut, .pv, .idm, .sense').length > 0) {
+                addCopyEvent($notesLabel, notes);
+
+                const $notes = $('<div>', { class: 'md notes', html: md.render(replaceWithSpans(notes)) }).appendTo($notesBlock);
+                const $firstP = $notes.find('p').first();
+                if ($firstP.find('.webtop, .shcut, .pv, .idm').length > 0) {
                     $firstP.css('display', 'inline');
                 }
             }
 
-            // tags
+            /* tags */
             if (tags) {
                 const $tagContainer = $('<div>', { class: 'tags' }).appendTo($container);
                 const classes = ['primary', 'info', 'success', 'warning', 'danger'];
@@ -116,6 +141,18 @@ const constructNotes = () => {
                 });
             }
 
+            // post-processing
+            $container.find('.quiz > ul.options li').each(function () {
+                const $this = $(this);
+                $this.on("click", function () {
+                    if ($this.hasClass("correct")) {
+                        $this.toggleClass("right");
+                    } else {
+                        $this.toggleClass("wrong");
+                    }
+                });
+            });
+
             return $container;
         }
 
@@ -126,16 +163,7 @@ const constructNotes = () => {
             swiper.slideTo(0);
             isVerticalView ? swiper.disable() : swiper.enable();
         });
+    };
 
-        // Extract the iframe element
-        const $iframe = $(window.frameElement);
-        $iframe.css({ width: '100%', border: 'none' });
-        $noteContainer.appendTo($iframe.parent());
-        $('style').each(function () {
-            $(this).appendTo($('head', window.parent.document));
-        });
-        $iframe.hide();
-    });
-};
-
-constructNotes();
+    constructNotes();
+})();

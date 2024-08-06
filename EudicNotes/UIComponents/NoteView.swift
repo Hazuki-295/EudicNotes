@@ -94,7 +94,7 @@ class NoteData: ObservableObject {
         wordPhrase = noteData.wordPhrase
         notes = noteData.notes
         tags = noteData.tags
-        noteHTMLContent = noteTemplateHTML
+        updataHTMLContentWithTemplate()
     }
     
     // Function to update properties from a dictionary
@@ -104,7 +104,7 @@ class NoteData: ObservableObject {
         wordPhrase = dictionary["wordPhrase"] ?? ""
         notes = dictionary["notes"] ?? ""
         tags = dictionary["tags"] ?? ""
-        noteHTMLContent = noteTemplateHTML
+        updataHTMLContentWithTemplate()
     }
     
     // History management
@@ -114,7 +114,7 @@ class NoteData: ObservableObject {
     init(useUserDefaults: Bool = true, histories: [[String: String]] = []) {
         self.historyManager = NoteDataHistoryManager(useUserDefaults: useUserDefaults, histories: histories)
         self.historyIndex = historyManager.latestHistoryIndex
-        self.webView.loadHTMLString(noteTemplateHTML, baseURL: URL(string: NoteData.prefix))
+        self.webView.loadHTMLString(noteTemplateHTML(), baseURL: URL(string: NoteData.prefix))
     }
     
     func saveToHistory() {
@@ -151,18 +151,34 @@ class NoteData: ObservableObject {
     
     // Generate HTML based on a list of NoteData
     static func constructNoteTemplateHTML(dictionaries: [[String: String]]) -> String {
-        // Serialize the array of dictionaries to JSON for embedding in the HTML
-        let jsonData = try! JSONSerialization.data(withJSONObject: dictionaries)
-        let jsonString = String(data: jsonData, encoding: .utf8)!
+        let jsonString = jsonify(dictionaries: dictionaries)
         
-        // Construct the HTML content
         return "<!DOCTYPE html>" +
         "<html><head>" +
-        "<script>const noteDataArray=\(jsonString);</script>" +
-        "<script src=\"\(NoteData.prefix)bundle.js\"></script>" +
+        "<script>const noteDataArray = JSON.parse(`\(jsonString)`);</script>" +
         "</head><body>" +
         "<div class=\"Hazuki-note\"></div>" +
+        "<script src=\"\(NoteData.prefix)bundle.js\"></script>" +
         "</body></html>"
+    }
+    
+    // Function to serialize the array of dictionaries to JSON
+    static func jsonify(dictionaries: [[String: String]]) -> String {
+        var escapedDictionaries = [[String: String]]()
+        
+        for dictionary in dictionaries {
+            var escapedDictionary = [String: String]()
+            for (key, value) in dictionary {
+                let escapedValue = value
+                    .replacingOccurrences(of: "\"", with: "\\\"")
+                    .replacingOccurrences(of: "\n", with: "\\n")
+                escapedDictionary[key] = escapedValue
+            }
+            escapedDictionaries.append(escapedDictionary)
+        }
+        
+        let jsonData = try! JSONSerialization.data(withJSONObject: escapedDictionaries)
+        return String(data: jsonData, encoding: .utf8)!
     }
     
     // Published property to hold the dynamically generated HTML content
@@ -170,33 +186,24 @@ class NoteData: ObservableObject {
     var webView: WKWebView = WKWebView()
     
     // Function to update the HTML content with the template
-    func updataHTMLContentWithTemplate() -> String {
-        noteHTMLContent = noteTemplateHTML
-        return noteHTMLContent
+    func updataHTMLContentWithTemplate() {
+        noteHTMLContent = noteTemplateHTML()
     }
     
-    // Computed property to get the template HTML using fields of current NoteData
-    var noteTemplateHTML: String {
-        NoteData.constructNoteTemplateHTML(dictionaries: [self.toDictionary()])
+    // Construct template HTML using fields of current NoteData
+    func noteTemplateHTML(useHistories: Bool = false) -> String {
+        let dictionaries = useHistories ? self.historyManager.histories : [self.toDictionary()]
+        return NoteData.constructNoteTemplateHTML(dictionaries: dictionaries)
     }
     
-    func noteTemplateHTMLIframe(useHistories: Bool = false) -> String {
-        var srcdoc = useHistories ? NoteData.constructNoteTemplateHTML(dictionaries: self.historyManager.histories) : noteTemplateHTML
-        srcdoc = srcdoc
-            .replacingOccurrences(of: "\"", with: "&quot;")
-        return #"<iframe class="Hazuki-note-iframe" srcdoc="\#(srcdoc)"></iframe>"#
+    // Construct JSON string using fields of current NoteData
+    func noteJSON(useHistories: Bool = false) -> String {
+        let dictionaries = useHistories ? self.historyManager.histories : [self.toDictionary()]
+        return NoteData.jsonify(dictionaries: dictionaries)
     }
     
     func clearFields() {
         self.updateWithDictionary([:])
-    }
-    
-    func clearLabels() {
-        wordPhrase = ""
-        originalText = originalText
-            .removePlusSign()
-            .removeAngleBrackets()
-            .removeSquareBrackets()
     }
 }
 
@@ -275,14 +282,6 @@ struct SingleNoteView: View {
                     Image(systemName: "doc.on.clipboard")
                     Text("Paste")
                 }
-                if combinedNoteData {
-                    Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.noteTemplateHTMLIframe(useHistories: true)) }) {
-                        HStack {
-                            Image(systemName: "list.clipboard")
-                            Text("Copy Template HTML")
-                        }
-                    }
-                }
                 if enableHistory {
                     Button(action: { noteData.loadFromHistory() }) {
                         Image(systemName: "arrowshape.turn.up.backward.2")
@@ -295,6 +294,20 @@ struct SingleNoteView: View {
                     Button(action: { noteData.deleteHistory() }) {
                         Image(systemName: "trash")
                         Text("Delete")
+                    }
+                }
+                if combinedNoteData {
+                    Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.noteTemplateHTML(useHistories: true)) }) {
+                        HStack {
+                            Image(systemName: "list.clipboard")
+                            Text("Copy Template HTML")
+                        }
+                    }
+                    Button(action: { ClipboardManager.copyToClipboard(textToCopy: noteData.noteJSON(useHistories: true)) }) {
+                        HStack {
+                            Image(systemName: "list.clipboard")
+                            Text("Copy JSON")
+                        }
                     }
                 }
                 Spacer()
@@ -312,10 +325,6 @@ struct SingleNoteView: View {
                     Button(action: { WKWebView.clearWebCache() }) {
                         Image(systemName: "eraser.line.dashed")
                         Text("Clear Web Cache")
-                    }
-                    Button(action: { noteData.clearFields() }) {
-                        Image(systemName: "eraser.line.dashed")
-                        Text("Clear")
                     }
                 }
             }
