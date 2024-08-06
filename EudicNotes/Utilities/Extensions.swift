@@ -8,41 +8,6 @@
 import Foundation
 import SwiftUI
 
-extension String {
-    func replacePattern(in input: String, withRegexPattern regexPattern: String, usingTemplate replacementTemplate: String, options regexOptions: NSRegularExpression.Options = []) -> String {
-        let regex = try! NSRegularExpression(pattern: regexPattern, options: regexOptions)
-        let nsRange = NSRange(input.startIndex..<input.endIndex, in: input)
-        return regex.stringByReplacingMatches(in: input, options: [], range: nsRange, withTemplate: replacementTemplate)
-    }
-    
-    func removePlusSign() -> String {
-        let pattern = #"\+([^+]*)\+"#
-        let template = "$1"
-        return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
-    }
-    
-    func removeSquareBrackets() -> String {
-        let pattern = #"\[([^]]*)\]"#
-        let template = "$1"
-        return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
-    }
-    
-    func removeAngleBrackets() -> String {
-        let pattern = "<([^>]*)>"
-        let template = "$1"
-        return replacePattern(in: self, withRegexPattern: pattern, usingTemplate: template)
-    }
-}
-
-extension Character {
-    // Check if the character is a CJK character
-    var isCJK: Bool {
-        return "\u{4E00}" <= self && self <= "\u{9FFF}" || // CJK Unified Ideographs
-        "\u{3000}" <= self && self <= "\u{303F}" || // CJK Symbols and Punctuation
-        "\u{FF00}" <= self && self <= "\u{FFEF}"    // Full-width ASCII + Half-width Katakana + Full-width symbols and punctuation
-    }
-}
-
 extension Color {
     init(hexString: String, opacity: Double = 1.0) {
         // Remove the hash if it exists
