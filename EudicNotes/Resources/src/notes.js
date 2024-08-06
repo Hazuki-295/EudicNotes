@@ -6,13 +6,12 @@ import './notes.css';
 
 const $ = require('jquery');
 
-const constructNotes = () => {
-    $(function () {
+(function () {
+    function constructNotes() {
         if (typeof noteDataArray === 'undefined') {
             console.error(`'noteDataArray' is not defined`);
             return;
         }
-        window.parent.noteDataArray = noteDataArray;
 
         const $noteContainer = $('.Hazuki-note');
         if (!$noteContainer.length) return;
@@ -21,7 +20,7 @@ const constructNotes = () => {
             $noteContainer.addClass('single-note-mode');
         }
 
-        // Construct Swiper container
+        // Construct Swiper
         const $swiper = $('<div>', { class: 'swiper' })
             .append($('<div>', { class: 'swiper-wrapper' }))
             .append($('<div>', { class: 'swiper-pagination' }))
@@ -29,7 +28,6 @@ const constructNotes = () => {
             .append($('<div>', { class: 'swiper-button-next' }));
         $noteContainer.append($swiper);
 
-        // Initialize Swiper
         const swiper = new Swiper('.swiper', {
             direction: 'horizontal',
             pagination: {
@@ -48,7 +46,7 @@ const constructNotes = () => {
             .use(require('markdown-it-bracketed-spans'));
 
         function replaceWithSpans(text) {
-            const pattern = /\[([^\[\]]+)]\{([^\}]+)\}/g;
+            const pattern = /\[([^\[\]]*)]\{([^\}]+)\}/g;
             let previousText;
             do {
                 previousText = text;
@@ -74,7 +72,10 @@ const constructNotes = () => {
             labelText = 'source';
             const $sourceBlock = $('<div>', { class: 'note-block', 'label': labelText }).appendTo($container);
             const $sourceLabel = $(`<span class="label info"><i class="ic i-home"></i>${labelText}</span>`).appendTo($sourceBlock);
-            const $source = $(md.render(source)).appendTo($sourceBlock);
+            const sourceParts = source.split('>').map(part => `<span>${part.trim()}</span>`);
+            const formattedSource = sourceParts.join('<i class="ic i-angle-right"></i>');
+            const $source = $(md.render(formattedSource)).appendTo($sourceBlock);
+            $source.find('span').last().addClass('current');
 
             // original text
             if (wordPhrase) {
@@ -126,16 +127,7 @@ const constructNotes = () => {
             swiper.slideTo(0);
             isVerticalView ? swiper.disable() : swiper.enable();
         });
+    };
 
-        // Extract the iframe element
-        const $iframe = $(window.frameElement);
-        $iframe.css({ width: '100%', border: 'none' });
-        $noteContainer.appendTo($iframe.parent());
-        $('style').each(function () {
-            $(this).appendTo($('head', window.parent.document));
-        });
-        $iframe.hide();
-    });
-};
-
-constructNotes();
+    constructNotes();
+})();

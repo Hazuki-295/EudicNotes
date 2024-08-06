@@ -25,6 +25,8 @@
     --color-blue: #35a3ff;
     --color-purple: #9d5b8b;
     --color-grey: #869194;
+    --color-red-a1: rgba(233, 84, 107, 0.1);
+    --color-red-a3: rgba(233, 84, 107, 0.3);
     --color-oald-red: #de002d;
     --color-oald-green: #007a6c;
     --color-oald-blue: #0072cf;
@@ -245,6 +247,25 @@
     line-height: 2rem;
 }
 
+.Hazuki-note .note-block[label="source"] p span.current {
+    display: inline-block;
+    color: var(--color-red);
+    background-color: var(--color-red-a1);
+    border-radius: 0.625rem;
+    padding: 0.25rem 0.625rem;
+    transition: background-color 0.2s ease-in-out 0s;
+    line-height: 1.4;
+}
+
+.Hazuki-note .note-block[label="source"] p span.current:hover {
+    background-color: var(--color-red-a3);
+}
+
+.Hazuki-note .note-block[label="source"] p .ic {
+    margin: 0 0.125rem;
+    color: var(--grey-4);
+}
+
 /* original text */
 .Hazuki-note .note-block[label="original text"] .content {
     font-family: Optima;
@@ -364,11 +385,12 @@
     font-family: Bookerly;
 }
 
-.Hazuki-note .sense, .Hazuki-note .comment {
+.Hazuki-note .sense {
     display: block;
+    line-height: 1.5;
 }
 
-.Hazuki-note .sense::before, .Hazuki-note .comment::before {
+.Hazuki-note .sense::before {
     display: inline-block;
     content: var(--content-text);
     font-size: 0.8em;
@@ -436,6 +458,11 @@
 
 .Hazuki-note .activ + .activ {
     padding-left: 0;
+}
+
+.Hazuki-note .grammar {
+    font-size: 0.9em;
+    color: seagreen;
 }
 
 .Hazuki-note .cf {
@@ -511,6 +538,7 @@
     background: rgba(0, 122, 108, .2);
     border-radius: 3px;
     padding: 0 2px;
+    line-height: var(--line-height-oald);
 }
 
 .Hazuki-note .tags {
@@ -533,17 +561,22 @@
     margin-right: 0.625rem;
 }
 
-.Hazuki-note .ic::before {
+.Hazuki-note .ic {
     font-family: "ic";
     font-style: normal;
     text-align: center;
     display: inline-block;
     width: 1.25em;
     margin: 0 0.2em;
+    line-height: 1;
 }
 
 .i-home:before {
     content: "\e8ed";
+}
+
+.i-angle-right:before {
+    content: "\ef1f";
 }
 
 .i-feather:before {
