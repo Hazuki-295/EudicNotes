@@ -12,6 +12,7 @@ struct EudicNotesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .preferredColorScheme(.light) // Enforce light mode
         }
         .windowResizability(.contentSize)
         .commands {
