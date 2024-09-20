@@ -13,7 +13,7 @@ class OptionsWindowController: NSObject, NSWindowDelegate {
     
     func openOptionsWindow(sharedNoteData: NoteData) {
         if optionsWindow == nil {
-            let optionsView = OptionsView().environmentObject(sharedNoteData)
+            let optionsView = OptionsView().environmentObject(sharedNoteData).preferredColorScheme(.light) // Enforce light mode
             let hostingController = NSHostingController(rootView: optionsView)
             optionsWindow = NSWindow(contentViewController: hostingController)
             optionsWindow?.title = "Options"

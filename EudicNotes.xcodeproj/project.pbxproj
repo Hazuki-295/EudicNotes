@@ -7,17 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B311B06E2BE87C740076E40D /* CustomWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B311B06D2BE87C740076E40D /* CustomWebView.swift */; };
-		B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */; };
+		B35BB2BC2BE6203B000EC9AA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35BB2BB2BE6203B000EC9AA /* Extensions.swift */; };
 		B37B26522B99DCD90072477F /* ComboBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26512B99DCD90072477F /* ComboBox.swift */; };
 		B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26532B99DF380072477F /* InputHistoryViewModel.swift */; };
 		B37B26562B9A05390072477F /* OptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26552B9A05390072477F /* OptionsView.swift */; };
 		B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */; };
 		B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B26592B9A263F0072477F /* ClipboardManager.swift */; };
+		B38E0E3B2C3AFBFC00A59F4C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E0E3A2C3AFBFC00A59F4C /* Logger.swift */; };
 		B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A860592B9B021800542E8D /* TrimPassageView.swift */; };
 		B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605B2B9B022700542E8D /* CombineNotesView.swift */; };
-		B3A8605E2B9B041F00542E8D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605D2B9B041F00542E8D /* MainView.swift */; };
 		B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */; };
+		B3E2E3892CF86B34006DD305 /* notes.bundle.js in Resources */ = {isa = PBXBuildFile; fileRef = B3E2E3882CF86B34006DD305 /* notes.bundle.js */; };
+		B3E659472C39779E00B9B26A /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659462C39779E00B9B26A /* WebView.swift */; };
+		B3E659492C3977D900B9B26A /* ServerStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E659482C3977D900B9B26A /* ServerStatusView.swift */; };
+		B3E6594B2C39CCD500B9B26A /* NoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3E6594A2C39CCD500B9B26A /* NoteView.swift */; };
 		B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */; };
 		B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3EDC42C2B98370B006894D1 /* ContentView.swift */; };
 		B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3EDC42E2B98370C006894D1 /* Assets.xcassets */; };
@@ -46,17 +49,20 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B311B06D2BE87C740076E40D /* CustomWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomWebView.swift; sourceTree = "<group>"; };
-		B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
+		B35BB2BB2BE6203B000EC9AA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		B37B26512B99DCD90072477F /* ComboBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboBox.swift; sourceTree = "<group>"; };
 		B37B26532B99DF380072477F /* InputHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputHistoryViewModel.swift; sourceTree = "<group>"; };
 		B37B26552B9A05390072477F /* OptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsView.swift; sourceTree = "<group>"; };
 		B37B26572B9A0B0E0072477F /* OptionsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionsWindowController.swift; sourceTree = "<group>"; };
 		B37B26592B9A263F0072477F /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardManager.swift; sourceTree = "<group>"; };
+		B38E0E3A2C3AFBFC00A59F4C /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		B3A860592B9B021800542E8D /* TrimPassageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrimPassageView.swift; sourceTree = "<group>"; };
 		B3A8605B2B9B022700542E8D /* CombineNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineNotesView.swift; sourceTree = "<group>"; };
-		B3A8605D2B9B041F00542E8D /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
+		B3E2E3882CF86B34006DD305 /* notes.bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = notes.bundle.js; path = "/Users/luosheng/Library/Containers/6E3AF2B6-1E38-47E7-833A-06D65983C594/Data/Documents/Dicts/Dictionary/01. 精装牛津十/Hazuki-note/dist/notes.bundle.js"; sourceTree = "<absolute>"; };
+		B3E659462C39779E00B9B26A /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		B3E659482C3977D900B9B26A /* ServerStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerStatusView.swift; sourceTree = "<group>"; };
+		B3E6594A2C39CCD500B9B26A /* NoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteView.swift; sourceTree = "<group>"; };
 		B3EDC4272B98370B006894D1 /* EudicNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EudicNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3EDC42A2B98370B006894D1 /* EudicNotesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EudicNotesApp.swift; sourceTree = "<group>"; };
 		B3EDC42C2B98370B006894D1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -96,15 +102,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B32C72232C366C3300DD296A /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B3E2E3882CF86B34006DD305 /* notes.bundle.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		B37B26612B9A55C80072477F /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				B3EDC42C2B98370B006894D1 /* ContentView.swift */,
-				B3A8605D2B9B041F00542E8D /* MainView.swift */,
 				B37B26552B9A05390072477F /* OptionsView.swift */,
-				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
-				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
-				B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */,
+				B3E659442C39143000B9B26A /* OptionsView */,
+				B3E659452C39778800B9B26A /* WebView */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -113,7 +125,8 @@
 			isa = PBXGroup;
 			children = (
 				B37B26592B9A263F0072477F /* ClipboardManager.swift */,
-				B35BB2BB2BE6203B000EC9AA /* StringExtensions.swift */,
+				B35BB2BB2BE6203B000EC9AA /* Extensions.swift */,
+				B38E0E3A2C3AFBFC00A59F4C /* Logger.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -139,7 +152,7 @@
 			children = (
 				B37B26512B99DCD90072477F /* ComboBox.swift */,
 				B3A8605F2B9B0CDD00542E8D /* CustomTextEditor.swift */,
-				B311B06D2BE87C740076E40D /* CustomWebView.swift */,
+				B3E6594A2C39CCD500B9B26A /* NoteView.swift */,
 			);
 			path = UIComponents;
 			sourceTree = "<group>";
@@ -149,6 +162,25 @@
 			children = (
 			);
 			path = Scripts;
+			sourceTree = "<group>";
+		};
+		B3E659442C39143000B9B26A /* OptionsView */ = {
+			isa = PBXGroup;
+			children = (
+				B3FC8A702C182457002DBB49 /* NlpAnnotatorsView.swift */,
+				B3A8605B2B9B022700542E8D /* CombineNotesView.swift */,
+				B3A860592B9B021800542E8D /* TrimPassageView.swift */,
+			);
+			path = OptionsView;
+			sourceTree = "<group>";
+		};
+		B3E659452C39778800B9B26A /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				B3E659462C39779E00B9B26A /* WebView.swift */,
+				B3E659482C3977D900B9B26A /* ServerStatusView.swift */,
+			);
+			path = WebView;
 			sourceTree = "<group>";
 		};
 		B3EDC41E2B98370B006894D1 = {
@@ -174,6 +206,7 @@
 		B3EDC4292B98370B006894D1 /* EudicNotes */ = {
 			isa = PBXGroup;
 			children = (
+				B32C72232C366C3300DD296A /* Resources */,
 				B3DE6E672C19788400BA601C /* Scripts */,
 				B3EDC42E2B98370C006894D1 /* Assets.xcassets */,
 				B3EDC4332B98370C006894D1 /* EudicNotes.entitlements */,
@@ -277,7 +310,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1520;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					B3EDC4262B98370B006894D1 = {
 						CreatedOnToolsVersion = 15.2;
@@ -317,6 +350,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3E2E3892CF86B34006DD305 /* notes.bundle.js in Resources */,
 				B3EDC4322B98370C006894D1 /* Preview Assets.xcassets in Resources */,
 				B3EDC42F2B98370C006894D1 /* Assets.xcassets in Resources */,
 			);
@@ -343,18 +377,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B35BB2BC2BE6203B000EC9AA /* StringExtensions.swift in Sources */,
+				B35BB2BC2BE6203B000EC9AA /* Extensions.swift in Sources */,
 				B3A8605C2B9B022700542E8D /* CombineNotesView.swift in Sources */,
+				B3E659472C39779E00B9B26A /* WebView.swift in Sources */,
 				B37B26582B9A0B0E0072477F /* OptionsWindowController.swift in Sources */,
 				B37B26542B99DF380072477F /* InputHistoryViewModel.swift in Sources */,
-				B3A8605E2B9B041F00542E8D /* MainView.swift in Sources */,
+				B3E6594B2C39CCD500B9B26A /* NoteView.swift in Sources */,
 				B3EDC42D2B98370B006894D1 /* ContentView.swift in Sources */,
+				B38E0E3B2C3AFBFC00A59F4C /* Logger.swift in Sources */,
 				B3A8605A2B9B021800542E8D /* TrimPassageView.swift in Sources */,
 				B3EDC42B2B98370B006894D1 /* EudicNotesApp.swift in Sources */,
 				B37B26562B9A05390072477F /* OptionsView.swift in Sources */,
 				B37B26522B99DCD90072477F /* ComboBox.swift in Sources */,
 				B3FC8A712C182457002DBB49 /* NlpAnnotatorsView.swift in Sources */,
-				B311B06E2BE87C740076E40D /* CustomWebView.swift in Sources */,
+				B3E659492C3977D900B9B26A /* ServerStatusView.swift in Sources */,
 				B3A860602B9B0CDD00542E8D /* CustomTextEditor.swift in Sources */,
 				B37B265A2B9A263F0072477F /* ClipboardManager.swift in Sources */,
 			);
@@ -427,6 +463,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -490,6 +527,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -520,7 +558,8 @@
 				CODE_SIGN_ENTITLEMENTS = EudicNotes/EudicNotes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = v2.0.1;
+				CURRENT_PROJECT_VERSION = v3.0.0;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"EudicNotes/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -530,7 +569,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hazuki.EudicNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -547,7 +586,8 @@
 				CODE_SIGN_ENTITLEMENTS = EudicNotes/EudicNotes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = v2.0.1;
+				CURRENT_PROJECT_VERSION = v3.0.0;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"EudicNotes/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -557,7 +597,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hazuki.EudicNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -572,6 +612,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
@@ -590,6 +631,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.2;
 				MARKETING_VERSION = 1.0;
@@ -607,6 +649,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hazuki.EudicNotesUITests;
@@ -623,6 +666,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hazuki.EudicNotesUITests;
