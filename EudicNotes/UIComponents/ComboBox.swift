@@ -8,38 +8,31 @@
 import SwiftUI
 
 struct ComboBox: View {
+    let label: String
     @Binding var text: String
     let options: [String]
-    let label: String
     
     @State private var isPickerVisible = false
     
     var body: some View {
         HStack {
-            ZStack {
-                HStack{
-                    Text("\(label):")
-                    TextField("Enter \(label)", text: $text)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                .opacity(isPickerVisible ? 0 : 1)
-                
+            if isPickerVisible {
                 Picker("\(label):", selection: $text) {
                     Text("None").tag("")
                     ForEach(options, id: \.self) { option in
                         Text(option).tag(option)
                     }
                 }
-                .pickerStyle(MenuPickerStyle())
-                .opacity(isPickerVisible ? 1 : 0)
-                .onChange(of: text) {
-                    withAnimation {
-                        isPickerVisible = false
-                    }
-                }
+                .onChange(of: text) { withAnimation { isPickerVisible = false } }
+                .frame(height: 20)
+            } else {
+                Text("\(label):")
+                TextField("Enter \(label)", text: $text)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(height: 20)
             }
             
-            Button(action: {withAnimation {isPickerVisible.toggle()}}) {
+            Button(action: { withAnimation { isPickerVisible.toggle() } }) {
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(isPickerVisible ? 180 : 0))
             }
